@@ -1,10 +1,10 @@
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {nextPlugin} from '@genkit-ai/next';
+import nextPlugin from '@genkit-ai/next'; // Attempting to use a default import
 
 export const ai = genkit({
   plugins: [
-    nextPlugin(), // Initialize Next.js plugin first
+    nextPlugin(), // Using the presumed default export
     googleAI(),
   ],
   model: 'googleai/gemini-2.0-flash',
