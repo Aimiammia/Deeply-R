@@ -8,7 +8,7 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  // CalendarDays, // Removed for Section 4
+  CalendarDays, // Restored for Section 4
   Target,
   Dumbbell,
   BookOpen,
@@ -23,7 +23,7 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  Award,            // Placeholder for removed Section 4, effectively skipped
+  CalendarDays,     // Section 4 (Calendar and Events) - Restored Icon
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
@@ -33,26 +33,16 @@ const sectionIcons: LucideIcon[] = [
 ];
 
 export default function HomePage() {
-  // Original sections 1-10, we will filter out section 4 before mapping
   const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
-  const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4);
-
-  // Adjust icon mapping if section 4 is removed and we want to keep icons aligned with remaining sections.
-  // Or, more simply, ensure the sectionIcons array is indexed correctly based on the original section numbers.
-  // The current approach uses sectionNumber - 1, so if section 4's icon is a placeholder, it's skipped.
+  // const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4); // Removed filter to display all sections
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sectionsToDisplay.map((sectionNumber) => {
-            // sectionIcons is 0-indexed, sectionNumber is 1-indexed
-            // If section 4 is removed, ensure icon indexing remains correct for subsequent sections
-            // or use a mapping if icon array length changes.
-            // Current logic: sectionIcons[sectionNumber - 1] should correctly skip the placeholder
-            // if the icon array is structured with section 4's icon as a placeholder.
-            const IconComponent = sectionIcons[sectionNumber - 1] || Award; // Default to Award icon
+          {allSectionNumbers.map((sectionNumber) => { // Changed to allSectionNumbers
+            const IconComponent = sectionIcons[sectionNumber - 1] || Award;
 
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
@@ -70,6 +60,10 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
+            } else if (sectionNumber === 4) { // Added specific content for Section 4
+              sectionTitle = "تقویم و رویدادها";
+              sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
+              sectionContent = "رویدادهای مهم خود را در تقویم شمسی ثبت و پیگیری کنید.";
             } else if (sectionNumber === 5) {
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
