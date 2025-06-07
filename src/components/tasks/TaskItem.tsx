@@ -11,6 +11,17 @@ import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TaskItemProps {
   task: Task;
@@ -107,9 +118,27 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
             </Button>
           </>
         )}
-        <Button variant="ghost" size="icon" onClick={() => onDeleteTask(task.id)} aria-label="حذف وظیفه">
-          <Trash2 className="h-5 w-5 text-red-600" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="حذف وظیفه">
+              <Trash2 className="h-5 w-5 text-red-600" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent dir="rtl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>تایید حذف وظیفه</AlertDialogTitle>
+              <AlertDialogDescription>
+                آیا از حذف وظیفه "{task.title}" مطمئن هستید؟ این عمل قابل بازگشت نیست.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>لغو</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDeleteTask(task.id)} className={cn(buttonVariants({ variant: "destructive" }))}>
+                حذف وظیفه
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       
       {(task.dueDate || task.priority || task.category) && (

@@ -5,7 +5,7 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button'; // Imported buttonVariants
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import type { Task } from '@/types';
@@ -14,10 +14,10 @@ import { TaskList } from '@/components/tasks/TaskList';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
+import { cn } from '@/lib/utils'; // Imported cn
 
 export default function Section1Page() {
   const params = useParams();
-  // const sectionId = params.sectionId as string; // Not used directly in this page anymore for title
   const { toast } = useToast();
 
   const sectionTitle = "برنامه‌ریز روزانه شما";
@@ -67,11 +67,23 @@ export default function Section1Page() {
   };
 
   const handleToggleComplete = (id: string) => {
+    let taskTitle = "";
+    let isCompleted = false;
     setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+      prevTasks.map(task => {
+        if (task.id === id) {
+          taskTitle = task.title;
+          isCompleted = !task.completed;
+          return { ...task, completed: isCompleted };
+        }
+        return task;
+      })
     );
+    toast({
+      title: isCompleted ? "وظیفه انجام شد" : "وظیفه باز شد",
+      description: `"${taskTitle}" ${isCompleted ? 'با موفقیت انجام شد.' : 'مجدداً باز شد.'}`,
+      variant: "default",
+    });
   };
 
   const handleDeleteTask = (id: string) => {
@@ -118,7 +130,7 @@ export default function Section1Page() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 p-4 rounded-md border bg-accent/10 shadow-sm">
+            <div className="mb-6 p-4 rounded-md border bg-blue-50 dark:bg-blue-900/20 shadow-sm">
               <DailyPromptDisplay prompt={currentSuccessQuote} />
             </div>
             <CreateTaskForm onAddTask={handleAddTask} />
