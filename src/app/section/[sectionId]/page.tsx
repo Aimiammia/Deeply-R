@@ -14,8 +14,8 @@ interface SectionPageProps {
 }
 
 export default function SectionPage({}: SectionPageProps) {
-  const params = useParams();
-  const sectionId = params.sectionId as string;
+  const params = useParams<{ sectionId: string }>(); // Explicitly type useParams
+  const sectionId = params.sectionId; // No longer need 'as string' if sectionId is guaranteed in type
 
   const isTasksSection = sectionId === '1';
   const sectionTitle = isTasksSection ? "وظایف" : `بخش ${sectionId}`;
@@ -71,3 +71,4 @@ export default function SectionPage({}: SectionPageProps) {
 //   const sections = Array.from({ length: 10 }, (_, i) => ({ sectionId: (i + 1).toString() }));
 //   return sections;
 // }
+
