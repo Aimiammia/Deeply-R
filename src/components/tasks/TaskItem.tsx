@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button'; // Added buttonVariants
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -141,28 +141,38 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
         </AlertDialog>
       </div>
       
-      {(task.dueDate || task.priority || task.category) && (
-        <div className="pl-10 rtl:pr-10 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
-          {task.dueDate && (
-            <div className="flex items-center">
-              <CalendarDays className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
-              <span>سررسید: {format(parseISO(task.dueDate), "PPP", { locale: faIR })}</span>
-            </div>
-          )}
-          {task.priority && (
-            <div className="flex items-center">
-               <AlertTriangle className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
-              <span>اهمیت:</span> <Badge variant={getPriorityBadgeVariant(task.priority)} className="mr-1 text-xs px-1.5 py-0.5">{getPriorityText(task.priority)}</Badge>
-            </div>
-          )}
-          {task.category && (
-            <div className="flex items-center">
-              <Tag className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
-              <span>دسته‌بندی:</span> <Badge variant="outline" className="mr-1 text-xs px-1.5 py-0.5">{task.category}</Badge>
-            </div>
-          )}
-        </div>
-      )}
+      <div className="pl-10 rtl:pr-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+        {task.dueDate && (
+          <div className="flex items-center">
+            <CalendarDays className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+            <span>سررسید: {format(parseISO(task.dueDate), "PPP", { locale: faIR })}</span>
+          </div>
+        )}
+        {task.priority && (
+          <div className="flex items-center">
+            <AlertTriangle className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+            <span>اهمیت:</span> <Badge variant={getPriorityBadgeVariant(task.priority)} className="mr-1 text-xs px-1.5 py-0.5">{getPriorityText(task.priority)}</Badge>
+          </div>
+        )}
+        {task.category && (
+          <div className="flex items-center">
+            <Tag className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+            <span>دسته‌بندی:</span> <Badge variant="outline" className="mr-1 text-xs px-1.5 py-0.5">{task.category}</Badge>
+          </div>
+        )}
+        {task.category === 'درس' && task.subjectName && (
+          <div className="flex items-center text-primary">
+            <BookCopy className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+            <span>{task.subjectName}</span>
+            {task.startChapter && task.endChapter && (
+              <span className="mr-1 rtl:ml-1 rtl:mr-0">(فصل {task.startChapter} تا {task.endChapter})</span>
+            )}
+             {task.startChapter && !task.endChapter && (
+              <span className="mr-1 rtl:ml-1 rtl:mr-0">(فصل {task.startChapter})</span>
+            )}
+          </div>
+        )}
+      </div>
     </li>
   );
 }

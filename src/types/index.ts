@@ -8,6 +8,11 @@ export interface Task {
   dueDate?: string | null; // ISO date string, optional
   priority?: 'low' | 'medium' | 'high' | null; // Optional
   category?: string | null; // Optional
+  subjectId?: string | null; // e.g., "math_h10" from educational-data.ts
+  subjectName?: string | null; // e.g., "ریاضی دهم"
+  startChapter?: number | null;
+  endChapter?: number | null;
+  educationalLevelContext?: string | null; // Educational level value at time of task creation e.g. "high_10"
 }
 
 export interface ReflectionEntry {
@@ -73,6 +78,10 @@ export interface CalendarEvent {
 }
 
 // Educational settings are stored in localStorage directly in the component
-// No specific type needed here unless we centralize it more later.
-
+// Type for educational level confirmation in localStorage
+export interface EducationalLevelStorage {
+    levelValue: string;
+    isConfirmed: boolean;
+    lastPromotionCheckDate: string; // ISO Date string
+}
     

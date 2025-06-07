@@ -1,19 +1,31 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucide-react'; // Changed Tag to CategoryIcon for clarity
+import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types';
+import { educationalSubjects, type Subject as EducationalSubject } from '@/lib/educational-data';
 
 interface CreateTaskFormProps {
-  onAddTask: (title: string, dueDate?: Date | null, priority?: Task['priority'], category?: string | null) => void;
+  onAddTask: (
+    title: string, 
+    dueDate?: Date | null, 
+    priority?: Task['priority'], 
+    category?: string | null,
+    subjectId?: string | null,
+    subjectName?: string | null,
+    startChapter?: number | null,
+    endChapter?: number | null,
+    educationalLevelContext?: string | null
+  ) => void;
 }
 
 const predefinedCategories = [
@@ -23,7 +35,7 @@ const predefinedCategories = [
   { value: 'مطالعه', label: 'مطالعه' },
   { value: 'ورزش', label: 'ورزش' },
   { value: 'پروژه', label: 'پروژه' },
-  { value: 'درس', label: 'درس' },
+  { value: 'درس', label: 'درس' }, // Added "درس" category
   { value: 'متفرقه', label: 'متفرقه' },
 ];
 
@@ -31,26 +43,85 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [priority, setPriority] = useState<Task['priority'] | undefined>(undefined);
-  const [category, setCategory] = useState<string | undefined>(undefined); // Changed to string | undefined
+  const [category, setCategory] = useState<string | undefined>(undefined);
+
+  // State for educational task details
+  const [userEducationalLevel, setUserEducationalLevel] = useState<string | null>(null);
+  const [isLevelConfirmed, setIsLevelConfirmed] = useState<boolean>(false);
+  const [availableSubjects, setAvailableSubjects] = useState<EducationalSubject[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<EducationalSubject | null>(null);
+  const [startChapter, setStartChapter] = useState<number | ''>('');
+  const [endChapter, setEndChapter] = useState<number | ''>('');
+
+  useEffect(() => {
+    // Load educational level from localStorage
+    const storedLevel = localStorage.getItem('educationalLevel');
+    const storedConfirmed = localStorage.getItem('isEducationalLevelConfirmed');
+    if (storedLevel) {
+      setUserEducationalLevel(storedLevel);
+    }
+    if (storedConfirmed) {
+      setIsLevelConfirmed(storedConfirmed === 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (category === 'درس' && userEducationalLevel && isLevelConfirmed) {
+      setAvailableSubjects(educationalSubjects[userEducationalLevel] || []);
+    } else {
+      setAvailableSubjects([]);
+      setSelectedSubject(null);
+      setStartChapter('');
+      setEndChapter('');
+    }
+  }, [category, userEducationalLevel, isLevelConfirmed]);
+
+  const handleSubjectChange = (subjectId: string) => {
+    const subject = availableSubjects.find(s => s.id === subjectId);
+    setSelectedSubject(subject || null);
+    setStartChapter(''); // Reset chapters when subject changes
+    setEndChapter('');
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAddTask(title.trim(), dueDate ?? null, priority ?? null, category || null); // Pass category or null
+      if (category === 'درس' && selectedSubject) {
+        onAddTask(
+          title.trim(), 
+          dueDate ?? null, 
+          priority ?? null, 
+          category || null,
+          selectedSubject.id,
+          selectedSubject.name,
+          startChapter !== '' ? Number(startChapter) : null,
+          endChapter !== '' ? Number(endChapter) : null,
+          userEducationalLevel
+        );
+      } else {
+        onAddTask(title.trim(), dueDate ?? null, priority ?? null, category || null);
+      }
+      
+      // Reset common fields
       setTitle('');
       setDueDate(undefined);
       setPriority(undefined);
-      setCategory(undefined); // Reset category
+      setCategory(undefined);
+      // Reset educational fields (will also be reset by useEffect if category changes)
+      setSelectedSubject(null);
+      setStartChapter('');
+      setEndChapter('');
+      setAvailableSubjects([]);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+    <form onSubmit={handleSubmit} className="space-y-4 mb-6 p-4 border rounded-lg shadow bg-card">
       <Input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="مثلاً: خرید شیر..."
+        placeholder="مثلاً: انجام تمرینات فصل ۳ ریاضی..."
         className="flex-grow text-base"
         aria-label="عنوان وظیفه جدید"
         required
@@ -61,7 +132,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
             <Button
               variant={"outline"}
               className={cn(
-                "w-full sm:w-[200px] justify-start text-left font-normal",
+                "w-full sm:flex-1 justify-start text-left font-normal",
                 !dueDate && "text-muted-foreground"
               )}
             >
@@ -75,12 +146,13 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
               selected={dueDate}
               onSelect={setDueDate}
               initialFocus
+              dir="rtl"
             />
           </PopoverContent>
         </Popover>
 
         <Select value={priority || ''} onValueChange={(value) => setPriority(value as Task['priority'])}>
-          <SelectTrigger className="w-full sm:w-[180px]" aria-label="میزان اهمیت وظیفه">
+          <SelectTrigger className="w-full sm:flex-1" aria-label="میزان اهمیت وظیفه">
             <SelectValue placeholder="میزان اهمیت" />
           </SelectTrigger>
           <SelectContent>
@@ -91,7 +163,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
         </Select>
 
         <Select value={category || ''} onValueChange={(value) => setCategory(value === 'none' ? undefined : value)}>
-          <SelectTrigger className="w-full sm:w-[180px]" aria-label="دسته‌بندی وظیفه">
+          <SelectTrigger className="w-full sm:flex-1" aria-label="دسته‌بندی وظیفه">
             <CategoryIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
             <SelectValue placeholder="انتخاب دسته‌بندی" />
           </SelectTrigger>
@@ -103,6 +175,67 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
           </SelectContent>
         </Select>
       </div>
+
+      {category === 'درس' && isLevelConfirmed && userEducationalLevel && (
+        <div className="space-y-4 p-3 border rounded-md bg-secondary/30">
+          <h4 className="text-sm font-semibold text-primary flex items-center">
+            <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+            جزئیات درس
+          </h4>
+          {!userEducationalLevel && <p className="text-xs text-muted-foreground">ابتدا مقطع تحصیلی خود را در بخش "تحصیل" مشخص و تایید کنید.</p>}
+          {userEducationalLevel && availableSubjects.length === 0 && <p className="text-xs text-muted-foreground">درسی برای مقطع "{userEducationalLevel}" تعریف نشده است. (می‌توانید لیست دروس را در `src/lib/educational-data.ts` تکمیل کنید)</p>}
+          
+          {availableSubjects.length > 0 && (
+            <>
+              <div>
+                <Label htmlFor="subjectSelect" className="mb-1 block text-xs">انتخاب درس</Label>
+                <Select value={selectedSubject?.id || ''} onValueChange={handleSubjectChange}>
+                  <SelectTrigger id="subjectSelect" className="w-full" aria-label="انتخاب درس">
+                    <SelectValue placeholder="درس را انتخاب کنید..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSubjects.map(subj => (
+                      <SelectItem key={subj.id} value={subj.id}>{subj.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedSubject && (
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Label htmlFor="startChapter" className="mb-1 block text-xs">از فصل</Label>
+                    <Input
+                      id="startChapter"
+                      type="number"
+                      value={startChapter}
+                      onChange={(e) => setStartChapter(parseInt(e.target.value) || '')}
+                      placeholder="مثلا: ۱"
+                      min="1"
+                      max={selectedSubject.totalChapters}
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="endChapter" className="mb-1 block text-xs">تا فصل (کل فصل‌ها: {selectedSubject.totalChapters})</Label>
+                    <Input
+                      id="endChapter"
+                      type="number"
+                      value={endChapter}
+                      onChange={(e) => setEndChapter(parseInt(e.target.value) || '')}
+                      placeholder={`مثلا: ${selectedSubject.totalChapters}`}
+                      min={startChapter || 1}
+                      max={selectedSubject.totalChapters}
+                      className="text-sm"
+                      disabled={!startChapter}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
       
       <Button type="submit" disabled={!title.trim()} className="w-full">
         <PlusCircle className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />

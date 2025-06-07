@@ -49,7 +49,17 @@ export default function PlannerLandingPage() {
     }
   }, [tasks, isInitialLoadComplete]);
 
-  const handleAddTask = (title: string, dueDate?: Date | null, priority?: Task['priority'], category?: string | null) => {
+  const handleAddTask = (
+    title: string, 
+    dueDate?: Date | null, 
+    priority?: Task['priority'], 
+    category?: string | null,
+    subjectId?: string | null,
+    subjectName?: string | null,
+    startChapter?: number | null,
+    endChapter?: number | null,
+    educationalLevelContext?: string | null
+  ) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title,
@@ -58,6 +68,11 @@ export default function PlannerLandingPage() {
       dueDate: dueDate ? dueDate.toISOString() : null,
       priority: priority || null,
       category: category || null,
+      subjectId: subjectId || null,
+      subjectName: subjectName || null,
+      startChapter: startChapter || null,
+      endChapter: endChapter || null,
+      educationalLevelContext: educationalLevelContext || null,
     };
     setTasks(prevTasks => [newTask, ...prevTasks]);
     toast({
