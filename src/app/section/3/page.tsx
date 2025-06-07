@@ -6,11 +6,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import Link from 'next/link';
 import { ArrowLeft, CircleDollarSign, Landmark, Wallet, CreditCard, PiggyBank, TrendingUp, TrendingDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useState, useEffect } from 'react';
 
 export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
   const sectionPageDescription = "هزینه‌ها، درآمدها و بودجه خود را در اینجا پیگیری و مدیریت کنید.";
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const sampleChartData = [
+    { name: 'فروردین', درآمد: 4000000, هزینه: 2400000 },
+    { name: 'اردیبهشت', درآمد: 3000000, هزینه: 1398000 },
+    { name: 'خرداد', درآمد: 2000000, هزینه: 9800000 },
+    { name: 'تیر', درآمد: 2780000, هزینه: 3908000 },
+    { name: 'مرداد', درآمد: 1890000, هزینه: 4800000 },
+    { name: 'شهریور', درآمد: 2390000, هزینه: 3800000 },
+  ];
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('fa-IR').format(value);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -40,28 +60,26 @@ export default function FinancialManagementPage() {
               <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center text-foreground">
-                    <TrendingUp className="mr-2 h-5 w-5 text-green-500 rtl:ml-2 rtl:mr-0" />
+                    <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                     ثبت درآمد
                   </CardTitle>
                   <CardDescription>درآمدهای خود را اینجا وارد کنید.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button className="w-full">افزودن درآمد جدید</Button>
-                  {/* Placeholder for income form or list */}
+                  <p className="text-muted-foreground text-sm">فرم و لیست درآمدها در اینجا نمایش داده خواهد شد.</p>
                 </CardContent>
               </Card>
 
               <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center text-foreground">
-                    <TrendingDown className="mr-2 h-5 w-5 text-red-500 rtl:ml-2 rtl:mr-0" />
+                    <TrendingDown className="mr-2 h-5 w-5 text-destructive rtl:ml-2 rtl:mr-0" />
                     ثبت هزینه
                   </CardTitle>
                   <CardDescription>هزینه‌های خود را اینجا وارد کنید.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button className="w-full">افزودن هزینه جدید</Button>
-                  {/* Placeholder for expense form or list */}
+                  <p className="text-muted-foreground text-sm">فرم و لیست هزینه‌ها در اینجا نمایش داده خواهد شد.</p>
                 </CardContent>
               </Card>
             </div>
@@ -76,7 +94,6 @@ export default function FinancialManagementPage() {
               </CardHeader>
               <CardContent>
                  <p className="text-muted-foreground">قابلیت بودجه‌بندی به زودی اضافه خواهد شد.</p>
-                {/* Placeholder for budgeting tools */}
               </CardContent>
             </Card>
 
@@ -90,21 +107,62 @@ export default function FinancialManagementPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">قابلیت اهداف پس‌انداز به زودی اضافه خواهد شد.</p>
-                {/* Placeholder for savings goals */}
               </CardContent>
             </Card>
             
-            <div className="mt-8 p-4 border rounded-lg bg-secondary/30 text-center">
-              <Image 
-                src="https://placehold.co/600x300.png" 
-                alt="Financial Chart Placeholder" 
-                width={600} 
-                height={300}
-                className="rounded-md mx-auto mb-4 shadow-md"
-                data-ai-hint="financial chart graph"
-              />
-              <p className="text-muted-foreground text-sm">
-                نمودارها و گزارشات مالی به زودی در اینجا نمایش داده خواهند شد تا به شما درک بهتری از وضعیت مالی‌تان بدهند.
+            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
+              <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار نمونه درآمد و هزینه (به تومان)</h4>
+              {isClient ? (
+                <div style={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer>
+                    <BarChart
+                      data={sampleChartData}
+                      margin={{
+                        top: 5,
+                        right: 5,
+                        left: 30, // Increased left margin for Y-axis labels
+                        bottom: 70, // Increased bottom margin for angled X-axis labels
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis 
+                        dataKey="name" 
+                        angle={-45} 
+                        textAnchor="end" 
+                        height={50} 
+                        interval={0} 
+                        tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                        stroke="hsl(var(--foreground))"
+                      />
+                      <YAxis 
+                        tickFormatter={formatCurrency} 
+                        tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                        stroke="hsl(var(--foreground))"
+                      />
+                      <Tooltip
+                        formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name]}
+                        wrapperClassName="rounded-md shadow-lg !bg-popover !border-border"
+                        contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}}
+                        itemStyle={{color: 'hsl(var(--popover-foreground))'}}
+                        labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}}
+                        cursor={{fill: 'hsl(var(--muted))'}}
+                      />
+                      <Legend 
+                        formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value}</span>} 
+                        wrapperStyle={{direction: 'rtl', paddingTop: '10px'}}
+                      />
+                      <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
+                      <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
+                  در حال بارگذاری نمودار...
+                </div>
+              )}
+              <p className="text-muted-foreground text-sm mt-4 text-center">
+                این یک نمودار نمونه است. قابلیت‌های کامل گزارش‌گیری مالی به زودی اضافه خواهد شد.
               </p>
             </div>
 
@@ -117,3 +175,5 @@ export default function FinancialManagementPage() {
     </div>
   );
 }
+
+    
