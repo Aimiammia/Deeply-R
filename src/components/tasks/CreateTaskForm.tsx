@@ -23,6 +23,7 @@ const predefinedCategories = [
   { value: 'مطالعه', label: 'مطالعه' },
   { value: 'ورزش', label: 'ورزش' },
   { value: 'پروژه', label: 'پروژه' },
+  { value: 'درس', label: 'درس' },
   { value: 'متفرقه', label: 'متفرقه' },
 ];
 
