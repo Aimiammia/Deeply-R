@@ -11,6 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { faIR } from 'date-fns/locale'; // Corrected import
 import { cn } from '@/lib/utils';
 import type { FinancialTransaction } from '@/types';
 
@@ -121,7 +122,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
                 )}
               >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {date ? format(date, "PPP", { locale: require('date-fns/locale/fa-IR') }) : <span>انتخاب تاریخ</span>}
+                {date ? format(date, "PPP", { locale: faIR }) : <span>انتخاب تاریخ</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
