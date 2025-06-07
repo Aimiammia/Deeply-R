@@ -16,7 +16,7 @@ const ModernCalendar = dynamic(
   () => import('react-modern-calendar-datepicker').then(mod => mod.default),
   {
     ssr: false,
-    loading: () => null // Simplified loading state, can be a Skeleton or a message
+    loading: () => <div /> // Simplified loading state to a basic div
   }
 );
 
@@ -51,22 +51,21 @@ export default function CalendarPage() {
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
               <div className="flex justify-center">
-                {ModernCalendar && ( // Check if ModernCalendar is loaded before rendering
-                  <ModernCalendar
-                    value={selectedDay}
-                    onChange={setSelectedDay}
-                    locale="fa" // Set locale to Persian (Jalali)
-                    shouldHighlightWeekends
-                    calendarClassName="responsive-calendar" // Optional: for custom styling
-                  />
-                )}
+                {/* ModernCalendar && check removed, dynamic import handles loading state */}
+                <ModernCalendar
+                  value={selectedDay}
+                  onChange={setSelectedDay}
+                  locale="fa" // Set locale to Persian (Jalali)
+                  shouldHighlightWeekends
+                  calendarClassName="responsive-calendar" // Optional: for custom styling
+                />
               </div>
               <p className="text-sm text-muted-foreground mt-4 text-center">
                 برای انتخاب روز روی آن کلیک کنید.
               </p>
             </div>
             
-            <div className="p-4 border rounded-lg bg-secondary/30"> {/* Removed mt-8 here as CardContent has space-y-8 */}
+            <div className="p-4 border rounded-lg bg-secondary/30">
                 <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
                   <li>ایجاد و ویرایش رویدادها با انتخاب روز از تقویم</li>
@@ -86,3 +85,4 @@ export default function CalendarPage() {
     </div>
   );
 }
+
