@@ -10,14 +10,13 @@ import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { DayValue } from 'react-modern-calendar-datepicker';
 import 'react-modern-calendar-datepicker/lib/DatePicker.css';
-// ClientOnly import removed
 
 // Dynamically import the calendar component with SSR turned off, ensuring the correct default export is used
 const ModernCalendar = dynamic(
   () => import('react-modern-calendar-datepicker').then(mod => mod.default),
   {
     ssr: false,
-    loading: () => <p className="text-center text-muted-foreground py-4">در حال بارگذاری تقویم...</p>
+    loading: () => null // Simplified loading state
   }
 );
 
@@ -25,7 +24,6 @@ export default function CalendarPage() {
   const sectionTitle = "تقویم";
   const sectionPageDescription = "رویدادها، قرارها و برنامه‌های خود را در این بخش مشاهده و مدیریت کنید.";
   const [selectedDay, setSelectedDay] = useState<DayValue>(null);
-  // isClientMounted state and its useEffect are removed
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -53,14 +51,15 @@ export default function CalendarPage() {
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
               <div className="flex justify-center">
-                {/* ClientOnly wrapper removed, ModernCalendar rendered directly if dynamic import succeeds */}
-                <ModernCalendar
-                  value={selectedDay}
-                  onChange={setSelectedDay}
-                  locale="fa" // Set locale to Persian (Jalali)
-                  shouldHighlightWeekends
-                  calendarClassName="responsive-calendar" // Optional: for custom styling
-                />
+                {ModernCalendar && ( // Check if ModernCalendar is loaded before rendering
+                  <ModernCalendar
+                    value={selectedDay}
+                    onChange={setSelectedDay}
+                    locale="fa" // Set locale to Persian (Jalali)
+                    shouldHighlightWeekends
+                    calendarClassName="responsive-calendar" // Optional: for custom styling
+                  />
+                )}
               </div>
               <p className="text-sm text-muted-foreground mt-4 text-center">
                 برای انتخاب روز روی آن کلیک کنید.
@@ -87,3 +86,4 @@ export default function CalendarPage() {
     </div>
   );
 }
+
