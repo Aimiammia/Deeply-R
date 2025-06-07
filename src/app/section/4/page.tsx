@@ -1,16 +1,19 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays, Construction } from 'lucide-react';
+import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import { Calendar as ModernCalendar, type DayValue } from 'react-modern-calendar-datepicker';
+import 'react-modern-calendar-datepicker/lib/DatePicker.css';
 
 export default function CalendarPage() {
   const sectionTitle = "تقویم";
   const sectionPageDescription = "رویدادها، قرارها و برنامه‌های خود را در این بخش مشاهده و مدیریت کنید.";
+  const [selectedDay, setSelectedDay] = useState<DayValue>(null);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -34,25 +37,29 @@ export default function CalendarPage() {
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8 text-center">
-            <Construction className="mx-auto h-16 w-16 text-primary/70 mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">بخش تقویم در دست ساخت است!</h3>
-            <p className="text-muted-foreground mb-6">
-              به زودی می‌توانید رویدادهای خود را در اینجا اضافه، مشاهده و مدیریت کنید. قابلیت نمایش ماهانه، هفتگی و روزانه در نظر گرفته خواهد شد.
-            </p>
-            <Image 
-              src="https://placehold.co/600x400.png" 
-              alt="Calendar Placeholder" 
-              width={600} 
-              height={400}
-              className="rounded-md mx-auto shadow-md"
-              data-ai-hint="calendar schedule"
-            />
+          <CardContent className="space-y-8">
+            <div>
+              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
+              <div className="flex justify-center">
+                <ModernCalendar
+                  value={selectedDay}
+                  onChange={setSelectedDay}
+                  locale="fa" // Set locale to Persian (Jalali)
+                  shouldHighlightWeekends
+                  calendarClassName="responsive-calendar" // Optional: for custom styling
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4 text-center">
+                برای انتخاب روز روی آن کلیک کنید.
+              </p>
+            </div>
+            
             <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
                 <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                  <li>ایجاد و ویرایش رویدادها</li>
-                  <li>نمایش‌های مختلف (ماهانه، هفتگی، روزانه)</li>
+                  <li>ایجاد و ویرایش رویدادها با انتخاب روز از تقویم</li>
+                  <li>نمایش رویدادهای ثبت شده در تقویم</li>
+                  <li>نمایش‌های مختلف (ماهانه، هفتگی، روزانه) برای رویدادها</li>
                   <li>تنظیم یادآور برای رویدادها</li>
                   <li>همگام‌سازی با تقویم‌های دیگر (اختیاری)</li>
                   <li>دسته‌بندی رویدادها با رنگ‌های مختلف</li>
