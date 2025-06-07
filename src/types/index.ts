@@ -15,3 +15,13 @@ export interface ReflectionEntry {
   prompt: string; // The daily success quote or a general prompt active at the time
   text: string;   // The user's reflection text
 }
+
+export interface FinancialTransaction {
+  id: string;
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+  date: string; // ISO date string
+  category: string | null;
+  createdAt: string; // ISO date string
+}

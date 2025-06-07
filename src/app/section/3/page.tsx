@@ -4,21 +4,75 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, Wallet, CreditCard, PiggyBank, TrendingUp, TrendingDown } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect } from 'react';
+import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
+import { TransactionList } from '@/components/financials/TransactionList';
+import type { FinancialTransaction } from '@/types';
+import { useToast } from "@/hooks/use-toast";
 
 export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
   const sectionPageDescription = "هزینه‌ها، درآمدها و بودجه خود را در اینجا پیگیری و مدیریت کنید.";
 
   const [isClient, setIsClient] = useState(false);
+  const { toast } = useToast();
+  const [transactions, setTransactions] = useState<FinancialTransaction[]>([]);
+  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
+  // Load transactions from localStorage on initial mount
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // For recharts hydration
+    try {
+      const storedTransactions = localStorage.getItem('financialTransactions');
+      if (storedTransactions) {
+        setTransactions(JSON.parse(storedTransactions));
+      }
+    } catch (error) {
+      console.error("Failed to parse transactions from localStorage", error);
+      localStorage.removeItem('financialTransactions'); // Clear corrupted data
+    }
+    setIsInitialLoadComplete(true);
   }, []);
 
+  // Save transactions to localStorage whenever they change, but only after initial load
+  useEffect(() => {
+    if (isInitialLoadComplete) {
+      localStorage.setItem('financialTransactions', JSON.stringify(transactions));
+    }
+  }, [transactions, isInitialLoadComplete]);
+
+
+  const handleAddTransaction = (transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
+    const newTransaction: FinancialTransaction = {
+      ...transactionData,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
+    setTransactions(prevTransactions => [newTransaction, ...prevTransactions]);
+    toast({
+      title: "تراکنش ثبت شد",
+      description: `تراکنش "${transactionData.description}" با موفقیت ثبت شد.`,
+      variant: "default",
+    });
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+    const transactionToDelete = transactions.find(t => t.id === id);
+    setTransactions(prevTransactions => prevTransactions.filter(t => t.id !== id));
+    if (transactionToDelete) {
+      toast({
+        title: "تراکنش حذف شد",
+        description: `تراکنش "${transactionToDelete.description}" حذف شد.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+
+  // TODO: Update chart data to use actual transactions
   const sampleChartData = [
     { name: 'فروردین', درآمد: 4000000, هزینه: 2400000 },
     { name: 'اردیبهشت', درآمد: 3000000, هزینه: 1398000 },
@@ -56,35 +110,11 @@ export default function FinancialManagementPage() {
           </CardHeader>
           <CardContent className="space-y-8">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center text-foreground">
-                    <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                    ثبت درآمد
-                  </CardTitle>
-                  <CardDescription>درآمدهای خود را اینجا وارد کنید.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm">فرم و لیست درآمدها در اینجا نمایش داده خواهد شد.</p>
-                </CardContent>
-              </Card>
+            <AddTransactionForm onAddTransaction={handleAddTransaction} />
+            
+            <TransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
 
-              <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center text-foreground">
-                    <TrendingDown className="mr-2 h-5 w-5 text-destructive rtl:ml-2 rtl:mr-0" />
-                    ثبت هزینه
-                  </CardTitle>
-                  <CardDescription>هزینه‌های خود را اینجا وارد کنید.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm">فرم و لیست هزینه‌ها در اینجا نمایش داده خواهد شد.</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+            <Card className="shadow-md hover:shadow-lg transition-shadow bg-card mt-10">
               <CardHeader>
                 <CardTitle className="text-xl flex items-center text-foreground">
                   <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
@@ -116,13 +146,14 @@ export default function FinancialManagementPage() {
                 <div style={{ width: '100%', height: 350 }}>
                   <ResponsiveContainer>
                     <BarChart
-                      data={sampleChartData}
+                      data={sampleChartData} // This still uses sample data
                       margin={{
                         top: 5,
                         right: 5,
-                        left: 30, // Increased left margin for Y-axis labels
-                        bottom: 70, // Increased bottom margin for angled X-axis labels
+                        left: 30, 
+                        bottom: 70, 
                       }}
+                      dir="rtl"
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis 
@@ -138,9 +169,10 @@ export default function FinancialManagementPage() {
                         tickFormatter={formatCurrency} 
                         tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
                         stroke="hsl(var(--foreground))"
+                        // orientation="right" // For RTL if numbers are on the right
                       />
                       <Tooltip
-                        formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name]}
+                        formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name === 'درآمد' ? 'درآمد' : 'هزینه']}
                         wrapperClassName="rounded-md shadow-lg !bg-popover !border-border"
                         contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}}
                         itemStyle={{color: 'hsl(var(--popover-foreground))'}}
@@ -148,8 +180,9 @@ export default function FinancialManagementPage() {
                         cursor={{fill: 'hsl(var(--muted))'}}
                       />
                       <Legend 
-                        formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value}</span>} 
+                        formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} 
                         wrapperStyle={{direction: 'rtl', paddingTop: '10px'}}
+                        payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}
                       />
                       <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
                       <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
@@ -162,7 +195,7 @@ export default function FinancialManagementPage() {
                 </div>
               )}
               <p className="text-muted-foreground text-sm mt-4 text-center">
-                این یک نمودار نمونه است. قابلیت‌های کامل گزارش‌گیری مالی به زودی اضافه خواهد شد.
+                این یک نمودار نمونه است. در آینده، این نمودار با داده‌های واقعی شما به‌روز خواهد شد.
               </p>
             </div>
 
@@ -175,5 +208,3 @@ export default function FinancialManagementPage() {
     </div>
   );
 }
-
-    
