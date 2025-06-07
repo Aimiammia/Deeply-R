@@ -8,7 +8,7 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  CalendarDays, // Restored for Section 4
+  // CalendarDays, // Removed for Section 4
   Target,
   Dumbbell,
   BookOpen,
@@ -23,26 +23,32 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  CalendarDays,     // Section 4 (Calendar and Events) - Restored Icon
-  Target,           // Section 5 (Goals and Habits)
+  Target,           // Section 5 (Goals and Habits) -> Was Section 4 placeholder, now Target
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
   PieChart,         // Section 8
   FileEdit,         // Section 9
-  Award             // Section 10
+  Award,            // Section 10
+  Award             // Placeholder for removed section 4
 ];
 
 export default function HomePage() {
   const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
-  // const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4); // Removed filter to display all sections
+  const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4); // Filter out section 4
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allSectionNumbers.map((sectionNumber) => { // Changed to allSectionNumbers
-            const IconComponent = sectionIcons[sectionNumber - 1] || Award;
+          {sectionsToDisplay.map((sectionNumber) => {
+            // Adjust icon indexing due to removal of section 4
+            let iconIndex = sectionNumber -1;
+            if (sectionNumber > 4) {
+                iconIndex = sectionNumber - 2; // Shift index for sections after the removed one
+            }
+            const IconComponent = sectionIcons[iconIndex] || Award;
+
 
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
@@ -60,10 +66,6 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
-            } else if (sectionNumber === 4) { // Added specific content for Section 4
-              sectionTitle = "تقویم و رویدادها";
-              sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
-              sectionContent = "رویدادهای مهم خود را در تقویم شمسی ثبت و پیگیری کنید.";
             } else if (sectionNumber === 5) {
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
