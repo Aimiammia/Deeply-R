@@ -50,3 +50,12 @@ export interface LongTermGoal {
   //   timeBound: string; // or could be part of targetDate
   // };
 }
+
+export interface BirthdayEntry {
+  id: string;
+  name: string;
+  jYear: number;   // Jalali year
+  jMonth: number;  // 1-indexed Jalali month
+  jDay: number;    // Jalali day
+  createdAt: string; // ISO string for when it was added
+}
