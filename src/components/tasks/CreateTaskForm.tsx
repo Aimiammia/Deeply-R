@@ -10,6 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
+import { faIR } from 'date-fns/locale'; // Import Persian locale
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubject } from '@/lib/educational-data';
@@ -137,7 +138,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-              {dueDate ? format(dueDate, "PPP") : <span>انتخاب تاریخ سررسید</span>}
+              {dueDate ? format(dueDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ سررسید</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -147,15 +148,18 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
               onSelect={setDueDate}
               initialFocus
               dir="rtl"
+              locale={faIR} // Use Persian locale for the calendar
             />
           </PopoverContent>
         </Popover>
 
         <Select value={priority || ''} onValueChange={(value) => setPriority(value as Task['priority'])}>
           <SelectTrigger className="w-full sm:flex-1" aria-label="میزان اهمیت وظیفه">
+            <ListFilter className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
             <SelectValue placeholder="میزان اهمیت" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="none"><em>بدون اولویت</em></SelectItem>
             <SelectItem value="low">کم</SelectItem>
             <SelectItem value="medium">متوسط</SelectItem>
             <SelectItem value="high">زیاد</SelectItem>
