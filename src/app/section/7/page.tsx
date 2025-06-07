@@ -22,7 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { parseISO, format } from 'date-fns'; // format is not directly used but parseISO is essential
+import { parseISO, format } from 'date-fns';
+import { faIR } from 'date-fns/locale'; // Import the faIR locale
 
 const educationalLevels = [
   { value: 'elementary_1', label: 'اول ابتدایی' },
@@ -40,8 +41,8 @@ const educationalLevels = [
   { value: 'other', label: 'سایر' },
 ];
 
-const MEHR_FIRST_MONTH = 8; // September (0-indexed for Date object month)
-const MEHR_FIRST_DAY = 23; // Approximate day for Mehr 1st
+const MEHR_FIRST_MONTH = 8; // September (0-indexed for Date object month, so 8 is September)
+const MEHR_FIRST_DAY = 23; // Approximate day for Mehr 1st in Gregorian calendar
 
 function findNextLevelValue(currentValue: string): string | undefined {
   const currentIndex = educationalLevels.findIndex(level => level.value === currentValue);
@@ -75,24 +76,28 @@ export default function EducationPage() {
       return { newLevelValue: initialLevelValue, newLastPromotionDateISO: lastPromoDateISO || new Date().toISOString(), promotionsMade: 0 };
     }
 
-    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
+    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1); // Fallback to a very old date if null
     const today = new Date();
     let currentProcessingLevel = initialLevelValue;
     let promotions = 0;
     let effectiveLastPromotionDate = lastPromoDate;
 
+    // Iterate from the year after the last promotion check up to the current year
     for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
+      // Mehr 1st of the current iteration year (approximate Gregorian date)
+      // Note: Month is 0-indexed for Date, so MEHR_FIRST_MONTH (e.g., 8 for September) is correct.
       const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH, MEHR_FIRST_DAY);
-
+      
+      // Check if this Mehr 1st has passed since the last promotion and is not in the future
       if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
         const nextLevel = findNextLevelValue(currentProcessingLevel);
         if (nextLevel) {
           currentProcessingLevel = nextLevel;
           promotions++;
           effectiveLastPromotionDate = mehrFirstInYear; // This Mehr 1st triggered promotion
-          if (currentProcessingLevel === 'high_12' || currentProcessingLevel === 'other') break;
+          if (currentProcessingLevel === 'high_12' || currentProcessingLevel === 'other') break; // Stop if max level or 'other'
         } else {
-          break; 
+          break; // No next level, stop promoting
         }
       }
     }
@@ -101,7 +106,7 @@ export default function EducationPage() {
 
 
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // Ensure this runs only on client
     try {
       const storedLevel = localStorage.getItem('educationalLevel');
       const storedConfirmed = localStorage.getItem('isEducationalLevelConfirmed');
@@ -117,30 +122,33 @@ export default function EducationPage() {
         setLastPromotionCheckDate(storedLastPromoDate);
       }
 
-      if (storedConfirmed === 'true' && storedLevel) {
-        // Perform auto-promotion check
+      if (storedConfirmed === 'true' && storedLevel && isClient) { // Check isClient again before localStorage dependent logic
         const { newLevelValue, newLastPromotionDateISO, promotionsMade } = calculateAutoPromotion(storedLevel, storedLastPromoDate);
         if (promotionsMade > 0) {
           setSelectedLevel(newLevelValue);
-          setLastPromotionCheckDate(newLastPromotionDateISO); // Update state for UI consistency
+          setLastPromotionCheckDate(newLastPromotionDateISO);
           localStorage.setItem('educationalLevel', newLevelValue);
           localStorage.setItem('educationalLevelLastPromotionDate', newLastPromotionDateISO);
           toast({
             title: "مقطع تحصیلی به‌روز شد",
             description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newLevelValue)?.label}" ارتقا یافت.`,
-            duration: 5000,
+            duration: 7000,
           });
         }
       }
 
     } catch (error) {
       console.error("Failed to load educational settings from localStorage", error);
+      // Optionally clear corrupted data
+      // localStorage.removeItem('educationalLevel');
+      // localStorage.removeItem('isEducationalLevelConfirmed');
+      // localStorage.removeItem('educationalLevelLastPromotionDate');
     }
   }, [isClient, calculateAutoPromotion, toast]);
 
 
   const handleLevelChange = (value: string) => {
-    setSelectedLevel(value); // Update state for the Select component
+    setSelectedLevel(value);
   };
 
   const handleOpenConfirmationDialog = () => {
@@ -159,9 +167,9 @@ export default function EducationPage() {
   const handleConfirmLevel = () => {
     if (levelToConfirm) {
       const currentDateISO = new Date().toISOString();
-      setSelectedLevel(levelToConfirm); // Finalize selectedLevel state
+      setSelectedLevel(levelToConfirm); 
       setIsLevelConfirmed(true);
-      setLastPromotionCheckDate(currentDateISO); // Set initial promo check date
+      setLastPromotionCheckDate(currentDateISO); 
 
       localStorage.setItem('educationalLevel', levelToConfirm);
       localStorage.setItem('isEducationalLevelConfirmed', 'true');
@@ -173,6 +181,7 @@ export default function EducationPage() {
       });
     }
     setShowConfirmationDialog(false);
+    setLevelToConfirm(undefined); // Reset levelToConfirm
   };
   
   const currentLevelLabel = educationalLevels.find(l => l.value === selectedLevel)?.label;
@@ -238,7 +247,7 @@ export default function EducationPage() {
                   </p>
                   {lastPromotionCheckDate && (
                      <p className="text-xs text-muted-foreground mt-2">
-                      آخرین بررسی ارتقا: {format(parseISO(lastPromotionCheckDate), "yyyy/MM/dd", { locale: { code: 'fa-IR' }})}
+                      آخرین بررسی ارتقا: {format(parseISO(lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
                     </p>
                   )}
                    <p className="text-sm text-muted-foreground mt-3">
@@ -261,7 +270,7 @@ export default function EducationPage() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setLevelToConfirm(undefined)}>لغو</AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => {setShowConfirmationDialog(false); setLevelToConfirm(undefined);}}>لغو</AlertDialogCancel>
                     <AlertDialogAction onClick={handleConfirmLevel}>تایید و ذخیره</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -306,5 +315,7 @@ export default function EducationPage() {
     </div>
   );
 }
+
+    
 
     
