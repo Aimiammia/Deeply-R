@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Header } from '@/components/Header';
@@ -14,11 +15,17 @@ export default function HomePage() {
           {sections.map((sectionNumber) => (
             <Card key={sectionNumber} className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-xl font-headline text-primary">Section {sectionNumber}</CardTitle>
-                <CardDescription>Details for section {sectionNumber}</CardDescription>
+                <CardTitle className="text-xl font-headline text-primary">
+                  {sectionNumber === 1 ? "وظایف" : `Section ${sectionNumber}`}
+                </CardTitle>
+                <CardDescription>
+                  {sectionNumber === 1 ? "لیست وظایف روزانه شما" : `Details for section ${sectionNumber}`}
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Content for section {sectionNumber} will go here. You can customize this area as needed.</p>
+                <p>
+                  {sectionNumber === 1 ? "در اینجا وظایف خود را مدیریت کنید." : `Content for section ${sectionNumber} will go here. You can customize this area as needed.`}
+                </p>
               </CardContent>
             </Card>
           ))}
