@@ -7,9 +7,13 @@ interface DailyPromptDisplayProps {
 
 export function DailyPromptDisplay({ prompt }: DailyPromptDisplayProps) {
   return (
-    <div className="flex items-start space-x-3 rtl:space-x-reverse p-1">
-      <Quote className="h-6 w-6 text-accent flex-shrink-0 mt-1" />
-      <p className="text-lg text-foreground/90 italic">{prompt}</p>
+    // The parent div (e.g., in section/1/page.tsx) usually provides overall padding and background.
+    // This component focuses on the icon and text styling.
+    <div className="flex items-center space-x-3 rtl:space-x-reverse"> {/* Align items vertically centered */}
+      <Quote className="h-7 w-7 text-accent flex-shrink-0" /> {/* Slightly larger icon */}
+      <p className="text-lg font-medium text-foreground italic leading-relaxed"> {/* Changed weight, full opacity, added leading-relaxed */}
+        {prompt}
+      </p>
     </div>
   );
 }
