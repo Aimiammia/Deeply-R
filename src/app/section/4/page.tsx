@@ -11,9 +11,9 @@ import { Button } from '@/components/ui/button';
 import type { DayValue } from 'react-modern-calendar-datepicker';
 import 'react-modern-calendar-datepicker/lib/DatePicker.css';
 
-// Dynamically import the calendar component with SSR turned off, ensuring the correct named export is used
+// Dynamically import the calendar component with SSR turned off, ensuring the correct default export is used
 const ModernCalendar = dynamic(
-  () => import('react-modern-calendar-datepicker').then(mod => mod.Calendar),
+  () => import('react-modern-calendar-datepicker').then(mod => mod.default), // Corrected to use mod.default
   {
     ssr: false,
     loading: () => <p className="text-center text-muted-foreground py-4">در حال بارگذاری تقویم...</p>
@@ -51,13 +51,15 @@ export default function CalendarPage() {
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
               <div className="flex justify-center">
-                <ModernCalendar
-                  value={selectedDay}
-                  onChange={setSelectedDay}
-                  locale="fa" // Set locale to Persian (Jalali)
-                  shouldHighlightWeekends
-                  calendarClassName="responsive-calendar" // Optional: for custom styling
-                />
+                {typeof window !== 'undefined' && ModernCalendar && ( // Ensure ModernCalendar is defined before rendering
+                  <ModernCalendar
+                    value={selectedDay}
+                    onChange={setSelectedDay}
+                    locale="fa" // Set locale to Persian (Jalali)
+                    shouldHighlightWeekends
+                    calendarClassName="responsive-calendar" // Optional: for custom styling
+                  />
+                )}
               </div>
               <p className="text-sm text-muted-foreground mt-4 text-center">
                 برای انتخاب روز روی آن کلیک کنید.
