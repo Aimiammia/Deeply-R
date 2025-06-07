@@ -18,6 +18,22 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // Ensure config.resolve and config.resolve.fallback exist
+    if (!config.resolve) {
+      config.resolve = {};
+    }
+    if (!config.resolve.fallback) {
+      config.resolve.fallback = {};
+    }
+
+    if (!isServer) {
+      // Prevent 'async_hooks' from being bundled for the client
+      // by providing a mock (false tells webpack to use an empty module).
+      config.resolve.fallback.async_hooks = false;
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
