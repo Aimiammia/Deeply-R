@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  CalendarCheck2, // Section 1 (Tasks/Planner)
-  BookHeart,      // Section 2 (Daily Reflections)
-  LineChart,
+  CalendarCheck2,
+  BookHeart,
+  CircleDollarSign, // Changed from LineChart for Section 3 (Financial Management)
   Settings2,
   Users2,
   BriefcaseBusiness,
@@ -22,7 +22,7 @@ import type { LucideIcon } from 'lucide-react';
 const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
-  LineChart,        // Section 3
+  CircleDollarSign, // Section 3 (Financial Management)
   Settings2,        // Section 4
   Users2,           // Section 5
   BriefcaseBusiness,// Section 6
@@ -55,23 +55,28 @@ export default function HomePage() {
               sectionTitle = "تأملات روزانه";
               sectionDescription = "افکار و احساسات خود را ثبت و تحلیل کنید";
               sectionContent = "بینش‌های جدیدی در مورد خودتان با کمک هوش مصنوعی کشف کنید.";
+            } else if (sectionNumber === 3) {
+              sectionTitle = "مدیریت مالی";
+              sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
+              sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
             }
 
+
             return (
-              <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg">
-                <Card className="shadow-lg hover:shadow-xl transform transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer h-full flex flex-col">
-                  <CardHeader className="flex-shrink-0">
+              <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
+                <Card className="shadow-lg hover:shadow-xl transform transition-all duration-300 ease-in-out hover:scale-[1.03] cursor-pointer h-full flex flex-col bg-card border border-transparent group-hover:border-primary/50">
+                  <CardHeader className="flex-shrink-0 pb-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <IconComponent className="h-7 w-7 text-primary" />
-                      <CardTitle className="text-xl font-headline text-primary">
+                      <IconComponent className="h-6 w-6 text-primary" />
+                      <CardTitle className="text-lg font-headline text-foreground">
                         {sectionTitle}
                       </CardTitle>
                     </div>
-                    <CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">
                       {sectionDescription}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-grow">
+                  <CardContent className="flex-grow pt-2 text-sm text-foreground/90">
                     <p>
                       {sectionContent}
                     </p>

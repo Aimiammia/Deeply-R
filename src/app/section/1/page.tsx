@@ -120,17 +120,17 @@ export default function Section1Page() {
             بازگشت به خانه
           </Link>
         </Button>
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card">
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-primary">
               {sectionTitle}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 p-4 rounded-md border bg-blue-50 dark:bg-blue-900/20 shadow-sm">
+            <div className="mb-6 p-4 rounded-md border bg-primary/10 shadow-sm">
               <DailyPromptDisplay prompt={currentSuccessQuote} />
             </div>
             <CreateTaskForm onAddTask={handleAddTask} />

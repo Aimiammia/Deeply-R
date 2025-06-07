@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain, History, Edit3, BookHeart } from 'lucide-react'; // Added BookHeart here
+import { ArrowLeft, Brain, History, Edit3, BookHeart } from 'lucide-react';
 import { ReflectionForm } from '@/components/ReflectionForm';
 import { ReflectionHistoryList } from '@/components/ReflectionHistoryList';
 import { ReflectionInsightsDisplay } from '@/components/ReflectionInsightsDisplay';
@@ -104,15 +104,15 @@ export default function ReflectionsPage() {
           </Link>
         </Button>
 
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card">
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-primary flex items-center">
               <BookHeart className="mr-3 h-7 w-7 rtl:ml-3 rtl:mr-0" />
               تأملات روزانه
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               افکار و احساسات خود را ثبت کنید و با کمک هوش مصنوعی به بینش‌های جدیدی دست یابید.
-              نقل قول امروز برای تأمل: <span className="italic text-primary">{currentPrompt}</span>
+              نقل قول امروز برای تأمل: <span className="italic text-accent">{currentPrompt}</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">

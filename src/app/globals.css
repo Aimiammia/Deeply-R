@@ -4,30 +4,31 @@
 
 @layer base {
   :root {
-    /* User-provided Hex:
+    /*
+        User-provided Hex:
         Light Blue/Cyan: #52B2CF -> hsl(194, 59%, 56%)
         Dark Blue: #344CB7       -> hsl(230, 57%, 46%)
-        Light Pink/Peach: #FAE1DF -> hsl(5, 73%, 93%)
+        Light Pink/Peach: #FAE1DF -> hsl(5, 73%, 93%) - Will be used sparingly or as a very light accent
     */
 
-    /* Light Theme */
-    --background: 5 73% 93%; /* #FAE1DF - Light Pink/Peach */
-    --foreground: 230 30% 25%; /* Dark Blue-Gray for text */
+    /* Light Theme - More Professional/Calm Palette */
+    --background: 220 20% 97%; /* Very light cool gray, almost off-white */
+    --foreground: 220 15% 25%; /* Dark cool gray for text */
 
     --card: 0 0% 100%; /* White */
-    --card-foreground: 230 30% 25%; /* Dark Blue-Gray */
+    --card-foreground: 220 15% 25%; /* Dark cool gray on white cards */
 
     --popover: 0 0% 100%; /* White */
-    --popover-foreground: 230 30% 25%; /* Dark Blue-Gray */
+    --popover-foreground: 220 15% 25%;
 
-    --primary: 194 59% 56%; /* #52B2CF - Light Blue/Cyan */
-    --primary-foreground: 230 30% 20%; /* Dark Blue-Gray text for contrast on Light Blue */
+    --primary: 194 59% 50%; /* #52B2CF - Light Blue/Cyan (slightly adjusted for better contrast if needed) */
+    --primary-foreground: 210 40% 98%; /* Very light, almost white, for text on primary elements */
 
-    --secondary: 230 50% 88%; /* Lighter version of Dark Blue -> Lavender-ish Blue */
-    --secondary-foreground: 230 57% 40%; /* Dark Blue text for contrast */
+    --secondary: 220 15% 92%; /* Lighter version of background for subtle differentiation */
+    --secondary-foreground: 220 15% 35%; /* Slightly lighter than main foreground */
 
-    --muted: 5 60% 96%; /* Very light pink, lighter than background */
-    --muted-foreground: 230 25% 55%; /* Muted dark blue-gray */
+    --muted: 220 15% 94%; /* Slightly darker than background, for muted elements */
+    --muted-foreground: 220 10% 45%; /* Muted text color */
 
     --accent: 230 57% 46%; /* #344CB7 - Dark Blue */
     --accent-foreground: 0 0% 100%; /* White text for contrast on Dark Blue */
@@ -35,9 +36,9 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 5 50% 85%; /* Slightly darker/desaturated pink for borders */
-    --input: 5 70% 97%; /* Very light pink for input fields, slightly off-white */
-    --ring: 194 59% 50%; /* Primary color (Light Blue), slightly darker for focus rings */
+    --border: 220 15% 88%; /* Subtle border color */
+    --input: 0 0% 98%; /* Very light gray for inputs, almost white but distinct from card */
+    --ring: 194 59% 45%; /* Primary color (Light Blue), slightly darker for focus rings */
 
     --radius: 0.5rem;
 
@@ -48,42 +49,42 @@
     --chart-5: 27 87% 67%;
 
     /* Sidebar specific colors - can be adjusted based on new theme if sidebar is used */
-    --sidebar-background: 230 35% 22%; /* Darker blue from new palette */
-    --sidebar-foreground: 5 73% 90%;   /* Light pink from new palette */
-    --sidebar-primary: 194 59% 60%;    /* Light blue from new palette */
-    --sidebar-primary-foreground: 230 30% 15%;
+    --sidebar-background: 220 15% 18%; /* Darker cool gray from new palette */
+    --sidebar-foreground: 220 10% 85%;   /* Light gray from new palette */
+    --sidebar-primary: 194 59% 55%;    /* Light blue from new palette */
+    --sidebar-primary-foreground: 220 15% 10%;
     --sidebar-accent: 230 57% 50%;     /* Dark blue from new palette */
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 230 30% 40%;
-    --sidebar-ring: 194 65% 65%;
+    --sidebar-border: 220 15% 30%;
+    --sidebar-ring: 194 65% 60%;
   }
 
   .dark {
     /* Dark Theme */
-    --background: 230 35% 18%; /* Dark, desaturated blue */
-    --foreground: 5 73% 88%; /* Light Pink for text */
+    --background: 220 20% 12%; /* Very dark cool gray */
+    --foreground: 220 15% 88%; /* Light cool gray for text */
 
-    --card: 230 35% 22%; /* Slightly lighter dark blue for cards */
-    --card-foreground: 5 73% 88%;
+    --card: 220 20% 16%; /* Slightly lighter dark gray for cards */
+    --card-foreground: 220 15% 88%;
 
-    --popover: 230 35% 22%;
-    --popover-foreground: 5 73% 88%;
+    --popover: 220 20% 16%;
+    --popover-foreground: 220 15% 88%;
 
-    --primary: 194 59% 60%; /* Light Blue #52B2CF, slightly brighter */
-    --primary-foreground: 230 30% 15%; /* Very dark blue text on light blue primary */
+    --primary: 194 59% 55%; /* Light Blue #52B2CF, slightly adjusted for dark mode */
+    --primary-foreground: 220 15% 10%; /* Very dark text on light blue primary */
 
-    --secondary: 5 50% 35%; /* Darker Pink/Peach */
-    --secondary-foreground: 5 73% 90%; /* Lighter Pink text */
+    --secondary: 220 15% 25%; /* Darker gray for secondary elements */
+    --secondary-foreground: 220 15% 90%; /* Lighter text on secondary */
 
-    --muted: 230 30% 28%; /* Muted dark blue */
-    --muted-foreground: 5 60% 75%; /* Muted light pink */
+    --muted: 220 15% 20%; /* Muted dark gray */
+    --muted-foreground: 220 10% 65%; /* Muted light gray text */
 
-    --accent: 230 57% 50%; /* Dark Blue #344CB7, slightly brighter */
-    --accent-foreground: 0 0% 95%; /* Off-white text for dark blue accent */
+    --accent: 230 57% 55%; /* Dark Blue #344CB7, slightly brighter */
+    --accent-foreground: 0 0% 98%; /* Off-white text for dark blue accent */
 
-    --border: 230 30% 40%;
-    --input: 230 30% 35%;
-    --ring: 194 65% 65%; /* Brighter Light Blue for rings */
+    --border: 220 15% 30%;
+    --input: 220 15% 22%;
+    --ring: 194 59% 50%; /* Brighter Light Blue for rings */
   }
 }
 

@@ -22,7 +22,7 @@ export default function FinancialManagementPage() {
             بازگشت به خانه
           </Link>
         </Button>
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card">
           <CardHeader>
             <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
               <CircleDollarSign className="h-8 w-8 text-primary" />
@@ -30,16 +30,16 @@ export default function FinancialManagementPage() {
                 {sectionTitle}
               </CardTitle>
             </div>
-            <CardDescription>
+            <CardDescription className="text-muted-foreground">
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center">
+                  <CardTitle className="text-xl flex items-center text-foreground">
                     <TrendingUp className="mr-2 h-5 w-5 text-green-500 rtl:ml-2 rtl:mr-0" />
                     ثبت درآمد
                   </CardTitle>
@@ -51,9 +51,9 @@ export default function FinancialManagementPage() {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-md hover:shadow-lg transition-shadow">
+              <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center">
+                  <CardTitle className="text-xl flex items-center text-foreground">
                     <TrendingDown className="mr-2 h-5 w-5 text-red-500 rtl:ml-2 rtl:mr-0" />
                     ثبت هزینه
                   </CardTitle>
@@ -66,9 +66,9 @@ export default function FinancialManagementPage() {
               </Card>
             </div>
 
-            <Card className="shadow-md hover:shadow-lg transition-shadow">
+            <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
               <CardHeader>
-                <CardTitle className="text-xl flex items-center">
+                <CardTitle className="text-xl flex items-center text-foreground">
                   <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                   بودجه‌بندی
                 </CardTitle>
@@ -80,9 +80,9 @@ export default function FinancialManagementPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-md hover:shadow-lg transition-shadow">
+            <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
               <CardHeader>
-                <CardTitle className="text-xl flex items-center">
+                <CardTitle className="text-xl flex items-center text-foreground">
                    <PiggyBank className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                   اهداف پس‌انداز
                 </CardTitle>
