@@ -13,6 +13,7 @@ import { TransactionList } from '@/components/financials/TransactionList';
 import type { FinancialTransaction } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const persianMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -143,102 +144,145 @@ export default function FinancialManagementPage() {
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8">
-            
-            <AddTransactionForm onAddTransaction={handleAddTransaction} />
-            
-            <TransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
+          <CardContent className="pt-6">
+            <Tabs defaultValue="transactions" className="w-full">
+              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 rounded-full bg-primary/10 p-1">
+                <TabsTrigger
+                  value="transactions"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <Wallet className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> تراکنش‌ها و نمودار
+                </TabsTrigger>
+                <TabsTrigger
+                  value="budgeting"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <Landmark className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> بودجه‌بندی
+                </TabsTrigger>
+                <TabsTrigger
+                  value="savings"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <PiggyBank className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف پس‌انداز
+                </TabsTrigger>
+              </TabsList>
 
-            <Card className="shadow-md hover:shadow-lg transition-shadow bg-card mt-10">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center text-foreground">
-                  <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                  بودجه‌بندی
-                </CardTitle>
-                <CardDescription>بودجه ماهانه خود را تنظیم و پیگیری کنید.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                 <p className="text-muted-foreground">قابلیت بودجه‌بندی به زودی اضافه خواهد شد.</p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center text-foreground">
-                   <PiggyBank className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                  اهداف پس‌انداز
-                </CardTitle>
-                <CardDescription>اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">قابلیت اهداف پس‌انداز به زودی اضافه خواهد شد.</p>
-              </CardContent>
-            </Card>
-            
-            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-              <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (به تومان)</h4>
-              {isClient ? (
-                chartData.length > 0 ? (
-                  <div style={{ width: '100%', height: 350 }}>
-                    <ResponsiveContainer>
-                      <BarChart
-                        data={chartData}
-                        margin={{
-                          top: 5,
-                          right: 5,
-                          left: 30, 
-                          bottom: 70, 
-                        }}
-                        dir="rtl"
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                        <XAxis 
-                          dataKey="name" 
-                          angle={-45} 
-                          textAnchor="end" 
-                          height={50} 
-                          interval={0} 
-                          tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
-                          stroke="hsl(var(--foreground))"
-                        />
-                        <YAxis 
-                          tickFormatter={formatCurrency} 
-                          tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
-                          stroke="hsl(var(--foreground))"
-                        />
-                        <Tooltip
-                          formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name === 'درآمد' ? 'درآمد' : 'هزینه']}
-                          wrapperClassName="rounded-md shadow-lg !bg-popover !border-border"
-                          contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}}
-                          itemStyle={{color: 'hsl(var(--popover-foreground))'}}
-                          labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}}
-                          cursor={{fill: 'hsl(var(--muted))'}}
-                        />
-                        <Legend 
-                          formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} 
-                          wrapperStyle={{direction: 'rtl', paddingTop: '10px'}}
-                          payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}
-                        />
-                        <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
-                        <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
-                    <p>داده‌ای برای نمایش در نمودار وجود ندارد. لطفاً ابتدا تراکنش‌های خود را ثبت کنید.</p>
-                  </div>
-                )
-              ) : (
-                <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
-                  در حال بارگذاری نمودار...
+              <TabsContent value="transactions" className="space-y-8">
+                <AddTransactionForm onAddTransaction={handleAddTransaction} />
+                <TransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
+                <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
+                  <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (به تومان)</h4>
+                  {isClient ? (
+                    chartData.length > 0 ? (
+                      <div style={{ width: '100%', height: 350 }}>
+                        <ResponsiveContainer>
+                          <BarChart
+                            data={chartData}
+                            margin={{
+                              top: 5,
+                              right: 5,
+                              left: 30, 
+                              bottom: 70, 
+                            }}
+                            dir="rtl"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis 
+                              dataKey="name" 
+                              angle={-45} 
+                              textAnchor="end" 
+                              height={50} 
+                              interval={0} 
+                              tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                              stroke="hsl(var(--foreground))"
+                            />
+                            <YAxis 
+                              tickFormatter={formatCurrency} 
+                              tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                              stroke="hsl(var(--foreground))"
+                            />
+                            <Tooltip
+                              formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name === 'درآمد' ? 'درآمد' : 'هزینه']}
+                              wrapperClassName="rounded-md shadow-lg !bg-popover !border-border"
+                              contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}}
+                              itemStyle={{color: 'hsl(var(--popover-foreground))'}}
+                              labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}}
+                              cursor={{fill: 'hsl(var(--muted))'}}
+                            />
+                            <Legend 
+                              formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} 
+                              wrapperStyle={{direction: 'rtl', paddingTop: '10px'}}
+                              payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}
+                            />
+                            <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
+                            <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
+                        <p>داده‌ای برای نمایش در نمودار وجود ندارد. لطفاً ابتدا تراکنش‌های خود را ثبت کنید.</p>
+                      </div>
+                    )
+                  ) : (
+                    <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
+                      در حال بارگذاری نمودار...
+                    </div>
+                  )}
+                  <p className="text-muted-foreground text-sm mt-4 text-center">
+                    این نمودار، درآمدها و هزینه‌های ثبت شده شما را نمایش می‌دهد.
+                  </p>
                 </div>
-              )}
-              <p className="text-muted-foreground text-sm mt-4 text-center">
-                این نمودار، درآمدها و هزینه‌های ثبت شده شما را نمایش می‌دهد.
-              </p>
-            </div>
+              </TabsContent>
 
+              <TabsContent value="budgeting" className="space-y-6">
+                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                      <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                      بودجه‌بندی
+                    </CardTitle>
+                    <CardDescription>بودجه ماهانه خود را تنظیم و پیگیری کنید.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                     <p className="text-muted-foreground">قابلیت بودجه‌بندی به زودی اضافه خواهد شد.</p>
+                     <div className="mt-4 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right">
+                          <li>تعیین بودجه برای دسته‌بندی‌های مختلف (خوراک، حمل و نقل، ...)</li>
+                          <li>مقایسه هزینه‌های واقعی با بودجه تعیین شده</li>
+                          <li>نمودار پیشرفت بودجه</li>
+                          <li>هشدارهای مربوط به نزدیک شدن یا عبور از بودجه</li>
+                        </ul>
+                      </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="savings" className="space-y-6">
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                       <PiggyBank className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                      اهداف پس‌انداز
+                    </CardTitle>
+                    <CardDescription>اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">قابلیت اهداف پس‌انداز به زودی اضافه خواهد شد.</p>
+                    <div className="mt-4 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right">
+                          <li>تعریف اهداف پس‌انداز با مبلغ و تاریخ هدف</li>
+                          <li>اختصاص دادن بخشی از درآمد به هر هدف</li>
+                          <li>پیگیری پیشرفت به سمت هر هدف پس‌انداز</li>
+                          <li>نمودار تجسمی برای اهداف پس‌انداز</li>
+                        </ul>
+                      </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </main>
@@ -248,4 +292,3 @@ export default function FinancialManagementPage() {
     </div>
   );
 }
-
