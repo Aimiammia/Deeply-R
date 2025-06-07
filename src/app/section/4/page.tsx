@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import type { DayValue } from 'react-modern-calendar-datepicker';
 import 'react-modern-calendar-datepicker/lib/DatePicker.css';
 
-// Dynamically import the calendar component with SSR turned off
+// Dynamically import the calendar component with SSR turned off, ensuring the correct named export is used
 const ModernCalendar = dynamic(
   () => import('react-modern-calendar-datepicker').then(mod => mod.Calendar),
   {
