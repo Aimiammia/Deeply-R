@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react'; // Added useEffect
+import { useState } from 'react'; 
 import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { DayValue } from 'react-modern-calendar-datepicker';
 import 'react-modern-calendar-datepicker/lib/DatePicker.css';
+import { ClientOnly } from '@/components/ClientOnly'; // Import ClientOnly
 
 // Dynamically import the calendar component with SSR turned off, ensuring the correct default export is used
 const ModernCalendar = dynamic(
@@ -24,11 +25,7 @@ export default function CalendarPage() {
   const sectionTitle = "تقویم";
   const sectionPageDescription = "رویدادها، قرارها و برنامه‌های خود را در این بخش مشاهده و مدیریت کنید.";
   const [selectedDay, setSelectedDay] = useState<DayValue>(null);
-  const [isClientMounted, setIsClientMounted] = useState(false); // New state
-
-  useEffect(() => {
-    setIsClientMounted(true); // Set to true after component mounts on the client
-  }, []);
+  // isClientMounted state and its useEffect are removed
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -56,7 +53,7 @@ export default function CalendarPage() {
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
               <div className="flex justify-center">
-                {isClientMounted ? (
+                <ClientOnly fallback={<p className="text-center text-muted-foreground py-4">در حال آماده‌سازی تقویم...</p>}>
                   <ModernCalendar
                     value={selectedDay}
                     onChange={setSelectedDay}
@@ -64,11 +61,7 @@ export default function CalendarPage() {
                     shouldHighlightWeekends
                     calendarClassName="responsive-calendar" // Optional: for custom styling
                   />
-                ) : (
-                  // Fallback while isClientMounted is false. 
-                  // The dynamic import's loading prop will handle loading of the component itself.
-                  <p className="text-center text-muted-foreground py-4">در حال آماده‌سازی تقویم...</p>
-                )}
+                </ClientOnly>
               </div>
               <p className="text-sm text-muted-foreground mt-4 text-center">
                 برای انتخاب روز روی آن کلیک کنید.
