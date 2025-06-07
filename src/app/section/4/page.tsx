@@ -16,7 +16,7 @@ const ModernCalendar = dynamic(
   () => import('react-modern-calendar-datepicker').then(mod => mod.default),
   {
     ssr: false,
-    loading: () => null // Simplified loading state
+    loading: () => null // Simplified loading state, can be a Skeleton or a message
   }
 );
 
@@ -66,7 +66,7 @@ export default function CalendarPage() {
               </p>
             </div>
             
-            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
+            <div className="p-4 border rounded-lg bg-secondary/30"> {/* Removed mt-8 here as CardContent has space-y-8 */}
                 <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
                   <li>ایجاد و ویرایش رویدادها با انتخاب روز از تقویم</li>
@@ -86,4 +86,3 @@ export default function CalendarPage() {
     </div>
   );
 }
-
