@@ -1,34 +1,16 @@
 
 'use client';
 
-import { useState, useEffect } from 'react'; // Added useEffect
-import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Construction } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { DayValue } from 'react-modern-calendar-datepicker';
-import 'react-modern-calendar-datepicker/lib/DatePicker.css';
-
-// Dynamically import the calendar component with SSR turned off, ensuring the correct default export is used
-const ModernCalendar = dynamic(
-  () => import('react-modern-calendar-datepicker').then(mod => mod.default),
-  {
-    ssr: false,
-    loading: () => <div className="flex justify-center items-center h-64 w-full"><p className="text-muted-foreground">Loading calendar...</p></div>
-  }
-);
+import Image from 'next/image'; // Keep Image if used for placeholder
 
 export default function CalendarPage() {
   const sectionTitle = "تقویم";
   const sectionPageDescription = "رویدادها، قرارها و برنامه‌های خود را در این بخش مشاهده و مدیریت کنید.";
-  const [selectedDay, setSelectedDay] = useState<DayValue>(null);
-  const [isClient, setIsClient] = useState(false); // State to track client-side mount
-
-  useEffect(() => {
-    setIsClient(true); // Set to true once the component has mounted on the client
-  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -52,29 +34,22 @@ export default function CalendarPage() {
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8">
-            <div>
-              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
-              <div className="flex justify-center">
-                {isClient ? ( // Only render ModernCalendar if isClient is true
-                  <ModernCalendar
-                    value={selectedDay}
-                    onChange={setSelectedDay}
-                    locale="fa" // Set locale to Persian (Jalali)
-                    shouldHighlightWeekends
-                    calendarClassName="responsive-calendar" // Optional: for custom styling
-                  />
-                ) : (
-                  // Fallback while waiting for client mount, can be same as loading or different
-                  <div className="flex justify-center items-center h-64 w-full"><p className="text-muted-foreground">Initializing calendar...</p></div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mt-4 text-center">
-                برای انتخاب روز روی آن کلیک کنید.
-              </p>
-            </div>
+          <CardContent className="space-y-8 text-center">
+            <Construction className="mx-auto h-16 w-16 text-primary/70 mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">بخش تقویم در دست بررسی و ساخت است!</h3>
+            <p className="text-muted-foreground mb-6">
+              به دلیل مشکلات فنی با کامپوننت تقویم، این بخش موقتاً غیرفعال شده است. به زودی با یک راه حل مناسب باز خواهد گشت.
+            </p>
+            <Image
+              src="https://placehold.co/600x300.png"
+              alt="Calendar Placeholder"
+              width={600}
+              height={300}
+              className="rounded-md mx-auto shadow-md opacity-70"
+              data-ai-hint="calendar schedule"
+            />
             
-            <div className="p-4 border rounded-lg bg-secondary/30">
+            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
                 <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
                   <li>ایجاد و ویرایش رویدادها با انتخاب روز از تقویم</li>
