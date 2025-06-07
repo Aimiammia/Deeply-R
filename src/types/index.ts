@@ -1,4 +1,5 @@
 
+
 export interface Task {
   id: string;
   title: string;
@@ -70,3 +71,8 @@ export interface CalendarEvent {
   createdAt: string; // ISO string for when it was added
   // Future: color, startTime, endTime, allDay
 }
+
+// Educational settings are stored in localStorage directly in the component
+// No specific type needed here unless we centralize it more later.
+
+    
