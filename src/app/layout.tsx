@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Deeply Reflections',
-  description: 'A space for your daily thoughts and insights.',
+  title: 'Daily Task Manager',
+  description: 'Organize and manage your daily tasks efficiently.',
 };
 
 export default function RootLayout({
