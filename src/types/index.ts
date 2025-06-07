@@ -32,3 +32,21 @@ export interface Budget {
   amount: number;   // Monthly budgeted amount
   createdAt: string; // ISO date string
 }
+
+export interface LongTermGoal {
+  id: string;
+  title: string;
+  description: string | null;
+  targetDate: string | null; // ISO date string
+  status: 'not-started' | 'in-progress' | 'completed' | 'on-hold';
+  createdAt: string; // ISO date string
+  // Future additions:
+  // milestones?: Milestone[];
+  // smartCriteria?: {
+  //   specific: string;
+  //   measurable: string;
+  //   achievable: string;
+  //   relevant: string;
+  //   timeBound: string; // or could be part of targetDate
+  // };
+}

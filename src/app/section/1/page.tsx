@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardList, Target, Construction } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Target, ChevronLeftSquare } from 'lucide-react'; // Changed ChevronLeftSquare
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
@@ -159,28 +159,25 @@ export default function PlannerLandingPage() {
                   onEditTask={handleEditTask}
                 />
               </TabsContent>
-              <TabsContent value="long-term" className="space-y-6 text-center">
-                <Construction className="mx-auto h-16 w-16 text-primary/70 mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">این بخش در دست ساخت است!</h3>
-                <p className="text-muted-foreground mb-6">
-                  به زودی می‌توانید اهداف بلندمدت خود را در اینجا تعیین کنید، آن‌ها را به مراحل کوچکتر تقسیم کنید و پیشرفت خود را دنبال نمایید.
+              <TabsContent value="long-term" className="space-y-6 text-center py-8">
+                <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">مدیریت اهداف بلندمدت</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  اهداف بزرگ و برنامه‌های طولانی‌مدت خود را در صفحه اختصاصی برنامه‌ریز بلندمدت تعریف، پیگیری و مدیریت کنید.
                 </p>
-                <Image 
-                    src="https://placehold.co/600x350.png" 
-                    alt="Long term goals placeholder" 
-                    width={600} 
-                    height={350}
-                    className="rounded-md mx-auto shadow-md"
-                    data-ai-hint="planning goals"
-                  />
-                <div className="mt-8 p-4 border rounded-md bg-secondary/30">
-                    <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right">
-                      <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
-                      <li>تقسیم اهداف بزرگ به وظایف کوچکتر و قابل مدیریت</li>
-                      <li>نمودار پیشرفت و پیگیری نقاط عطف</li>
-                      <li>یادآوری‌ها و اعلان‌ها برای اهداف</li>
-                      <li>اتصال به برنامه‌ریزی کوتاه مدت برای همسوسازی تلاش‌ها</li>
+                <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
+                  <Link href="/section/1/long-term">
+                     <ChevronLeftSquare className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                    رفتن به برنامه‌ریز بلندمدت
+                  </Link>
+                </Button>
+                 <div className="mt-10 p-4 border rounded-md bg-secondary/30 max-w-lg mx-auto">
+                    <h4 className="text-lg font-semibold text-primary mb-2">در صفحه برنامه‌ریز بلندمدت شما می‌توانید:</h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+                      <li>اهداف بلندمدت خود را با عنوان، توضیحات و تاریخ هدف تعریف کنید.</li>
+                      <li>لیست اهداف خود را مشاهده، ویرایش و حذف نمایید.</li>
+                      <li>وضعیت هر هدف را مشخص کنید (شروع نشده، در حال انجام، تکمیل شده، متوقف شده).</li>
+                      <li>و به زودی قابلیت‌های پیشرفته‌تری مانند اهداف SMART و تقسیم وظایف اضافه خواهد شد.</li>
                     </ul>
                   </div>
               </TabsContent>
