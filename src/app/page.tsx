@@ -8,7 +8,7 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  // CalendarDays, // Removed for Section 4
+  // CalendarDays, // Icon for removed Section 4
   Target,
   Dumbbell,
   BookOpen,
@@ -23,13 +23,15 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  Target,           // Section 5 (Goals and Habits) -> Was Section 4 placeholder, now Target
+  // Section 4 (Calendar) was removed. Placeholder icon (Award) will be used if section 4 logic was not fully removed.
+  // The filtering logic below should prevent section 4 from appearing.
+  Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
   PieChart,         // Section 8
   FileEdit,         // Section 9
   Award,            // Section 10
-  Award             // Placeholder for removed section 4
+  Award             // Placeholder for icon array length consistency if needed, actual display is filtered
 ];
 
 export default function HomePage() {
@@ -47,6 +49,7 @@ export default function HomePage() {
             if (sectionNumber > 4) {
                 iconIndex = sectionNumber - 2; // Shift index for sections after the removed one
             }
+            // Fallback icon if index is out of bounds after filtering, though it shouldn't happen with current logic
             const IconComponent = sectionIcons[iconIndex] || Award;
 
 
