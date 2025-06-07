@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  ClipboardList,
-  LayoutDashboard,
+  CalendarCheck2, // Section 1 (Tasks/Planner)
+  BookHeart,      // Section 2 (Daily Reflections)
   LineChart,
   Settings2,
   Users2,
@@ -14,15 +14,14 @@ import {
   CalendarClock,
   PieChart,
   FileEdit,
-  Award,
-  CalendarCheck2 // Changed for section 1
+  Award
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 // Helper array for icons
 const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
-  LayoutDashboard,  // Section 2
+  BookHeart,        // Section 2 (Daily Reflections)
   LineChart,        // Section 3
   Settings2,        // Section 4
   Users2,           // Section 5
@@ -43,10 +42,20 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sections.map((sectionNumber) => {
             const IconComponent = sectionIcons[sectionNumber - 1] || Award; // Default to Award icon if out of bounds
-            const isPlannerSection = sectionNumber === 1;
-            const sectionTitle = isPlannerSection ? "برنامه‌ریز روزانه" : `بخش ${sectionNumber}`;
-            const sectionDescription = isPlannerSection ? "برنامه‌ریزی و مدیریت کارهای روزانه" : `جزئیات بخش ${sectionNumber}`;
-            const sectionContent = isPlannerSection ? "وظایف امروز خود را اینجا برنامه‌ریزی کنید." : `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
+            
+            let sectionTitle = `بخش ${sectionNumber}`;
+            let sectionDescription = `جزئیات بخش ${sectionNumber}`;
+            let sectionContent = `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
+
+            if (sectionNumber === 1) {
+              sectionTitle = "برنامه‌ریز روزانه";
+              sectionDescription = "برنامه‌ریزی و مدیریت کارهای روزانه";
+              sectionContent = "وظایف امروز خود را اینجا برنامه‌ریزی کنید.";
+            } else if (sectionNumber === 2) {
+              sectionTitle = "تأملات روزانه";
+              sectionDescription = "افکار و احساسات خود را ثبت و تحلیل کنید";
+              sectionContent = "بینش‌های جدیدی در مورد خودتان با کمک هوش مصنوعی کشف کنید.";
+            }
 
             return (
               <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg">

@@ -8,3 +8,10 @@ export interface Task {
   priority?: 'low' | 'medium' | 'high' | null; // Optional
   category?: string | null; // Optional
 }
+
+export interface ReflectionEntry {
+  id: string;
+  date: string; // ISO date string of when it was saved
+  prompt: string; // The daily success quote or a general prompt active at the time
+  text: string;   // The user's reflection text
+}
