@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type FormEvent } from 'react';
@@ -26,7 +27,7 @@ export function ReflectionForm({ onSaveReflection, isLoading }: ReflectionFormPr
       <Textarea
         value={reflectionText}
         onChange={(e) => setReflectionText(e.target.value)}
-        placeholder="Write your reflection here..."
+        placeholder="تأمل خود را اینجا بنویسید..."
         rows={6}
         className="text-base"
         disabled={isLoading}
