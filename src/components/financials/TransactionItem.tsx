@@ -59,7 +59,7 @@ export function TransactionItem({ transaction, onDeleteTransaction }: Transactio
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>لغو</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDeleteTransaction(transaction.id)} className={cn( "bg-destructive text-destructive-foreground hover:bg-destructive/90")}>
+              <AlertDialogAction onClick={() => onDeleteTransaction(transaction.id)} variant="destructive">
                 حذف تراکنش
               </AlertDialogAction>
             </AlertDialogFooter>

@@ -3,13 +3,13 @@
 
 import type { Task } from '@/types';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button'; // Added buttonVariants
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { faIR } from 'date-fns/locale'; 
+import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
@@ -55,7 +55,7 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
       case 'high':
         return 'destructive';
       case 'medium':
-        return 'secondary'; 
+        return 'secondary';
       case 'low':
         return 'outline';
       default:
@@ -133,7 +133,7 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>لغو</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDeleteTask(task.id)} className={cn(buttonVariants({ variant: "destructive" }))}>
+              <AlertDialogAction onClick={() => onDeleteTask(task.id)} variant="destructive">
                 حذف وظیفه
               </AlertDialogAction>
             </AlertDialogFooter>
