@@ -12,12 +12,12 @@ import {
   isSameDay,
 } from 'date-fns-jalali';
 
-// Import gregorianToJalali and jalaliToGregorian from their specific ESM submodules,
-// explicitly pointing to the .mjs files.
+// Import gregorianToJalali and jalaliToGregorian from their specific ESM submodules
+// explicitly pointing to the .js files.
 // This is an attempt to bypass potential issues with package.json "exports" map resolution
 // if the primary .js module target isn't being picked up correctly.
-import gregorianToJalali from 'date-fns-jalali/esm/gregorianToJalali.mjs';
-import jalaliToGregorian from 'date-fns-jalali/esm/jalaliToGregorian.mjs';
+import gregorianToJalali from 'date-fns-jalali/esm/gregorianToJalali.js';
+import jalaliToGregorian from 'date-fns-jalali/esm/jalaliToGregorian.js';
 
 import { faIR } from 'date-fns-jalali/locale';
 import { format as formatGregorian, parseISO as parseISOGregorian, isValid as isValidGregorian } from 'date-fns';
@@ -32,10 +32,6 @@ export const JALALI_DAY_NAMES_LONG = ['شنبه', 'یکشنبه', 'دوشنبه'
 
 const convertDayOfWeek = (jsDayOfWeek: number): number => (jsDayOfWeek + 1) % 7;
 
-// Re-exporting the conversion functions for use elsewhere if needed by other modules.
-// These are now directly the imported functions.
-export { jalaliToGregorian, gregorianToJalali };
-
 export const parseJalaliDate = (year: number, month: number, day: number): Date | null => {
   try {
     const gDate = jalaliToGregorian(year, month, day);
@@ -46,13 +42,13 @@ export const parseJalaliDate = (year: number, month: number, day: number): Date 
   }
 };
 
-export const getDaysInJalaliMonthWrapper = (year: number, month: number): number => {
+export const getDaysInJalaliMonth = (year: number, month: number): number => {
   const dateForMonth = parseJalaliDate(year, month, 1);
   if (!dateForMonth) return 30;
   return getDaysInMonth(dateForMonth);
 };
 
-export const getJalaliMonthFirstDayOfWeekWrapper = (year: number, month: number): number => {
+export const getJalaliMonthFirstDayOfWeek = (year: number, month: number): number => {
   const firstDayOfMonthJalali = parseJalaliDate(year, month, 1);
   if (!firstDayOfMonthJalali) return 0;
   const firstDayObject = startOfMonth(firstDayOfMonthJalali);
@@ -88,6 +84,9 @@ export const isJalaliToday = (year: number, month: number, day: number): boolean
 };
 
 export { isSameDay as isSameJalaliDay };
+
+// Re-exporting the conversion functions for use elsewhere.
+export { jalaliToGregorian, gregorianToJalali };
 
 
 const khordad1404Holidays: { [day: number]: { occasion: string, isPublicHoliday: boolean } } = {
