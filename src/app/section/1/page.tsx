@@ -12,7 +12,7 @@ import type { Task } from '@/types';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
 import { useToast } from "@/hooks/use-toast";
-import { getDailyPrompt } from '@/lib/prompts';
+import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
 
 export default function Section1Page() {
@@ -22,7 +22,7 @@ export default function Section1Page() {
 
   const sectionTitle = "برنامه‌ریز روزانه شما";
   const sectionPageDescription = "کارهایی که برای امروز در نظر گرفته‌اید را در این بخش وارد و مدیریت کنید.";
-  const currentDailyPrompt = getDailyPrompt();
+  const currentSuccessQuote = getDailySuccessQuote();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
@@ -119,7 +119,7 @@ export default function Section1Page() {
           </CardHeader>
           <CardContent>
             <div className="mb-6 p-4 rounded-md border bg-accent/10 shadow-sm">
-              <DailyPromptDisplay prompt={currentDailyPrompt} />
+              <DailyPromptDisplay prompt={currentSuccessQuote} />
             </div>
             <CreateTaskForm onAddTask={handleAddTask} />
             <TaskList
