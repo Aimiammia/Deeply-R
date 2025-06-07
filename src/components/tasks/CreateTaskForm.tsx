@@ -104,7 +104,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
         </Select>
       </div>
       
-      <Button type="submit" disabled={!title.trim()} className="w-full sm:w-auto">
+      <Button type="submit" disabled={!title.trim()} className="w-full">
         <PlusCircle className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
         افزودن وظیفه
       </Button>
