@@ -13,12 +13,18 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 const educationalLevels = [
-  { value: 'diploma', label: 'دیپلم' },
-  { value: 'associate', label: 'کاردانی' },
-  { value: 'bachelor', label: 'کارشناسی' },
-  { value: 'master', label: 'کارشناسی ارشد' },
-  { value: 'phd', label: 'دکتری' },
-  { value: 'seminary', label: 'حوزوی' },
+  { value: 'elementary_1', label: 'اول ابتدایی' },
+  { value: 'elementary_2', label: 'دوم ابتدایی' },
+  { value: 'elementary_3', label: 'سوم ابتدایی' },
+  { value: 'elementary_4', label: 'چهارم ابتدایی' },
+  { value: 'elementary_5', label: 'پنجم ابتدایی' },
+  { value: 'elementary_6', label: 'ششم ابتدایی' },
+  { value: 'middle_7', label: 'پایه هفتم' },
+  { value: 'middle_8', label: 'پایه هشتم' },
+  { value: 'middle_9', label: 'پایه نهم' },
+  { value: 'high_10', label: 'پایه دهم' },
+  { value: 'high_11', label: 'پایه یازدهم' },
+  { value: 'high_12', label: 'پایه دوازدهم' },
   { value: 'other', label: 'سایر' },
 ];
 
