@@ -18,12 +18,12 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-// Helper array for icons (CalendarDays for section 4 is effectively skipped due to filtering)
+// Helper array for icons
 const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  CalendarDays,     // Placeholder for original Section 4, will be skipped by filter
+  Award,            // Placeholder for removed Section 4, effectively skipped
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
@@ -37,6 +37,10 @@ export default function HomePage() {
   const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
   const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4);
 
+  // Adjust icon mapping if section 4 is removed and we want to keep icons aligned with remaining sections.
+  // Or, more simply, ensure the sectionIcons array is indexed correctly based on the original section numbers.
+  // The current approach uses sectionNumber - 1, so if section 4's icon is a placeholder, it's skipped.
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -44,8 +48,12 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
             // sectionIcons is 0-indexed, sectionNumber is 1-indexed
-            const IconComponent = sectionIcons[sectionNumber - 1] || Award; // Default to Award icon if out of bounds
-            
+            // If section 4 is removed, ensure icon indexing remains correct for subsequent sections
+            // or use a mapping if icon array length changes.
+            // Current logic: sectionIcons[sectionNumber - 1] should correctly skip the placeholder
+            // if the icon array is structured with section 4's icon as a placeholder.
+            const IconComponent = sectionIcons[sectionNumber - 1] || Award; // Default to Award icon
+
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
             let sectionContent = `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
@@ -62,7 +70,7 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
-            } else if (sectionNumber === 5) { // Was section 4, now section 5 takes its "slot" in display logic if re-numbering, but we are keeping original numbers and skipping 4
+            } else if (sectionNumber === 5) {
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
               sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید.";
