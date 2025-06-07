@@ -59,3 +59,14 @@ export interface BirthdayEntry {
   jDay: number;    // Jalali day
   createdAt: string; // ISO string for when it was added
 }
+
+export interface CalendarEvent {
+  id: string;
+  name: string;
+  description?: string | null;
+  jYear: number;
+  jMonth: number; // 1-indexed
+  jDay: number;
+  createdAt: string; // ISO string for when it was added
+  // Future: color, startTime, endTime, allDay
+}

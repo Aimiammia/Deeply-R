@@ -4,13 +4,13 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckSquare, Edit, ListChecks, GanttChartSquare, BellDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; // Import the new calendar component
+import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; 
 
 export default function CalendarPage() {
-  const sectionTitle = "تقویم و مناسبت‌ها";
-  const sectionPageDescription = "تقویم شمسی را مشاهده کنید، رویدادها و مناسبت‌های مهم را پیگیری نمایید.";
+  const sectionTitle = "تقویم و رویدادها";
+  const sectionPageDescription = "تقویم شمسی را مشاهده کنید، رویدادها، تولدها و مناسبت‌های مهم را پیگیری نمایید.";
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -34,20 +34,23 @@ export default function CalendarPage() {
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Use the PersianCalendarView component */}
-            <PersianCalendarView initialYear={1404} initialMonth={3} /> 
+          <CardContent className="space-y-8">
+            <PersianCalendarView initialYear={1403} initialMonth={4} /> 
             
-            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-                <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                  <li>ایجاد و ویرایش رویدادها با انتخاب روز از تقویم</li>
-                  <li>نمایش رویدادهای ثبت شده کاربر در تقویم</li>
-                  <li>نمایش‌های مختلف (ماهانه، هفتگی، روزانه) برای رویدادها (در صورت نیاز)</li>
-                  <li>تنظیم یادآور برای رویدادها</li>
-                  <li>بارگذاری هوشمند مناسبت‌ها و تعطیلات رسمی برای سال‌های مختلف</li>
-                  <li>انتخابگر پیشرفته ماه و سال</li>
-                  <li>نمایش تاریخ میلادی و قمری معادل برای هر روز</li>
+            <div className="p-4 border rounded-lg bg-secondary/30">
+                <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های پیاده‌سازی شده و آینده:</h4>
+                <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش تقویم شمسی با ناوبری ماه و سال</li>
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />افزودن، نمایش و حذف تاریخ تولدها (ذخیره در localStorage)</li>
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />افزودن، ویرایش، نمایش و حذف رویدادها (ذخیره در localStorage)</li>
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش نشانگر برای روزهای دارای تولد یا رویداد</li>
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش بازه معادل میلادی برای ماه شمسی جاری</li>
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش مناسبت‌های نمونه برای خرداد ۱۴۰۴</li>
+                  <li className="flex items-center"><Edit className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />ویرایش پیشرفته‌تر رویدادها (مانند انتخاب رنگ، تکرار و ...)</li>
+                  <li className="flex items-center"><GanttChartSquare className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />نمایش‌های مختلف (هفتگی، روزانه) برای رویدادها</li>
+                  <li className="flex items-center"><BellDot className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />تنظیم یادآور برای رویدادها</li>
+                  <li className="flex items-center"><ListChecks className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />بارگذاری هوشمند مناسبت‌ها و تعطیلات رسمی از منبع خارجی</li>
+                  <li className="flex items-center"><CalendarDays className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />نمایش تاریخ قمری معادل برای هر روز</li>
                 </ul>
               </div>
           </CardContent>
