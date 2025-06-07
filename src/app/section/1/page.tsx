@@ -48,7 +48,7 @@ export default function Section1Page() {
     }
   }, [tasks, isInitialLoadComplete]);
 
-  const handleAddTask = (title: string, dueDate?: Date | null, priority?: Task['priority']) => {
+  const handleAddTask = (title: string, dueDate?: Date | null, priority?: Task['priority'], category?: string | null) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title,
@@ -56,6 +56,7 @@ export default function Section1Page() {
       createdAt: new Date().toISOString(),
       dueDate: dueDate ? dueDate.toISOString() : null,
       priority: priority || null,
+      category: category || null,
     };
     setTasks(prevTasks => [newTask, ...prevTasks]);
     toast({

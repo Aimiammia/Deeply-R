@@ -6,10 +6,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { faIR } from 'date-fns/locale'; // For Persian date formatting (optional)
+import { faIR } from 'date-fns/locale'; 
 import { cn } from '@/lib/utils';
 
 interface TaskItemProps {
@@ -44,7 +44,7 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
       case 'high':
         return 'destructive';
       case 'medium':
-        return 'secondary'; // Using secondary for medium as an example
+        return 'secondary'; 
       case 'low':
         return 'outline';
       default:
@@ -112,8 +112,8 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
         </Button>
       </div>
       
-      {(task.dueDate || task.priority) && (
-        <div className="pl-10 rtl:pr-10 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      {(task.dueDate || task.priority || task.category) && (
+        <div className="pl-10 rtl:pr-10 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
           {task.dueDate && (
             <div className="flex items-center">
               <CalendarDays className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
@@ -123,7 +123,13 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
           {task.priority && (
             <div className="flex items-center">
                <AlertTriangle className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
-              اهمیت: <Badge variant={getPriorityBadgeVariant(task.priority)} className="mr-1 text-xs px-1.5 py-0.5">{getPriorityText(task.priority)}</Badge>
+              <span>اهمیت:</span> <Badge variant={getPriorityBadgeVariant(task.priority)} className="mr-1 text-xs px-1.5 py-0.5">{getPriorityText(task.priority)}</Badge>
+            </div>
+          )}
+          {task.category && (
+            <div className="flex items-center">
+              <Tag className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+              <span>دسته‌بندی:</span> <Badge variant="outline" className="mr-1 text-xs px-1.5 py-0.5">{task.category}</Badge>
             </div>
           )}
         </div>

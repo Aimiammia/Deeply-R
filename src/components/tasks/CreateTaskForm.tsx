@@ -4,7 +4,7 @@
 import { useState, type FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Tag } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,21 +13,23 @@ import { cn } from '@/lib/utils';
 import type { Task } from '@/types';
 
 interface CreateTaskFormProps {
-  onAddTask: (title: string, dueDate?: Date | null, priority?: Task['priority']) => void;
+  onAddTask: (title: string, dueDate?: Date | null, priority?: Task['priority'], category?: string | null) => void;
 }
 
 export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [priority, setPriority] = useState<Task['priority'] | undefined>(undefined);
+  const [category, setCategory] = useState<string>('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAddTask(title.trim(), dueDate ?? null, priority ?? null);
+      onAddTask(title.trim(), dueDate ?? null, priority ?? null, category.trim() || null);
       setTitle('');
       setDueDate(undefined);
       setPriority(undefined);
+      setCategory('');
     }
   };
 
@@ -77,6 +79,14 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
           </SelectContent>
         </Select>
       </div>
+      <Input
+        type="text"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        placeholder="مثلاً: کار، شخصی، خرید..."
+        className="text-base"
+        aria-label="دسته‌بندی وظیفه"
+      />
       <Button type="submit" disabled={!title.trim()} className="w-full sm:w-auto">
         <PlusCircle className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
         افزودن وظیفه
