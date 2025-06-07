@@ -9,8 +9,8 @@ import {
   BookHeart,
   CircleDollarSign,
   CalendarDays,
-  Target, // Changed from Users2 for Section 5
-  BriefcaseBusiness,
+  Target,
+  Dumbbell, // Changed from BriefcaseBusiness for Section 6
   CalendarClock,
   PieChart,
   FileEdit,
@@ -24,8 +24,8 @@ const sectionIcons: LucideIcon[] = [
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
   CalendarDays,     // Section 4 (Calendar)
-  Target,           // Section 5 (Goals and Habits) - Changed from Users2
-  BriefcaseBusiness,// Section 6
+  Target,           // Section 5 (Goals and Habits)
+  Dumbbell,         // Section 6 (Sports/Exercise)
   CalendarClock,    // Section 7
   PieChart,         // Section 8
   FileEdit,         // Section 9
@@ -67,6 +67,10 @@ export default function HomePage() {
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
               sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید.";
+            } else if (sectionNumber === 6) {
+              sectionTitle = "ورزشی";
+              sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
+              sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
             }
 
 
