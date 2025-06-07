@@ -133,11 +133,17 @@ export default function PlannerLandingPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <Tabs defaultValue="short-term" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="short-term">
+              <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1">
+                <TabsTrigger
+                  value="short-term"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
                   <ClipboardList className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> برنامه‌ریزی کوتاه مدت
                 </TabsTrigger>
-                <TabsTrigger value="long-term">
+                <TabsTrigger
+                  value="long-term"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
                   <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> برنامه‌ریزی بلند مدت
                 </TabsTrigger>
               </TabsList>
@@ -188,4 +194,3 @@ export default function PlannerLandingPage() {
     </div>
   );
 }
-
