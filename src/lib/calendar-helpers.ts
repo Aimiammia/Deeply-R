@@ -8,7 +8,7 @@ import {
   startOfMonth as startOfJalaliMonthLib,
   parse as parseJalali,
   isToday as isJalaliTodayLib,
-  isSameDay as isSameJalaliDay,
+  isSameDay as isSameJalaliDayAliased, // Use a different alias internally to avoid confusion before re-export
 } from 'date-fns-jalali';
 import { faIR } from 'date-fns-jalali/locale';
 
@@ -64,9 +64,8 @@ export const isJalaliToday = (year: number, month: number, day: number): boolean
   return isJalaliTodayLib(dateToCheck);
 };
 
-export const isSameJalaliDay = (date1: Date, date2: Date): boolean => {
-    return isSameJalaliDay(date1, date2);
-}
+// Export the correctly aliased function from date-fns-jalali
+export const isSameJalaliDay = isSameJalaliDayAliased;
 
 // Mock holidays for Khordad 1404
 // In a real app, this would come from an API or a more robust data source
