@@ -8,7 +8,7 @@ import {
   startOfMonth as startOfJalaliMonthLib,
   parse as parseJalali,
   isToday as isJalaliTodayLib,
-  isSameDay as isSameJalaliDayAliased, // Use a different alias internally to avoid confusion before re-export
+  isSameDay as isSameJalaliDayAliased, // Use a different alias internally
 } from 'date-fns-jalali';
 import { faIR } from 'date-fns-jalali/locale';
 
