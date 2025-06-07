@@ -12,7 +12,7 @@ import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
 import { TransactionList } from '@/components/financials/TransactionList';
 import type { FinancialTransaction } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { parseISO, getMonth } from 'date-fns'; // Removed getFullYear from here
+import { parseISO, getMonth } from 'date-fns';
 
 const persianMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -86,7 +86,7 @@ export default function FinancialManagementPage() {
 
     transactions.forEach(transaction => {
       const date = parseISO(transaction.date);
-      const year = date.getFullYear(); // Corrected: Use date.getFullYear()
+      const year = date.getFullYear();
       const monthIndex = getMonth(date);
       const key = `${year}-${monthIndex}`;
 
@@ -248,3 +248,4 @@ export default function FinancialManagementPage() {
     </div>
   );
 }
+
