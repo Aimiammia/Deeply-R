@@ -4,13 +4,13 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays, Construction } from 'lucide-react';
+import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image'; // Keep Image if used for placeholder
+import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; // Import the new calendar component
 
 export default function CalendarPage() {
-  const sectionTitle = "تقویم";
-  const sectionPageDescription = "رویدادها، قرارها و برنامه‌های خود را در این بخش مشاهده و مدیریت کنید.";
+  const sectionTitle = "تقویم و مناسبت‌ها";
+  const sectionPageDescription = "تقویم شمسی را مشاهده کنید، رویدادها و مناسبت‌های مهم را پیگیری نمایید.";
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -34,30 +34,20 @@ export default function CalendarPage() {
               {sectionPageDescription}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8 text-center">
-            <Construction className="mx-auto h-16 w-16 text-primary/70 mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">بخش تقویم در دست بررسی و ساخت است!</h3>
-            <p className="text-muted-foreground mb-6">
-              به دلیل مشکلات فنی با کامپوننت تقویم، این بخش موقتاً غیرفعال شده است. به زودی با یک راه حل مناسب باز خواهد گشت.
-            </p>
-            <Image
-              src="https://placehold.co/600x300.png"
-              alt="Calendar Placeholder"
-              width={600}
-              height={300}
-              className="rounded-md mx-auto shadow-md opacity-70"
-              data-ai-hint="calendar schedule"
-            />
+          <CardContent className="space-y-6">
+            {/* Use the PersianCalendarView component */}
+            <PersianCalendarView initialYear={1404} initialMonth={3} /> 
             
             <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
                 <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
                   <li>ایجاد و ویرایش رویدادها با انتخاب روز از تقویم</li>
-                  <li>نمایش رویدادهای ثبت شده در تقویم</li>
-                  <li>نمایش‌های مختلف (ماهانه، هفتگی، روزانه) برای رویدادها</li>
+                  <li>نمایش رویدادهای ثبت شده کاربر در تقویم</li>
+                  <li>نمایش‌های مختلف (ماهانه، هفتگی، روزانه) برای رویدادها (در صورت نیاز)</li>
                   <li>تنظیم یادآور برای رویدادها</li>
-                  <li>همگام‌سازی با تقویم‌های دیگر (اختیاری)</li>
-                  <li>دسته‌بندی رویدادها با رنگ‌های مختلف</li>
+                  <li>بارگذاری هوشمند مناسبت‌ها و تعطیلات رسمی برای سال‌های مختلف</li>
+                  <li>انتخابگر پیشرفته ماه و سال</li>
+                  <li>نمایش تاریخ میلادی و قمری معادل برای هر روز</li>
                 </ul>
               </div>
           </CardContent>
