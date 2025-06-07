@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react'; 
+import { useState, useEffect } from 'react'; // Added useEffect
 import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,7 +16,7 @@ const ModernCalendar = dynamic(
   () => import('react-modern-calendar-datepicker').then(mod => mod.default),
   {
     ssr: false,
-    loading: () => <div /> // Simplified loading state to a basic div
+    loading: () => <div className="flex justify-center items-center h-64 w-full"><p className="text-muted-foreground">Loading calendar...</p></div>
   }
 );
 
@@ -24,6 +24,11 @@ export default function CalendarPage() {
   const sectionTitle = "تقویم";
   const sectionPageDescription = "رویدادها، قرارها و برنامه‌های خود را در این بخش مشاهده و مدیریت کنید.";
   const [selectedDay, setSelectedDay] = useState<DayValue>(null);
+  const [isClient, setIsClient] = useState(false); // State to track client-side mount
+
+  useEffect(() => {
+    setIsClient(true); // Set to true once the component has mounted on the client
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -51,14 +56,18 @@ export default function CalendarPage() {
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4 text-center">تقویم شمسی</h3>
               <div className="flex justify-center">
-                {/* ModernCalendar && check removed, dynamic import handles loading state */}
-                <ModernCalendar
-                  value={selectedDay}
-                  onChange={setSelectedDay}
-                  locale="fa" // Set locale to Persian (Jalali)
-                  shouldHighlightWeekends
-                  calendarClassName="responsive-calendar" // Optional: for custom styling
-                />
+                {isClient ? ( // Only render ModernCalendar if isClient is true
+                  <ModernCalendar
+                    value={selectedDay}
+                    onChange={setSelectedDay}
+                    locale="fa" // Set locale to Persian (Jalali)
+                    shouldHighlightWeekends
+                    calendarClassName="responsive-calendar" // Optional: for custom styling
+                  />
+                ) : (
+                  // Fallback while waiting for client mount, can be same as loading or different
+                  <div className="flex justify-center items-center h-64 w-full"><p className="text-muted-foreground">Initializing calendar...</p></div>
+                )}
               </div>
               <p className="text-sm text-muted-foreground mt-4 text-center">
                 برای انتخاب روز روی آن کلیک کنید.
@@ -85,4 +94,3 @@ export default function CalendarPage() {
     </div>
   );
 }
-
