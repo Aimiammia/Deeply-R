@@ -1,5 +1,5 @@
 
-// Import standard utility functions as default imports using their subpath exports.
+// Import utility functions from date-fns-jalali using their subpath exports.
 // This relies on the 'exports' map in date-fns-jalali's package.json.
 import format from 'date-fns-jalali/format';
 import getDaysInMonth from 'date-fns-jalali/getDaysInMonth';
@@ -30,15 +30,17 @@ const convertDayOfWeek = (jsDayOfWeek: number): number => (jsDayOfWeek + 1) % 7;
 
 export const parseJalaliDate = (year: number, month: number, day: number): Date | null => {
   try {
+    // Ensure month is 1-indexed for jalaliToGregorian
     const gDate = jalaliToGregorian(year, month, day);
-    return new Date(gDate.gy, gDate.gm - 1, gDate.gd);
+    return new Date(gDate.gy, gDate.gm - 1, gDate.gd); // month for Date constructor is 0-indexed
   } catch (e) {
     console.error("Error parsing Jalali date:", year, month, day, e);
     return null;
   }
 };
 
-export const getDaysInJalaliMonthLocal = (year: number, month: number): number => {
+// Renamed to avoid conflict with imported getDaysInMonth
+export const getDaysInJalaliMonth = (year: number, month: number): number => {
   const dateForMonth = parseJalaliDate(year, month, 1);
   if (!dateForMonth) return 30; // Fallback
   return getDaysInMonth(dateForMonth);
@@ -63,13 +65,16 @@ export const formatJalaliDateDisplay = (date: Date, formatStr: string = 'PPP'): 
 
 export const getJalaliToday = (): { year: number; month: number; day: number } => {
   const todayGregorian = new Date();
+  // Ensure month is 1-indexed for gregorianToJalali
   const jToday = gregorianToJalali(todayGregorian.getFullYear(), todayGregorian.getMonth() + 1, todayGregorian.getDate());
   return { year: jToday.jy, month: jToday.jm, day: jToday.jd };
 };
 
+// Re-exporting with potentially clearer names if used elsewhere, or just use them directly.
 export { addMonths as addJalaliMonths, subMonths as subJalaliMonths };
 
-export const isJalaliTodayLocal = (year: number, month: number, day: number): boolean => {
+// Renamed to avoid conflict with imported isToday
+export const isJalaliToday = (year: number, month: number, day: number): boolean => {
   try {
     const dateToCheck = parseJalaliDate(year, month, day);
     if (!dateToCheck) return false;
@@ -80,20 +85,26 @@ export const isJalaliTodayLocal = (year: number, month: number, day: number): bo
 };
 
 export { isSameDay as isSameJalaliDay };
-export { gregorianToJalali, jalaliToGregorian };
+
 
 const khordad1404Holidays: { [day: number]: { occasion: string, isPublicHoliday: boolean } } = {
   14: { occasion: 'رحلت امام خمینی', isPublicHoliday: true },
   15: { occasion: 'قیام خونین ۱۵ خرداد', isPublicHoliday: true },
   16: { occasion: 'عید سعید قربان', isPublicHoliday: true },
+  // Note: Khordad 1404 (June 2025) - Ghadir might be around 24th or 25th Khordad
+  // For example purposes, let's assume 24th
 };
 
 export const getJalaliHolidayInfo = (year: number, month: number, day: number): { occasion: string, isPublicHoliday: boolean } | null => {
   if (year === 1404 && month === 3) { // Khordad is the 3rd month
-    if (day === 24 && month === 3) {
+    if (day === 24 && month === 3) { // Example for Ghadir
         return { occasion: 'عید سعید غدیر خم (نمونه)', isPublicHoliday: true}
     }
     return khordad1404Holidays[day] || null;
   }
+  // Add more holidays for other months/years if needed
   return null;
 };
+
+// Direct re-export for clarity, though they are already available.
+export { gregorianToJalali, jalaliToGregorian };
