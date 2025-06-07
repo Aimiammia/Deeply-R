@@ -8,7 +8,7 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  Settings2,
+  CalendarDays, // Changed from Settings2
   Users2,
   BriefcaseBusiness,
   CalendarClock,
@@ -23,7 +23,7 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  Settings2,        // Section 4
+  CalendarDays,     // Section 4 (Calendar) - Changed from Settings2
   Users2,           // Section 5
   BriefcaseBusiness,// Section 6
   CalendarClock,    // Section 7
@@ -59,6 +59,10 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
+            } else if (sectionNumber === 4) {
+              sectionTitle = "تقویم";
+              sectionDescription = "رویدادها و برنامه‌های خود را مشاهده کنید";
+              sectionContent = "برنامه‌های ماهانه، هفتگی و روزانه خود را در تقویم مدیریت کنید.";
             }
 
 
