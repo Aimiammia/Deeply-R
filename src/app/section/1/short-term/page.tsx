@@ -19,10 +19,14 @@ export default function ShortTermPlannerPage() {
 
   const sectionTitle = "برنامه‌ریزی کوتاه مدت";
   const sectionPageDescription = "کارهایی که برای امروز و آینده نزدیک در نظر گرفته‌اید را در این بخش وارد و مدیریت کنید.";
-  const currentSuccessQuote = getDailySuccessQuote();
+  const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+
+  useEffect(() => {
+    setCurrentSuccessQuote(getDailySuccessQuote());
+  }, []);
 
   // Load tasks from localStorage on initial mount
   useEffect(() => {

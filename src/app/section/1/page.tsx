@@ -24,9 +24,13 @@ export default function PlannerLandingPage() {
 
   // State and logic for Short-Term Planner
   const { toast } = useToast();
-  const currentSuccessQuote = getDailySuccessQuote();
+  const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+
+  useEffect(() => {
+    setCurrentSuccessQuote(getDailySuccessQuote());
+  }, []);
 
   // Load tasks from localStorage on initial mount
   useEffect(() => {
