@@ -106,3 +106,8 @@ export const getJalaliHolidayInfo = (year: number, month: number, day: number): 
   // Add more holidays for other months/years if needed
   return null;
 };
+
+// Exporting jalaliToGregorian and gregorianToJalali so they can be used by other modules if needed.
+// This doesn't change their import within this file, just makes them available externally.
+export { jalaliToGregorian, gregorianToJalali };
+
