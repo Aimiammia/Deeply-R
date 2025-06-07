@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain, History, Edit3 } from 'lucide-react';
+import { ArrowLeft, Brain, History, Edit3, BookHeart } from 'lucide-react'; // Added BookHeart here
 import { ReflectionForm } from '@/components/ReflectionForm';
 import { ReflectionHistoryList } from '@/components/ReflectionHistoryList';
 import { ReflectionInsightsDisplay } from '@/components/ReflectionInsightsDisplay';
