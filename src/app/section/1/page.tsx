@@ -14,18 +14,15 @@ import { TaskList } from '@/components/tasks/TaskList';
 import { useToast } from "@/hooks/use-toast";
 import { getDailyPrompt } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
-import { Separator } from '@/components/ui/separator';
-
 
 export default function Section1Page() {
   const params = useParams();
-  const sectionId = params.sectionId as string; // Should be '1'
+  // const sectionId = params.sectionId as string; // Not used directly in this page anymore for title
   const { toast } = useToast();
 
   const sectionTitle = "برنامه‌ریز روزانه شما";
   const sectionPageDescription = "کارهایی که برای امروز در نظر گرفته‌اید را در این بخش وارد و مدیریت کنید.";
   const currentDailyPrompt = getDailyPrompt();
-
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
@@ -33,7 +30,7 @@ export default function Section1Page() {
   // Load tasks from localStorage on initial mount
   useEffect(() => {
     try {
-      const storedTasks = localStorage.getItem('dailyTasksPlanner'); // Changed key for planner
+      const storedTasks = localStorage.getItem('dailyTasksPlanner');
       if (storedTasks) {
         setTasks(JSON.parse(storedTasks));
       }
@@ -51,12 +48,14 @@ export default function Section1Page() {
     }
   }, [tasks, isInitialLoadComplete]);
 
-  const handleAddTask = (title: string) => {
+  const handleAddTask = (title: string, dueDate?: Date | null, priority?: Task['priority']) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title,
       completed: false,
       createdAt: new Date().toISOString(),
+      dueDate: dueDate ? dueDate.toISOString() : null,
+      priority: priority || null,
     };
     setTasks(prevTasks => [newTask, ...prevTasks]);
     toast({

@@ -6,7 +6,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Pencil, Trash2, Save, X } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { format, parseISO } from 'date-fns';
+import { faIR } from 'date-fns/locale'; // For Persian date formatting (optional)
 import { cn } from '@/lib/utils';
 
 interface TaskItemProps {
@@ -26,7 +29,7 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setEditText(task.title); // Reset editText to original title
+    setEditText(task.title);
   };
 
   const handleSaveEdit = () => {
@@ -36,50 +39,95 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
     }
   };
 
+  const getPriorityBadgeVariant = (priority: Task['priority']) => {
+    switch (priority) {
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'secondary'; // Using secondary for medium as an example
+      case 'low':
+        return 'outline';
+      default:
+        return 'default';
+    }
+  };
+
+  const getPriorityText = (priority: Task['priority']) => {
+    switch (priority) {
+      case 'high':
+        return 'زیاد';
+      case 'medium':
+        return 'متوسط';
+      case 'low':
+        return 'کم';
+      default:
+        return '';
+    }
+  };
+
   return (
-    <li className="flex items-center gap-3 p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
-      <Checkbox
-        id={`task-${task.id}`}
-        checked={task.completed}
-        onCheckedChange={() => onToggleComplete(task.id)}
-        aria-label={task.completed ? `علامت زدن وظیفه "${task.title}" به عنوان انجام نشده` : `علامت زدن وظیفه "${task.title}" به عنوان انجام شده`}
-      />
-      {isEditing ? (
-        <>
-          <Input
-            type="text"
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            className="flex-grow h-9 text-base"
-            aria-label="ویرایش عنوان وظیفه"
-            autoFocus
-          />
-          <Button variant="ghost" size="icon" onClick={handleSaveEdit} aria-label="ذخیره تغییرات">
-            <Save className="h-5 w-5 text-green-600" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handleCancelEdit} aria-label="لغو ویرایش">
-            <X className="h-5 w-5 text-muted-foreground" />
-          </Button>
-        </>
-      ) : (
-        <>
-          <label
-            htmlFor={`task-${task.id}`}
-            className={cn(
-              "flex-grow cursor-pointer text-base",
-              task.completed && "line-through text-muted-foreground"
-            )}
-          >
-            {task.title}
-          </label>
-          <Button variant="ghost" size="icon" onClick={handleEdit} aria-label="ویرایش وظیفه">
-            <Pencil className="h-5 w-5 text-blue-600" />
-          </Button>
-        </>
+    <li className="flex flex-col gap-2 p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
+      <div className="flex items-center gap-3 w-full">
+        <Checkbox
+          id={`task-${task.id}`}
+          checked={task.completed}
+          onCheckedChange={() => onToggleComplete(task.id)}
+          aria-label={task.completed ? `علامت زدن وظیفه "${task.title}" به عنوان انجام نشده` : `علامت زدن وظیفه "${task.title}" به عنوان انجام شده`}
+        />
+        {isEditing ? (
+          <>
+            <Input
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="flex-grow h-9 text-base"
+              aria-label="ویرایش عنوان وظیفه"
+              autoFocus
+            />
+            <Button variant="ghost" size="icon" onClick={handleSaveEdit} aria-label="ذخیره تغییرات">
+              <Save className="h-5 w-5 text-green-600" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleCancelEdit} aria-label="لغو ویرایش">
+              <X className="h-5 w-5 text-muted-foreground" />
+            </Button>
+          </>
+        ) : (
+          <>
+            <label
+              htmlFor={`task-${task.id}`}
+              className={cn(
+                "flex-grow cursor-pointer text-base",
+                task.completed && "line-through text-muted-foreground"
+              )}
+            >
+              {task.title}
+            </label>
+            <Button variant="ghost" size="icon" onClick={handleEdit} aria-label="ویرایش وظیفه">
+              <Pencil className="h-5 w-5 text-blue-600" />
+            </Button>
+          </>
+        )}
+        <Button variant="ghost" size="icon" onClick={() => onDeleteTask(task.id)} aria-label="حذف وظیفه">
+          <Trash2 className="h-5 w-5 text-red-600" />
+        </Button>
+      </div>
+      
+      {(task.dueDate || task.priority) && (
+        <div className="pl-10 rtl:pr-10 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          {task.dueDate && (
+            <div className="flex items-center">
+              <CalendarDays className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+              <span>سررسید: {format(parseISO(task.dueDate), "PPP", { locale: faIR })}</span>
+            </div>
+          )}
+          {task.priority && (
+            <div className="flex items-center">
+               <AlertTriangle className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+              اهمیت: <Badge variant={getPriorityBadgeVariant(task.priority)} className="mr-1 text-xs px-1.5 py-0.5">{getPriorityText(task.priority)}</Badge>
+            </div>
+          )}
+        </div>
       )}
-      <Button variant="ghost" size="icon" onClick={() => onDeleteTask(task.id)} aria-label="حذف وظیفه">
-        <Trash2 className="h-5 w-5 text-red-600" />
-      </Button>
     </li>
   );
 }
