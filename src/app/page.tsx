@@ -10,8 +10,8 @@ import {
   CircleDollarSign,
   CalendarDays,
   Target,
-  Dumbbell, // Changed from BriefcaseBusiness for Section 6
-  CalendarClock,
+  Dumbbell,
+  BookOpen, // Changed from CalendarClock for Section 7
   PieChart,
   FileEdit,
   Award
@@ -26,7 +26,7 @@ const sectionIcons: LucideIcon[] = [
   CalendarDays,     // Section 4 (Calendar)
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
-  CalendarClock,    // Section 7
+  BookOpen,         // Section 7 (Education/Study)
   PieChart,         // Section 8
   FileEdit,         // Section 9
   Award             // Section 10
@@ -71,6 +71,10 @@ export default function HomePage() {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
               sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
+            } else if (sectionNumber === 7) {
+              sectionTitle = "تحصیل";
+              sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
+              sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             }
 
 
