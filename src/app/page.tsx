@@ -8,22 +8,22 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  CalendarDays,
+  // CalendarDays, // Removed for Section 4
   Target,
   Dumbbell,
-  BookOpen, // Changed from CalendarClock for Section 7
+  BookOpen,
   PieChart,
   FileEdit,
   Award
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-// Helper array for icons
+// Helper array for icons (CalendarDays for section 4 is effectively skipped due to filtering)
 const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  CalendarDays,     // Section 4 (Calendar)
+  CalendarDays,     // Placeholder for original Section 4, will be skipped by filter
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
@@ -33,14 +33,17 @@ const sectionIcons: LucideIcon[] = [
 ];
 
 export default function HomePage() {
-  const sections = Array.from({ length: 10 }, (_, i) => i + 1);
+  // Original sections 1-10, we will filter out section 4 before mapping
+  const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
+  const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.map((sectionNumber) => {
+          {sectionsToDisplay.map((sectionNumber) => {
+            // sectionIcons is 0-indexed, sectionNumber is 1-indexed
             const IconComponent = sectionIcons[sectionNumber - 1] || Award; // Default to Award icon if out of bounds
             
             let sectionTitle = `بخش ${sectionNumber}`;
@@ -59,11 +62,7 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
-            } else if (sectionNumber === 4) {
-              sectionTitle = "تقویم";
-              sectionDescription = "رویدادها و برنامه‌های خود را مشاهده کنید";
-              sectionContent = "برنامه‌های ماهانه، هفتگی و روزانه خود را در تقویم مدیریت کنید.";
-            } else if (sectionNumber === 5) {
+            } else if (sectionNumber === 5) { // Was section 4, now section 5 takes its "slot" in display logic if re-numbering, but we are keeping original numbers and skipping 4
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
               sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید.";
@@ -76,7 +75,7 @@ export default function HomePage() {
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             }
-
+            // Sections 8, 9, 10 will use the default title/description/content
 
             return (
               <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
