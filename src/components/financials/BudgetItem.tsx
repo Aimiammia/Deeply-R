@@ -1,0 +1,99 @@
+
+'use client';
+
+import type { Budget, FinancialTransaction } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Trash2, Edit3, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { parseISO, isSameMonth, getMonth, getYear } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+interface BudgetItemProps {
+  budget: Budget;
+  transactions: FinancialTransaction[];
+  onDeleteBudget: (categoryId: string) => void;
+  onEditBudget: (budget: Budget) => void; // Function to signal parent to show edit form
+}
+
+export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
+  };
+
+  const now = new Date();
+  const currentMonthExpenses = transactions
+    .filter(t => 
+      t.type === 'expense' && 
+      t.category === budget.category &&
+      isSameMonth(parseISO(t.date), now) && // Ensure transactions are from the current month and year
+      getYear(parseISO(t.date)) === getYear(now)
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const remainingAmount = budget.amount - currentMonthExpenses;
+  const progressPercentage = budget.amount > 0 ? Math.min((currentMonthExpenses / budget.amount) * 100, 100) : 0;
+  const isOverBudget = currentMonthExpenses > budget.amount;
+
+  return (
+    <li className="p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors bg-card shadow-sm rounded-md mb-3">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-md font-semibold text-foreground">{budget.category}</h4>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => onEditBudget(budget)} aria-label={`ویرایش بودجه ${budget.category}`}>
+            <Edit3 className="h-4 w-4 text-blue-600" />
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={`حذف بودجه ${budget.category}`}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent dir="rtl">
+              <AlertDialogHeader>
+                <AlertDialogTitle>تایید حذف بودجه</AlertDialogTitle>
+                <AlertDialogDescription>
+                  آیا از حذف بودجه برای دسته‌بندی "{budget.category}" مطمئن هستید؟
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>لغو</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDeleteBudget(budget.category)} variant="destructive">
+                  حذف بودجه
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+
+      <div className="text-sm space-y-1 mb-3">
+        <p>بودجه: <span className="font-medium">{formatCurrency(budget.amount)}</span></p>
+        <p>هزینه شده (این ماه): <span className={cn("font-medium", isOverBudget ? "text-destructive" : "text-green-600")}>{formatCurrency(currentMonthExpenses)}</span></p>
+        {isOverBudget ? (
+          <p className="text-destructive font-medium flex items-center">
+            <AlertTriangle className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0" />
+            {formatCurrency(Math.abs(remainingAmount))} بیش از بودجه
+          </p>
+        ) : (
+          <p>باقی‌مانده: <span className="font-medium text-foreground">{formatCurrency(remainingAmount)}</span></p>
+        )}
+      </div>
+      
+      <Progress value={progressPercentage} className={cn("w-full h-3", isOverBudget && "bg-destructive")} />
+      {isOverBudget && (
+         <p className="text-xs text-destructive mt-1 text-right rtl:text-left">از بودجه عبور کرده‌اید!</p>
+      )}
+    </li>
+  );
+}

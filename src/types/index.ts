@@ -25,3 +25,10 @@ export interface FinancialTransaction {
   category: string | null;
   createdAt: string; // ISO date string
 }
+
+export interface Budget {
+  id: string; // Will be the category value for simplicity, ensuring one budget per category
+  category: string;
+  amount: number;   // Monthly budgeted amount
+  createdAt: string; // ISO date string
+}

@@ -4,16 +4,19 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
 import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
 import { TransactionList } from '@/components/financials/TransactionList';
-import type { FinancialTransaction } from '@/types';
+import type { FinancialTransaction, Budget } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { parseISO, getMonth } from 'date-fns';
+import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
+import { BudgetList } from '@/components/financials/BudgetList';
 
 const persianMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -27,29 +30,43 @@ export default function FinancialManagementPage() {
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<FinancialTransaction[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
-  // Load transactions from localStorage on initial mount
+  // Load transactions from localStorage
   useEffect(() => {
-    setIsClient(true); // For recharts hydration
+    setIsClient(true);
     try {
       const storedTransactions = localStorage.getItem('financialTransactions');
       if (storedTransactions) {
         setTransactions(JSON.parse(storedTransactions));
       }
+      const storedBudgets = localStorage.getItem('financialBudgets');
+      if (storedBudgets) {
+        setBudgets(JSON.parse(storedBudgets));
+      }
     } catch (error) {
-      console.error("Failed to parse transactions from localStorage", error);
-      localStorage.removeItem('financialTransactions'); // Clear corrupted data
+      console.error("Failed to parse data from localStorage", error);
+      localStorage.removeItem('financialTransactions');
+      localStorage.removeItem('financialBudgets');
     }
     setIsInitialLoadComplete(true);
   }, []);
 
-  // Save transactions to localStorage whenever they change, but only after initial load
+  // Save transactions to localStorage
   useEffect(() => {
     if (isInitialLoadComplete) {
       localStorage.setItem('financialTransactions', JSON.stringify(transactions));
     }
   }, [transactions, isInitialLoadComplete]);
+
+  // Save budgets to localStorage
+  useEffect(() => {
+    if (isInitialLoadComplete) {
+      localStorage.setItem('financialBudgets', JSON.stringify(budgets));
+    }
+  }, [budgets, isInitialLoadComplete]);
 
 
   const handleAddTransaction = (transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
@@ -77,6 +94,49 @@ export default function FinancialManagementPage() {
       });
     }
   };
+  
+  const handleSetBudget = (category: string, amount: number) => {
+    setBudgets(prevBudgets => {
+      const existingBudgetIndex = prevBudgets.findIndex(b => b.category === category);
+      if (existingBudgetIndex > -1) {
+        // Update existing budget
+        const updatedBudgets = [...prevBudgets];
+        updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() };
+        return updatedBudgets;
+      } else {
+        // Add new budget
+        const newBudget: Budget = {
+          id: category, // Using category as ID for simplicity, ensures one budget per category
+          category,
+          amount,
+          createdAt: new Date().toISOString(),
+        };
+        return [newBudget, ...prevBudgets];
+      }
+    });
+    toast({
+      title: editingBudget ? "بودجه ویرایش شد" : "بودجه تنظیم شد",
+      description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تنظیم شد.`,
+    });
+    setEditingBudget(null); // Clear editing state
+  };
+
+  const handleDeleteBudget = (categoryId: string) => {
+    setBudgets(prevBudgets => prevBudgets.filter(b => b.category !== categoryId));
+    toast({
+      title: "بودجه حذف شد",
+      description: `بودجه برای دسته‌بندی "${categoryId}" حذف شد.`,
+      variant: "destructive",
+    });
+     if (editingBudget?.category === categoryId) {
+      setEditingBudget(null);
+    }
+  };
+  
+  const handleEditBudget = (budgetToEdit: Budget) => {
+    setEditingBudget(budgetToEdit);
+  };
+
 
   const chartData = useMemo(() => {
     if (!isInitialLoadComplete || transactions.length === 0) {
@@ -87,7 +147,7 @@ export default function FinancialManagementPage() {
 
     transactions.forEach(transaction => {
       const date = parseISO(transaction.date);
-      const year = date.getFullYear();
+      const year = getYear(date);
       const monthIndex = getMonth(date);
       const key = `${year}-${monthIndex}`;
 
@@ -197,7 +257,7 @@ export default function FinancialManagementPage() {
                               stroke="hsl(var(--foreground))"
                             />
                             <YAxis 
-                              tickFormatter={formatCurrency} 
+                              tickFormatter={value => formatCurrency(value)} 
                               tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
                               stroke="hsl(var(--foreground))"
                             />
@@ -230,7 +290,7 @@ export default function FinancialManagementPage() {
                     </div>
                   )}
                   <p className="text-muted-foreground text-sm mt-4 text-center">
-                    این نمودار، درآمدها و هزینه‌های ثبت شده شما را نمایش می‌دهد.
+                    این نمودار، درآمدها و هزینه‌های ثبت شده شما را به تفکیک ماه نمایش می‌دهد.
                   </p>
                 </div>
               </TabsContent>
@@ -240,20 +300,31 @@ export default function FinancialManagementPage() {
                   <CardHeader>
                     <CardTitle className="text-xl flex items-center text-foreground">
                       <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                      بودجه‌بندی
+                      بودجه‌بندی ماهانه
                     </CardTitle>
-                    <CardDescription>بودجه ماهانه خود را تنظیم و پیگیری کنید.</CardDescription>
+                    <CardDescription>بودجه ماهانه خود را برای دسته‌بندی‌های مختلف هزینه تنظیم و پیگیری کنید.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                     <p className="text-muted-foreground">قابلیت بودجه‌بندی به زودی اضافه خواهد شد.</p>
-                     <div className="mt-4 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right">
-                          <li>تعیین بودجه برای دسته‌بندی‌های مختلف (خوراک، حمل و نقل، ...)</li>
-                          <li>مقایسه هزینه‌های واقعی با بودجه تعیین شده</li>
-                          <li>نمودار پیشرفت بودجه</li>
-                          <li>هشدارهای مربوط به نزدیک شدن یا عبور از بودجه</li>
-                        </ul>
+                     <CreateBudgetForm onSetBudget={handleSetBudget} existingBudget={editingBudget} />
+                     <BudgetList budgets={budgets} transactions={transactions} onDeleteBudget={handleDeleteBudget} onEditBudget={handleEditBudget} />
+                     
+                     <div className="mt-8 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                          <BarChartBig className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                          نمودار پیشرفت بودجه
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          (قابلیت آینده) در این بخش نموداری برای مقایسه بصری هزینه‌های واقعی با بودجه تعیین شده برای هر دسته‌بندی نمایش داده خواهد شد.
+                        </p>
+                      </div>
+                      <div className="mt-6 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                          <BellRing className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                          هشدارهای بودجه
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          (قابلیت آینده) سیستم هشدار برای اطلاع‌رسانی در مورد نزدیک شدن به سقف بودجه یا عبور از آن در دسته‌بندی‌های مختلف.
+                        </p>
                       </div>
                   </CardContent>
                 </Card>

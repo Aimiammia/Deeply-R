@@ -4,7 +4,6 @@
 import { useState, type FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-// RadioGroup and RadioGroupItem are no longer needed
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,25 +13,11 @@ import { format } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { FinancialTransaction } from '@/types';
+import { predefinedCategories, expenseCategories, incomeCategories } from '@/lib/financial-categories';
 
 interface AddTransactionFormProps {
   onAddTransaction: (transaction: Omit<FinancialTransaction, 'id' | 'createdAt'>) => void;
 }
-
-const predefinedCategories = [
-  { value: 'خوراک', label: 'خوراک' },
-  { value: 'حمل و نقل', label: 'حمل و نقل' },
-  { value: 'مسکن', label: 'مسکن' },
-  { value: 'قبوض', label: 'قبوض' },
-  { value: 'سرگرمی', label: 'سرگرمی' },
-  { value: 'سلامت', label: 'سلامت' },
-  { value: 'پوشاک', label: 'پوشاک' },
-  { value: 'خرید', label: 'خرید عمومی' },
-  { value: 'حقوق', label: 'حقوق' },
-  { value: 'هدایا', label: 'هدایا' },
-  { value: 'تحصیلات', label: 'تحصیلات' },
-  { value: 'سایر', label: 'سایر' },
-];
 
 export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps) {
   const [description, setDescription] = useState('');
@@ -58,6 +43,8 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
       setCategory(undefined);
     }
   };
+
+  const currentCategoryList = type === 'expense' ? expenseCategories : incomeCategories;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8">
@@ -96,7 +83,10 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
           <Button
             type="button"
             variant={type === 'income' ? 'default' : 'outline'}
-            onClick={() => setType('income')}
+            onClick={() => {
+              setType('income');
+              setCategory(undefined); // Reset category when type changes
+            }}
             className="flex-1"
           >
             درآمد
@@ -104,7 +94,10 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
           <Button
             type="button"
             variant={type === 'expense' ? 'default' : 'outline'}
-            onClick={() => setType('expense')}
+            onClick={() => {
+              setType('expense');
+              setCategory(undefined); // Reset category when type changes
+            }}
             className="flex-1"
           >
             هزینه
@@ -149,7 +142,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none"><em>بدون دسته‌بندی</em></SelectItem>
-              {predefinedCategories.map(cat => (
+              {currentCategoryList.map(cat => (
                 <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
               ))}
             </SelectContent>
