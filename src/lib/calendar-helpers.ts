@@ -1,6 +1,7 @@
 
-// Import utility functions from date-fns-jalali using their subpath exports.
-// This relies on the 'exports' map in date-fns-jalali's package.json.
+// Import utility functions from date-fns-jalali using their defined subpath exports.
+// This relies on the 'exports' map in date-fns-jalali's package.json
+// to resolve to their respective ESM files (e.g., date-fns-jalali/esm/format.js).
 import format from 'date-fns-jalali/format';
 import getDaysInMonth from 'date-fns-jalali/getDaysInMonth';
 import getDay from 'date-fns-jalali/getDay';
@@ -105,6 +106,3 @@ export const getJalaliHolidayInfo = (year: number, month: number, day: number): 
   // Add more holidays for other months/years if needed
   return null;
 };
-
-// Direct re-export for clarity, though they are already available.
-export { gregorianToJalali, jalaliToGregorian };
