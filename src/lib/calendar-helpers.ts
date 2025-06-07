@@ -1,7 +1,5 @@
 
-// Import utility functions from date-fns-jalali using their defined subpath exports.
-// This relies on the 'exports' map in date-fns-jalali's package.json
-// to resolve to their respective ESM files.
+// Import utility functions from date-fns-jalali using their subpath exports.
 import format from 'date-fns-jalali/format';
 import getDaysInMonth from 'date-fns-jalali/getDaysInMonth';
 import getDay from 'date-fns-jalali/getDay';
