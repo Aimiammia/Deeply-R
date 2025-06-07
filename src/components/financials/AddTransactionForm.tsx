@@ -4,14 +4,14 @@
 import { useState, type FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+// RadioGroup and RadioGroupItem are no longer needed
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale'; // Corrected import
+import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { FinancialTransaction } from '@/types';
 
@@ -92,21 +92,24 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
 
       <div>
         <Label className="mb-2 block">نوع تراکنش</Label>
-        <RadioGroup
-          defaultValue="expense"
-          value={type}
-          onValueChange={(value: 'income' | 'expense') => setType(value)}
-          className="flex space-x-4 rtl:space-x-reverse"
-        >
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <RadioGroupItem value="income" id="income" />
-            <Label htmlFor="income">درآمد</Label>
-          </div>
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <RadioGroupItem value="expense" id="expense" />
-            <Label htmlFor="expense">هزینه</Label>
-          </div>
-        </RadioGroup>
+        <div className="flex space-x-2 rtl:space-x-reverse">
+          <Button
+            type="button"
+            variant={type === 'income' ? 'default' : 'outline'}
+            onClick={() => setType('income')}
+            className="flex-1"
+          >
+            درآمد
+          </Button>
+          <Button
+            type="button"
+            variant={type === 'expense' ? 'default' : 'outline'}
+            onClick={() => setType('expense')}
+            className="flex-1"
+          >
+            هزینه
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row flex-wrap gap-4">
