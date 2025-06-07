@@ -2,13 +2,23 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Calendar as ModernCalendar, type DayValue } from 'react-modern-calendar-datepicker';
+import type { DayValue } from 'react-modern-calendar-datepicker';
 import 'react-modern-calendar-datepicker/lib/DatePicker.css';
+
+// Dynamically import the calendar component with SSR turned off
+const ModernCalendar = dynamic(
+  () => import('react-modern-calendar-datepicker').then(mod => mod.Calendar),
+  {
+    ssr: false,
+    loading: () => <p className="text-center text-muted-foreground py-4">در حال بارگذاری تقویم...</p>
+  }
+);
 
 export default function CalendarPage() {
   const sectionTitle = "تقویم";
