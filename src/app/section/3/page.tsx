@@ -112,7 +112,7 @@ export default function FinancialManagementPage() {
         </Card>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Daily Task Manager. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
   );

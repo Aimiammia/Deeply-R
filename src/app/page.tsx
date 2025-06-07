@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import {
   CalendarCheck2,
   BookHeart,
-  CircleDollarSign, // Changed from LineChart for Section 3 (Financial Management)
+  CircleDollarSign,
   Settings2,
   Users2,
   BriefcaseBusiness,
@@ -88,7 +88,7 @@ export default function HomePage() {
         </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Daily Task Manager. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
   );
