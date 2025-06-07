@@ -113,14 +113,14 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
       </div>
 
       <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-        <div>
+        <div className="flex-1">
           <Label className="mb-1 block">تاریخ</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
                 className={cn(
-                  "w-full sm:w-[200px] justify-start text-left font-normal",
+                  "w-full justify-start text-left font-normal",
                   !date && "text-muted-foreground"
                 )}
               >
@@ -140,10 +140,10 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
           </Popover>
         </div>
         
-        <div>
+        <div className="flex-1">
           <Label className="mb-1 block">دسته‌بندی</Label>
           <Select value={category || ''} onValueChange={(value) => setCategory(value === 'none' ? undefined : value)}>
-            <SelectTrigger className="w-full sm:w-[200px]" aria-label="دسته‌بندی تراکنش">
+            <SelectTrigger className="w-full" aria-label="دسته‌بندی تراکنش">
               <CategoryIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
               <SelectValue placeholder="انتخاب دسته‌بندی" />
             </SelectTrigger>
