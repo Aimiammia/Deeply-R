@@ -1,20 +1,17 @@
 
-// Import standard utility functions as named exports from the main entry point.
-import {
-  format,
-  getDaysInMonth,
-  getDay,
-  addMonths,
-  subMonths,
-  startOfMonth,
-  parse,
-  isToday,
-  isSameDay,
-} from 'date-fns-jalali';
+// Import standard utility functions as default imports using their subpath exports.
+// This relies on the 'exports' map in date-fns-jalali's package.json.
+import format from 'date-fns-jalali/format';
+import getDaysInMonth from 'date-fns-jalali/getDaysInMonth';
+import getDay from 'date-fns-jalali/getDay';
+import addMonths from 'date-fns-jalali/addMonths';
+import subMonths from 'date-fns-jalali/subMonths';
+import startOfMonth from 'date-fns-jalali/startOfMonth';
+import parse from 'date-fns-jalali/parse';
+import isToday from 'date-fns-jalali/isToday';
+import isSameDay from 'date-fns-jalali/isSameDay';
 
-// Import gregorianToJalali and jalaliToGregorian using their defined subpath exports.
-// This relies on the 'exports' map in date-fns-jalali's package.json
-// to resolve to their respective ESM files (e.g., date-fns-jalali/esm/gregorianToJalali.js).
+// Import gregorianToJalali and jalaliToGregorian using their subpath exports.
 import gregorianToJalali from 'date-fns-jalali/gregorianToJalali';
 import jalaliToGregorian from 'date-fns-jalali/jalaliToGregorian';
 
@@ -43,13 +40,13 @@ export const parseJalaliDate = (year: number, month: number, day: number): Date 
 
 export const getDaysInJalaliMonthLocal = (year: number, month: number): number => {
   const dateForMonth = parseJalaliDate(year, month, 1);
-  if (!dateForMonth) return 30;
+  if (!dateForMonth) return 30; // Fallback
   return getDaysInMonth(dateForMonth);
 };
 
 export const getJalaliMonthFirstDayOfWeek = (year: number, month: number): number => {
   const firstDayOfMonthJalali = parseJalaliDate(year, month, 1);
-  if (!firstDayOfMonthJalali) return 0;
+  if (!firstDayOfMonthJalali) return 0; // Saturday as fallback
   const firstDayObject = startOfMonth(firstDayOfMonthJalali);
   return convertDayOfWeek(getDay(firstDayObject));
 };
@@ -83,10 +80,7 @@ export const isJalaliTodayLocal = (year: number, month: number, day: number): bo
 };
 
 export { isSameDay as isSameJalaliDay };
-
-// Re-exporting the conversion functions for use elsewhere, ensuring they are the correctly imported ones.
-// The original file already re-exports jalaliToGregorian and gregorianToJalali if they are imported.
-// No change needed here if the imports above are correct.
+export { gregorianToJalali, jalaliToGregorian };
 
 const khordad1404Holidays: { [day: number]: { occasion: string, isPublicHoliday: boolean } } = {
   14: { occasion: 'رحلت امام خمینی', isPublicHoliday: true },
@@ -95,7 +89,7 @@ const khordad1404Holidays: { [day: number]: { occasion: string, isPublicHoliday:
 };
 
 export const getJalaliHolidayInfo = (year: number, month: number, day: number): { occasion: string, isPublicHoliday: boolean } | null => {
-  if (year === 1404 && month === 3) { // Khordad
+  if (year === 1404 && month === 3) { // Khordad is the 3rd month
     if (day === 24 && month === 3) {
         return { occasion: 'عید سعید غدیر خم (نمونه)', isPublicHoliday: true}
     }
