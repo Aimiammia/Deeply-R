@@ -8,8 +8,8 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  CalendarDays, // Changed from Settings2
-  Users2,
+  CalendarDays,
+  Target, // Changed from Users2 for Section 5
   BriefcaseBusiness,
   CalendarClock,
   PieChart,
@@ -23,8 +23,8 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  CalendarDays,     // Section 4 (Calendar) - Changed from Settings2
-  Users2,           // Section 5
+  CalendarDays,     // Section 4 (Calendar)
+  Target,           // Section 5 (Goals and Habits) - Changed from Users2
   BriefcaseBusiness,// Section 6
   CalendarClock,    // Section 7
   PieChart,         // Section 8
@@ -63,6 +63,10 @@ export default function HomePage() {
               sectionTitle = "تقویم";
               sectionDescription = "رویدادها و برنامه‌های خود را مشاهده کنید";
               sectionContent = "برنامه‌های ماهانه، هفتگی و روزانه خود را در تقویم مدیریت کنید.";
+            } else if (sectionNumber === 5) {
+              sectionTitle = "اهداف و عادت‌ها";
+              sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
+              sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید.";
             }
 
 
