@@ -12,6 +12,9 @@ import type { Task } from '@/types';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
 import { useToast } from "@/hooks/use-toast";
+import { getDailyPrompt } from '@/lib/prompts';
+import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
+import { Separator } from '@/components/ui/separator';
 
 
 export default function Section1Page() {
@@ -19,8 +22,10 @@ export default function Section1Page() {
   const sectionId = params.sectionId as string; // Should be '1'
   const { toast } = useToast();
 
-  const sectionTitle = "وظایف";
-  const sectionPageDescription = "مدیریت و مشاهده وظایف روزانه شما.";
+  const sectionTitle = "برنامه‌ریز روزانه شما";
+  const sectionPageDescription = "کارهایی که برای امروز در نظر گرفته‌اید را در این بخش وارد و مدیریت کنید.";
+  const currentDailyPrompt = getDailyPrompt();
+
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
@@ -28,14 +33,13 @@ export default function Section1Page() {
   // Load tasks from localStorage on initial mount
   useEffect(() => {
     try {
-      const storedTasks = localStorage.getItem('dailyTasks');
+      const storedTasks = localStorage.getItem('dailyTasksPlanner'); // Changed key for planner
       if (storedTasks) {
         setTasks(JSON.parse(storedTasks));
       }
     } catch (error) {
       console.error("Failed to parse tasks from localStorage", error);
-      // Optionally, clear corrupted data or inform user
-      localStorage.removeItem('dailyTasks');
+      localStorage.removeItem('dailyTasksPlanner');
     }
     setIsInitialLoadComplete(true);
   }, []);
@@ -43,7 +47,7 @@ export default function Section1Page() {
   // Save tasks to localStorage whenever they change, but only after initial load
   useEffect(() => {
     if (isInitialLoadComplete) {
-      localStorage.setItem('dailyTasks', JSON.stringify(tasks));
+      localStorage.setItem('dailyTasksPlanner', JSON.stringify(tasks));
     }
   }, [tasks, isInitialLoadComplete]);
 
@@ -56,8 +60,8 @@ export default function Section1Page() {
     };
     setTasks(prevTasks => [newTask, ...prevTasks]);
     toast({
-      title: "وظیفه اضافه شد",
-      description: `"${title}" با موفقیت به لیست وظایف اضافه شد.`,
+      title: "کار اضافه شد",
+      description: `"${title}" با موفقیت به برنامه امروز شما اضافه شد.`,
       variant: "default",
     });
   };
@@ -75,8 +79,8 @@ export default function Section1Page() {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     if (taskToDelete) {
       toast({
-        title: "وظیفه حذف شد",
-        description: `"${taskToDelete.title}" از لیست وظایف حذف شد.`,
+        title: "کار حذف شد",
+        description: `"${taskToDelete.title}" از برنامه امروز شما حذف شد.`,
         variant: "destructive",
       });
     }
@@ -89,8 +93,8 @@ export default function Section1Page() {
       )
     );
      toast({
-      title: "وظیفه ویرایش شد",
-      description: `وظیفه با موفقیت به "${newTitle}" تغییر نام یافت.`,
+      title: "کار ویرایش شد",
+      description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
     });
   };
 
@@ -114,6 +118,9 @@ export default function Section1Page() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-6 p-4 rounded-md border bg-accent/10 shadow-sm">
+              <DailyPromptDisplay prompt={currentDailyPrompt} />
+            </div>
             <CreateTaskForm onAddTask={handleAddTask} />
             <TaskList
               tasks={tasks}

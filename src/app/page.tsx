@@ -14,13 +14,14 @@ import {
   CalendarClock,
   PieChart,
   FileEdit,
-  Award
+  Award,
+  CalendarCheck2 // Changed for section 1
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 // Helper array for icons
 const sectionIcons: LucideIcon[] = [
-  ClipboardList,    // Section 1 (Tasks)
+  CalendarCheck2,   // Section 1 (Tasks/Planner)
   LayoutDashboard,  // Section 2
   LineChart,        // Section 3
   Settings2,        // Section 4
@@ -42,10 +43,10 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sections.map((sectionNumber) => {
             const IconComponent = sectionIcons[sectionNumber - 1] || Award; // Default to Award icon if out of bounds
-            const isTasksSection = sectionNumber === 1;
-            const sectionTitle = isTasksSection ? "وظایف" : `بخش ${sectionNumber}`;
-            const sectionDescription = isTasksSection ? "لیست وظایف روزانه شما" : `جزئیات بخش ${sectionNumber}`;
-            const sectionContent = isTasksSection ? "در اینجا وظایف خود را مدیریت کنید." : `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
+            const isPlannerSection = sectionNumber === 1;
+            const sectionTitle = isPlannerSection ? "برنامه‌ریز روزانه" : `بخش ${sectionNumber}`;
+            const sectionDescription = isPlannerSection ? "برنامه‌ریزی و مدیریت کارهای روزانه" : `جزئیات بخش ${sectionNumber}`;
+            const sectionContent = isPlannerSection ? "وظایف امروز خود را اینجا برنامه‌ریزی کنید." : `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
 
             return (
               <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg">
