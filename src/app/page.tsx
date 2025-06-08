@@ -13,7 +13,8 @@ import {
   Dumbbell,
   BookOpen,
   PieChart, // Icon for Section 10
-  FileText, // New icon for Section 8
+  FileText, 
+  Lightbulb, // Changed from FileText for Section 8
   Settings // Generic "Future" icon or similar
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -27,7 +28,7 @@ const sectionIcons: LucideIcon[] = [
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  FileText,         // Section 8 (Daily Activity Log) - Changed from Lightbulb
+  Lightbulb,        // Section 8 (Daily Activity Log) - Changed from FileText back to Lightbulb (or keep FileText if "يادداشت فعاليت‌هاي روزانه" is final)
   Target,           // Section 9 (Long-Term Planning)
   PieChart          // Section 10 (Data Analysis and Reports)
 ];
@@ -69,27 +70,30 @@ export default function HomePage() {
             } else if (sectionNumber === 5) {
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
-              sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید.";
+              sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید. (بخش آینده)";
             } else if (sectionNumber === 6) {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
-              sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
+              sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید. (بخش آینده)";
             } else if (sectionNumber === 7) {
               sectionTitle = "تحصیل";
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
-              sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
+              sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید. (بخش آینده)";
             } else if (sectionNumber === 8) {
-              sectionTitle = "یادداشت فعالیت‌های روزانه";
+              sectionTitle = "یادداشت فعالیت‌های روزانه"; // Reverted to FileText if preferred
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
               sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
+              // sectionTitle = "یادداشت‌ها و ایده‌پردازی"; // Kept FileText for consistency with previous state unless user confirms Lightbulb
+              // sectionDescription = "افکار، ایده‌های سریع و یادداشت‌های متفرقه خود را ثبت کنید";
+              // sectionContent = "محلی برای ثبت سریع هرگونه یادداشت، ایده یا فکر گذرا.";
             } else if (sectionNumber === 9) {
               sectionTitle = "برنامه‌ریزی بلند مدت"; 
               sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
               sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
             } else if (sectionNumber === 10) {
-              sectionTitle = "تحلیل داده و گزارشات";
-              sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
-              sectionContent = "در این بخش نیز می‌توانید گزارشات و تحلیل‌های داده‌های برنامه را مشاهده کنید.";
+              sectionTitle = "تحلیل هوشمند و گزارش جامع";
+              sectionDescription = "مرکز تحلیل داده‌های برنامه با استفاده از هوش مصنوعی.";
+              sectionContent = "در این بخش، گزارشات تحلیلی، نمودارها و بینش‌های هوشمند از تمام داده‌های شما ارائه می‌شود.";
             }
 
             return (
