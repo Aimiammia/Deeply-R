@@ -18,7 +18,7 @@ const TaskSchema = z.object({
   id: z.string(),
   title: z.string(),
   completed: z.boolean(),
-  createdAt: z.string().describe("ISO date string of task creation"),
+  createdAt: z.string().datetime().describe("ISO date string of task creation"), // Corrected to .datetime()
   dueDate: z.string().datetime().nullable().describe("Optional ISO date string for task due date"),
   priority: z.enum(['low', 'medium', 'high']).nullable().describe("Optional task priority"),
   category: z.string().nullable().describe("Optional task category"),
