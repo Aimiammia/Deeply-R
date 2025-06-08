@@ -39,7 +39,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "date-fns-jalali": "^2.30.0-0",
+    "jalali-moment": "^3.3.11",
+    "moment": "^2.30.1",
     "dotenv": "^16.5.0",
     "firebase": "^11.8.1",
     "genkit": "^1.8.0",
@@ -65,4 +66,3 @@
     "typescript": "^5"
   }
 }
-

@@ -1,5 +1,4 @@
 
-
 export interface Task {
   id: string;
   title: string;
@@ -46,15 +45,6 @@ export interface LongTermGoal {
   targetDate: string | null; // ISO date string
   status: 'not-started' | 'in-progress' | 'completed' | 'on-hold';
   createdAt: string; // ISO date string
-  // Future additions:
-  // milestones?: Milestone[];
-  // smartCriteria?: {
-  //   specific: string;
-  //   measurable: string;
-  //   achievable: string;
-  //   relevant: string;
-  //   timeBound: string; // or could be part of targetDate
-  // };
 }
 
 export interface BirthdayEntry {
@@ -63,6 +53,7 @@ export interface BirthdayEntry {
   jYear: number;   // Jalali year
   jMonth: number;  // 1-indexed Jalali month
   jDay: number;    // Jalali day
+  gDate: string;   // Gregorian date as ISO string (for easier sorting/comparison if needed elsewhere)
   createdAt: string; // ISO string for when it was added
 }
 
@@ -73,15 +64,12 @@ export interface CalendarEvent {
   jYear: number;
   jMonth: number; // 1-indexed
   jDay: number;
+  gDate: string;   // Gregorian date as ISO string
   createdAt: string; // ISO string for when it was added
-  // Future: color, startTime, endTime, allDay
 }
 
-// Educational settings are stored in localStorage directly in the component
-// Type for educational level confirmation in localStorage
 export interface EducationalLevelStorage {
     levelValue: string;
     isConfirmed: boolean;
     lastPromotionCheckDate: string; // ISO Date string
 }
-    

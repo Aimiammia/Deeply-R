@@ -11,9 +11,8 @@ import {
   getJalaliHolidayInfo,
   isJalaliToday as checkIsToday,
   formatJalaliDateDisplay,
-  parseJalaliDate,
-  jalaliToGregorian,
-  // gregorianToJalali is not used in this component directly, but available from helpers
+  parseJalaliDate, // This now uses jalali-moment
+  jalaliToGregorian, // This now uses jalali-moment
 } from '@/lib/calendar-helpers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +23,7 @@ import { cn } from '@/lib/utils';
 import type { BirthdayEntry, CalendarEvent } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
-import { format as formatGregorian, startOfMonth as startOfGregorianMonth, endOfMonth as endOfGregorianMonth, parseISO } from 'date-fns';
+import { format as formatGregorian } from 'date-fns';
 import { faIR as faIRLocale } from 'date-fns/locale';
 
 
@@ -152,10 +151,16 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       toast({ title: "خطا", description: "لطفاً نام و تاریخ تولد را مشخص کنید.", variant: "destructive" });
       return;
     }
+    const nativeDate = parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day);
+    if (!nativeDate) {
+        toast({ title: "خطا", description: "تاریخ تولد نامعتبر است.", variant: "destructive" });
+        return;
+    }
     const newBirthday: BirthdayEntry = {
       id: crypto.randomUUID(),
       name: newBirthdayName.trim(),
       jYear: selectedBirthdayDate.year, jMonth: selectedBirthdayDate.month, jDay: selectedBirthdayDate.day,
+      gDate: nativeDate.toISOString(), // Store Gregorian ISO string
       createdAt: new Date().toISOString(),
     };
     setBirthdays(prev => [...prev, newBirthday].sort((a,b) => a.jDay - b.jDay));
@@ -174,6 +179,12 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       toast({ title: "خطا", description: "لطفاً نام و تاریخ رویداد را مشخص کنید.", variant: "destructive" });
       return;
     }
+    const nativeDate = parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day);
+    if (!nativeDate) {
+        toast({ title: "خطا", description: "تاریخ رویداد نامعتبر است.", variant: "destructive" });
+        return;
+    }
+
     if (editingEvent) {
         const updatedEvent: CalendarEvent = {
             ...editingEvent,
@@ -182,6 +193,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             jYear: selectedEventDate.year,
             jMonth: selectedEventDate.month,
             jDay: selectedEventDate.day,
+            gDate: nativeDate.toISOString(),
         };
         setEvents(prev => prev.map(e => e.id === editingEvent.id ? updatedEvent : e).sort((a,b) => a.jDay - b.jDay)); // Sort by day
         toast({ title: "رویداد ویرایش شد", description: `رویداد "${updatedEvent.name}" با موفقیت ویرایش شد.` });
@@ -191,6 +203,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           name: newEventName.trim(),
           description: newEventDescription.trim() || null,
           jYear: selectedEventDate.year, jMonth: selectedEventDate.month, jDay: selectedEventDate.day,
+          gDate: nativeDate.toISOString(),
           createdAt: new Date().toISOString(),
         };
         setEvents(prev => [...prev, newEvent].sort((a,b) => a.jDay - b.jDay)); // Sort by day
@@ -233,29 +246,25 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const handleGoToInputDate = () => {
     const year = parseInt(inputYear);
     const month = parseInt(inputMonth);
-    if (!isNaN(year) && !isNaN(month) && month >= 1 && month <= 12 && year > 1000 && year < 2000) {
+    if (!isNaN(year) && !isNaN(month) && month >= 1 && month <= 12 && year > 1000 && year < 2000) { // Jalali years are typically in this range
       setCurrentJalaliYear(year);
       setCurrentJalaliMonth(month);
     } else {
-      toast({ title: "تاریخ نامعتبر", description: "لطفا سال و ماه شمسی معتبری وارد کنید.", variant: "destructive"});
+      toast({ title: "تاریخ نامعتبر", description: "لطفا سال و ماه شمسی معتبری وارد کنید (مثال: سال ۱۴۰۳، ماه ۷).", variant: "destructive"});
     }
   };
 
   const getGregorianMonthRangeDisplay = useMemo(() => {
     try {
-      const firstJalaliDay = parseJalaliDate(currentJalaliYear, currentJalaliMonth, 1);
-      if (!firstJalaliDay) return "";
+      const firstJalaliDayGregorianParts = jalaliToGregorian(currentJalaliYear, currentJalaliMonth, 1);
+      if (!firstJalaliDayGregorianParts) return "نامشخص";
       
       const numDaysInJalali = getDaysInJalaliMonth(currentJalaliYear, currentJalaliMonth);
-      const lastJalaliDay = parseJalaliDate(currentJalaliYear, currentJalaliMonth, numDaysInJalali);
-      if (!lastJalaliDay) return "";
+      const lastJalaliDayGregorianParts = jalaliToGregorian(currentJalaliYear, currentJalaliMonth, numDaysInJalali);
+      if (!lastJalaliDayGregorianParts) return "نامشخص";
 
-      // Convert Jalali start and end to Gregorian
-      const gregStartDateParts = jalaliToGregorian(currentJalaliYear, currentJalaliMonth, 1);
-      const gregEndDateParts = jalaliToGregorian(currentJalaliYear, currentJalaliMonth, numDaysInJalali);
-      
-      const gregStartDate = new Date(gregStartDateParts.gy, gregStartDateParts.gm - 1, gregStartDateParts.gd);
-      const gregEndDate = new Date(gregEndDateParts.gy, gregEndDateParts.gm - 1, gregEndDateParts.gd);
+      const gregStartDate = new Date(firstJalaliDayGregorianParts.gy, firstJalaliDayGregorianParts.gm - 1, firstJalaliDayGregorianParts.gd);
+      const gregEndDate = new Date(lastJalaliDayGregorianParts.gy, lastJalaliDayGregorianParts.gm - 1, lastJalaliDayGregorianParts.gd);
 
       const startStr = formatGregorian(gregStartDate, "MMMM yyyy", {locale: faIRLocale});
       const endStr = formatGregorian(gregEndDate, "MMMM yyyy", {locale: faIRLocale});
@@ -278,8 +287,10 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
 
     daysInMonthArray.map(day => {
       const isToday = checkIsToday(currentJalaliYear, currentJalaliMonth, day);
-      const dayOfWeek = (firstDayOfWeekIndex + day - 1) % 7;
-      const isFriday = dayOfWeek === 6; // Friday
+      // Calculate day of week based on our 0=Saturday convention
+      const dayOfWeekArrayIndex = (firstDayOfWeekIndex + day - 1) % 7; 
+      const isFriday = dayOfWeekArrayIndex === 6; // Friday (index 6 in our JALALI_DAY_NAMES_LONG)
+
       const holidayInfo = getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day);
       const isPublicHoliday = holidayInfo?.isPublicHoliday || false;
       const hasBirthday = isBirthdayOnDate(currentJalaliYear, currentJalaliMonth, day);
@@ -328,7 +339,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   
   const currentMonthOfficialHolidays = daysInMonthArray
     .map(day => getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day))
-    .filter(Boolean) as { occasion: string, isPublicHoliday: boolean, day: number }[]; // Need to add day back if displaying
+    .filter(Boolean) as { occasion: string, isPublicHoliday: boolean, day: number }[];
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-lg shadow-lg">
@@ -352,15 +363,15 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             type="number" 
             value={inputYear} 
             onChange={(e) => setInputYear(e.target.value)} 
-            placeholder="سال" 
+            placeholder="سال شمسی" 
             className="text-center"
-            min="1000" max="2000"
+            min="1000" max="2000" // Typical Jalali year range
         />
         <Input 
             type="number" 
             value={inputMonth} 
             onChange={(e) => setInputMonth(e.target.value)} 
-            placeholder="ماه (1-12)" 
+            placeholder="ماه (۱-۱۲)" 
             className="text-center"
             min="1" max="12"
         />
@@ -392,7 +403,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             <Label className="mb-1 block text-sm">تاریخ تولد (از تقویم بالا انتخاب کنید)</Label>
             <div className="p-2 border rounded-md bg-background text-center h-10 flex items-center justify-center">
               {selectedBirthdayDate && parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)
-                ? formatJalaliDateDisplay(parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)!)
+                ? formatJalaliDateDisplay(parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)!, 'jD jMMMM jYYYY')
                 : <span className="text-muted-foreground">تاریخی انتخاب نشده</span>
               }
             </div>
@@ -416,7 +427,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             <Label className="mb-1 block text-sm">تاریخ رویداد (از تقویم بالا انتخاب کنید)</Label>
             <div className="p-2 border rounded-md bg-background text-center h-10 flex items-center justify-center">
               {selectedEventDate && parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)
-                ? formatJalaliDateDisplay(parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)!)
+                ? formatJalaliDateDisplay(parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)!, 'jD jMMMM jYYYY')
                 : <span className="text-muted-foreground">تاریخی انتخاب نشده</span>
               }
             </div>
@@ -497,8 +508,8 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           <h3 className="text-md sm:text-lg font-semibold text-primary mb-2">مناسبت‌های {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</h3>
           <ul className="space-y-1 text-sm text-foreground">
             {currentMonthOfficialHolidays.map(event => (
-              <li key={`${event.day}-${event.occasion}`}> {/* Added day to key for uniqueness */}
-                <span className="font-medium text-accent">{((event as any).day)?.toLocaleString('fa-IR')} {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</span> {event.occasion}
+              <li key={`${event.day}-${event.occasion}`}> 
+                <span className="font-medium text-accent">{event.day.toLocaleString('fa-IR')} {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</span> {event.occasion}
               </li>
             ))}
           </ul>
