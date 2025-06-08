@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -65,8 +65,8 @@ const initialEducationalSettings: EducationalLevelStorage = {
 };
 
 export default function EducationPage() {
-  const sectionTitle = "تحصیل";
-  const sectionPageDescription = "برنامه‌های درسی، یادداشت‌ها، منابع آموزشی و پیشرفت تحصیلی خود را در این بخش مدیریت کنید.";
+  const sectionTitle = "تحصیل و یادگیری";
+  const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، برنامه‌های درسی ایجاد نمایید (از طریق بخش ۱ - برنامه‌ریز) و به زودی از سایر قابلیت‌ها بهره‌مند شوید.";
   const { toast } = useToast();
 
   const [educationalSettings, setEducationalSettings] = useDebouncedLocalStorage<EducationalLevelStorage>(
@@ -83,7 +83,6 @@ export default function EducationPage() {
     setIsClient(true);
   }, []);
   
-  // Update transientSelectedLevel when educationalSettings.levelValue changes from storage
   useEffect(() => {
     if (isClient) {
       setTransientSelectedLevel(educationalSettings.levelValue);
@@ -95,7 +94,7 @@ export default function EducationPage() {
     const { levelValue, lastPromotionCheckDate: lastPromoDateISO, isConfirmed } = currentSettings;
 
     if (!isConfirmed || !levelValue || levelValue === 'other' || levelValue === 'high_12') {
-      return null; // No promotion needed or possible
+      return null; 
     }
 
     let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
@@ -126,7 +125,7 @@ export default function EducationPage() {
         lastPromotionCheckDate: effectiveLastPromotionDate.toISOString(),
       };
     }
-    return null; // No promotion occurred
+    return null; 
   }, []);
 
 
@@ -134,15 +133,21 @@ export default function EducationPage() {
     if (isClient && educationalSettings.isConfirmed) {
       const newSettings = calculateAutoPromotion(educationalSettings);
       if (newSettings) {
-        setEducationalSettings(newSettings); // This will trigger debounced save
+        setEducationalSettings(newSettings); 
         toast({
           title: "مقطع تحصیلی به‌روز شد",
           description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettings.levelValue)?.label}" ارتقا یافت.`,
           duration: 7000,
         });
+      } else {
+        // If no promotion occurred, still update the last check date to today to prevent re-checking on every load if it's past Mehr 1st.
+        const todayISO = new Date().toISOString();
+        if (educationalSettings.lastPromotionCheckDate !== todayISO) {
+             setEducationalSettings(prev => ({...prev, lastPromotionCheckDate: todayISO }));
+        }
       }
     }
-  }, [isClient, educationalSettings.isConfirmed, calculateAutoPromotion, toast, setEducationalSettings, educationalSettings]);
+  }, [isClient, educationalSettings.isConfirmed, calculateAutoPromotion, toast, setEducationalSettings]);
 
 
   const handleLevelChange = (value: string) => {
@@ -241,7 +246,7 @@ export default function EducationPage() {
                   <p className="text-2xl text-primary font-bold">
                     {currentLevelLabel}
                   </p>
-                  {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && ( // Check if it's not the default old date
+                  {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
                      <p className="text-xs text-muted-foreground mt-2">
                       آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
                     </p>
@@ -250,6 +255,9 @@ export default function EducationPage() {
                     <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
                     مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
                   </p>
+                   <Button variant="link" size="sm" onClick={() => setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''})} className="mt-2 text-xs">
+                     تغییر مقطع تحصیلی
+                   </Button>
                 </div>
               )}
                {!isClient && (
@@ -273,35 +281,88 @@ export default function EducationPage() {
               </AlertDialog>
             </div>
 
-            <div className="text-center">
-              <Construction className="mx-auto h-16 w-16 text-primary/70 mb-4 mt-12" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">بخش تحصیل در دست ساخت است!</h3>
-              <p className="text-muted-foreground mb-6">
-                به زودی می‌توانید برنامه‌های مطالعاتی خود را تنظیم کنید، یادداشت‌های درسی را ذخیره و مرور نمایید، و پیشرفت خود را در دوره‌های مختلف آموزشی پیگیری کنید.
+            <div className="mt-10 p-6 border rounded-lg bg-primary/5 shadow-inner">
+              <h3 className="text-xl font-semibold text-primary mb-4 text-center">امکانات بخش تحصیل</h3>
+              <p className="text-muted-foreground text-center mb-6">
+                پس از تنظیم مقطع تحصیلی، می‌توانید از قابلیت‌های زیر برای برنامه‌ریزی و مدیریت امور آموزشی خود استفاده کنید.
+                 برخی از این قابلیت‌ها در حال حاضر به صورت پایه موجود هستند و برخی دیگر در آینده تکمیل خواهند شد.
+              </p>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
+                    <CheckCircle className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">انتخاب و ارتقای خودکار مقطع تحصیلی</span>
+                        <p className="text-xs text-muted-foreground">مقطع خود را انتخاب کنید تا برنامه به طور خودکار آن را ارتقا دهد.</p>
+                    </div>
+                </li>
+                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
+                    <ListChecks className="ml-3 h-5 w-5 text-blue-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">ایجاد برنامه مطالعاتی و زمان‌بندی</span>
+                        <p className="text-xs text-muted-foreground">
+                            وظایف درسی خود را در <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه (بخش ۱)</Link> با انتخاب دسته‌بندی "درس" و مشخص کردن درس و فصول مربوط به مقطع خود، ثبت و مدیریت کنید.
+                        </p>
+                    </div>
+                </li>
+                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                    <FileText className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">یادداشت‌برداری پیشرفته (آینده)</span>
+                        <p className="text-xs text-muted-foreground">امکان یادداشت‌برداری با قابلیت ضمیمه فایل و قالب‌بندی‌های متنوع.</p>
+                    </div>
+                </li>
+                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                    <BookMarked className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">مدیریت منابع آموزشی (آینده)</span>
+                        <p className="text-xs text-muted-foreground">سازماندهی کتاب‌ها، مقالات و ویدیوهای آموزشی مرتبط با هر درس و مقطع.</p>
+                    </div>
+                </li>
+                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                    <TargetIcon className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">پیگیری پیشرفت در دروس و آزمون‌ها (آینده)</span>
+                        <p className="text-xs text-muted-foreground">ثبت نمرات، وضعیت مطالعه فصول و تحلیل پیشرفت تحصیلی.</p>
+                    </div>
+                </li>
+                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                    <Layers className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">سیستم فلش کارت (آینده)</span>
+                        <p className="text-xs text-muted-foreground">ابزاری برای یادگیری و مرور لغات، فرمول‌ها و مفاهیم کلیدی.</p>
+                    </div>
+                </li>
+                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                     <CalendarClock className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">اتصال به تقویم (آینده)</span>
+                        <p className="text-xs text-muted-foreground">یادآوری خودکار کلاس‌ها، امتحانات و مهلت‌های تحصیلی در تقویم برنامه.</p>
+                    </div>
+                </li>
+                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                    <Brain className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">پیشنهاد منابع هوشمند (آینده)</span>
+                        <p className="text-xs text-muted-foreground">دریافت پیشنهاد منابع آموزشی مرتبط با مقطع و رشته تحصیلی شما (نیازمند تکمیل اطلاعات رشته).</p>
+                    </div>
+                </li>
+              </ul>
+            </div>
+             <div className="mt-12 text-center">
+              <Construction className="mx-auto h-12 w-12 text-primary/50 mb-3" />
+              <h4 className="text-lg font-semibold text-foreground">بخش تحصیل در حال توسعه است!</h4>
+              <p className="text-muted-foreground text-sm">
+                ما به طور مداوم در حال کار بر روی افزودن و بهبود قابلیت‌های این بخش هستیم تا تجربه یادگیری شما را غنی‌تر کنیم.
               </p>
               <Image
-                src="https://placehold.co/600x400.png"
+                src="https://placehold.co/500x300.png"
                 alt="Education and Study Placeholder"
-                width={600}
-                height={400}
-                className="rounded-md mx-auto shadow-md"
-                data-ai-hint="study education learning"
+                width={500}
+                height={300}
+                className="rounded-md mx-auto shadow-md mt-6 opacity-80"
+                data-ai-hint="education learning study"
               />
             </div>
-            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-                <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های پیاده‌سازی شده و آینده:</h4>
-                <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                  <li className="flex items-center"><CheckCircle className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />انتخاب و ذخیره مقطع تحصیلی با تایید کاربر</li>
-                  <li className="flex items-center"><CheckCircle className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />ارتقای خودکار مقطع تحصیلی در اول مهر هر سال</li>
-                  <li>ایجاد برنامه مطالعاتی و زمان‌بندی بر اساس مقطع تحصیلی</li>
-                  <li>یادداشت‌برداری پیشرفته با امکان ضمیمه فایل</li>
-                  <li>مدیریت منابع آموزشی (کتاب، مقاله، ویدیو) متناسب با مقطع</li>
-                  <li>پیگیری پیشرفت در دروس و آزمون‌ها</li>
-                  <li>سیستم فلش کارت برای یادگیری لغات و مفاهیم</li>
-                  <li>اتصال به تقویم برای یادآوری کلاس‌ها و امتحانات</li>
-                  <li>پیشنهاد منابع آموزشی مرتبط با مقطع و رشته (در صورت وارد کردن رشته)</li>
-                </ul>
-              </div>
           </CardContent>
         </Card>
       </main>
@@ -311,3 +372,5 @@ export default function EducationPage() {
     </div>
   );
 }
+
+    
