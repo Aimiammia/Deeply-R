@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input'; // Changed from Textarea
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, FileText, Save, Trash2, ListChecks } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -30,7 +30,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 export default function DailyActivityLogPage() {
   const { toast } = useToast();
   const sectionTitle = "یادداشت فعالیت‌های روزانه";
-  const sectionPageDescription = "فعالیت‌ها، دستاوردها و کارهایی که در طول روز انجام داده‌اید را در اینجا ثبت و مرور کنید.";
+  const sectionPageDescription = "فعالیت‌ها، دستاوردها و کارهایی که در طول روز انجام داده‌اید را در اینجا به صورت آیتم‌های لیست وارد و مرور کنید.";
 
   const [logs, setLogs] = useState<DailyActivityLogEntry[]>([]);
   const [currentLogText, setCurrentLogText] = useState('');
@@ -61,7 +61,7 @@ export default function DailyActivityLogPage() {
     if (!currentLogText.trim()) {
       toast({
         title: "متن خالی",
-        description: "لطفاً متنی برای یادداشت خود وارد کنید.",
+        description: "لطفاً فعالیتی برای ثبت وارد کنید.",
         variant: "destructive",
       });
       return;
@@ -81,8 +81,8 @@ export default function DailyActivityLogPage() {
     setCurrentLogText('');
     setIsSaving(false);
     toast({
-      title: "یادداشت ذخیره شد",
-      description: "فعالیت روزانه شما با موفقیت ثبت شد.",
+      title: "فعالیت ثبت شد",
+      description: "فعالیت شما با موفقیت در لیست ثبت شد.",
     });
   };
 
@@ -91,8 +91,8 @@ export default function DailyActivityLogPage() {
     setLogs(prevLogs => prevLogs.filter(log => log.id !== logId));
     if (logToDelete) {
         toast({
-        title: "یادداشت حذف شد",
-        description: "یادداشت انتخاب شده با موفقیت حذف شد.",
+        title: "فعالیت حذف شد",
+        description: "فعالیت انتخاب شده با موفقیت حذف شد.",
         variant: "destructive",
         });
     }
@@ -129,14 +129,14 @@ export default function DailyActivityLogPage() {
                 ثبت فعالیت جدید
               </h2>
               <form onSubmit={handleSaveLog} className="space-y-4">
-                <Textarea
+                <Input
+                  type="text"
                   value={currentLogText}
                   onChange={(e) => setCurrentLogText(e.target.value)}
-                  placeholder="امروز چه کارهایی انجام دادید؟ مثلا: جلسه با تیم فروش، تکمیل گزارش هفتگی، ۳۰ دقیقه مطالعه کتاب..."
-                  rows={5}
+                  placeholder="یک فعالیت انجام شده را وارد کنید (مثلا: مطالعه فصل ۲ کتاب فیزیک)"
                   className="text-base"
                   disabled={isSaving}
-                  aria-label="متن یادداشت فعالیت روزانه"
+                  aria-label="متن فعالیت روزانه"
                 />
                 <Button type="submit" disabled={isSaving || !currentLogText.trim()} className="w-full sm:w-auto">
                   {isSaving ? (
@@ -147,7 +147,7 @@ export default function DailyActivityLogPage() {
                   ) : (
                     <Save className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
                   )}
-                  {isSaving ? 'در حال ذخیره...' : 'ذخیره یادداشت'}
+                  {isSaving ? 'در حال ثبت...' : 'ثبت در لیست'}
                 </Button>
               </form>
             </div>
@@ -157,10 +157,10 @@ export default function DailyActivityLogPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center text-foreground">
                 <ListChecks className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                تاریخچه یادداشت‌ها
+                لیست فعالیت‌ها
               </h2>
               {logs.length === 0 ? (
-                <p className="text-muted-foreground text-center py-6">هنوز هیچ یادداشتی ثبت نشده است. اولین یادداشت خود را اضافه کنید!</p>
+                <p className="text-muted-foreground text-center py-6">هنوز هیچ فعالیتی ثبت نشده است. اولین فعالیت خود را اضافه کنید!</p>
               ) : (
                 <ScrollArea className="h-[400px] pr-3 rtl:pl-3">
                   <div className="space-y-4">
@@ -179,9 +179,9 @@ export default function DailyActivityLogPage() {
                                 </AlertDialogTrigger>
                                 <AlertDialogContent dir="rtl">
                                     <AlertDialogHeader>
-                                    <AlertDialogTitle>تایید حذف یادداشت</AlertDialogTitle>
+                                    <AlertDialogTitle>تایید حذف فعالیت</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        آیا از حذف این یادداشت مطمئن هستید؟ این عمل قابل بازگشت نیست.
+                                        آیا از حذف این فعالیت: "{log.text}" مطمئن هستید؟ این عمل قابل بازگشت نیست.
                                     </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -195,7 +195,7 @@ export default function DailyActivityLogPage() {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-sm text-foreground whitespace-pre-wrap">{log.text}</p>
+                          <p className="text-sm text-foreground">{log.text}</p>
                         </CardContent>
                       </Card>
                     ))}
