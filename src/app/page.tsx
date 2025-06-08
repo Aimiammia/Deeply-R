@@ -12,9 +12,9 @@ import {
   Target, // Used for Section 5 (Goals/Habits) AND now for Section 9 (Long-Term Planning)
   Dumbbell,
   BookOpen,
-  PieChart, // Icon for Section 8 AND now for Section 10
-  Award,    // No longer used for active sections after this change
-  Settings // Generic "Future" icon or similar - kept for Section 10 or if another "Future" is needed
+  PieChart, // Icon for Section 10
+  Lightbulb, // New icon for Section 8
+  Settings // Generic "Future" icon or similar
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -27,9 +27,9 @@ const sectionIcons: LucideIcon[] = [
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  PieChart,         // Section 8 (Data Analysis and Reports)
+  Lightbulb,        // Section 8 (Notes and Ideation) - Changed from PieChart
   Target,           // Section 9 (Long-Term Planning)
-  PieChart          // Section 10 (Data Analysis and Reports) - Changed from Award
+  PieChart          // Section 10 (Data Analysis and Reports)
 ];
 
 export default function HomePage() {
@@ -79,9 +79,9 @@ export default function HomePage() {
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             } else if (sectionNumber === 8) {
-              sectionTitle = "تحلیل داده و گزارشات";
-              sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
-              sectionContent = "در این بخش گزارشات و تحلیل‌های داده‌های مختلف برنامه نمایش داده خواهد شد.";
+              sectionTitle = "یادداشت‌ها و ایده‌پردازی";
+              sectionDescription = "افکار، ایده‌ها و یادداشت‌های خود را ثبت و سازماندهی کنید.";
+              sectionContent = "فضایی برای ثبت جرقه‌های ذهنی، یادداشت‌های سریع و سازماندهی ایده‌هایتان.";
             } else if (sectionNumber === 9) {
               sectionTitle = "برنامه‌ریزی بلند مدت"; 
               sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
