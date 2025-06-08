@@ -4,13 +4,13 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
 import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
 import { TransactionList } from '@/components/financials/TransactionList';
-import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment } from '@/types';
+import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment, SavingsGoal } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +22,9 @@ import { CreateAssetForm } from '@/components/financials/CreateAssetForm';
 import { AssetList } from '@/components/financials/AssetList';
 import { CreateInvestmentForm } from '@/components/financials/CreateInvestmentForm';
 import { InvestmentList } from '@/components/financials/InvestmentList';
+import { CreateSavingsGoalForm } from '@/components/financials/CreateSavingsGoalForm';
+import { SavingsGoalList } from '@/components/financials/SavingsGoalList';
+
 
 const persianMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -30,19 +33,27 @@ const persianMonthNames = [
 
 export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
-  const sectionPageDescription = "هزینه‌ها، درآمدها، بودجه، دارایی‌ها و سرمایه‌گذاری‌های خود را در اینجا پیگیری و مدیریت کنید.";
+  const sectionPageDescription = "هزینه‌ها، درآمدها، بودجه، دارایی‌ها، سرمایه‌گذاری‌ها و اهداف پس‌انداز خود را در اینجا پیگیری و مدیریت کنید.";
 
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
   const [transactions, setTransactions] = useDebouncedLocalStorage<FinancialTransaction[]>('financialTransactions', []);
+  
+  // Budgets
   const [budgets, setBudgets] = useDebouncedLocalStorage<Budget[]>('financialBudgets', []);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   
+  // Assets
   const [assets, setAssets] = useDebouncedLocalStorage<FinancialAsset[]>('financialAssets', []);
   const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
 
+  // Investments
   const [investments, setInvestments] = useDebouncedLocalStorage<FinancialInvestment[]>('financialInvestments', []);
   const [editingInvestment, setEditingInvestment] = useState<FinancialInvestment | null>(null);
+
+  // Savings Goals
+  const [savingsGoals, setSavingsGoals] = useDebouncedLocalStorage<SavingsGoal[]>('financialSavingsGoals', []);
+  const [editingSavingsGoal, setEditingSavingsGoal] = useState<SavingsGoal | null>(null);
 
 
   useEffect(() => {
@@ -99,7 +110,7 @@ export default function FinancialManagementPage() {
     setEditingBudget(null); 
   };
 
-  const handleDeleteBudget = (categoryId: string) => { // ID is category for budgets now
+  const handleDeleteBudget = (categoryId: string) => { 
     const budgetToDelete = budgets.find(b => b.id === categoryId);
     setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== categoryId));
      if (budgetToDelete) {
@@ -159,7 +170,7 @@ export default function FinancialManagementPage() {
         const updatedInvestment: FinancialInvestment = {
             ...editingInvestment,
             ...investmentData,
-            lastPriceUpdateDate: nowISO, // Always update price update date on edit
+            lastPriceUpdateDate: nowISO, 
         };
         setInvestments(prevInvestments => prevInvestments.map(i => i.id === editingInvestment.id ? updatedInvestment : i));
         toast({ title: "سرمایه‌گذاری ویرایش شد", description: `سرمایه‌گذاری "${investmentData.name}" ویرایش شد.` });
@@ -185,6 +196,67 @@ export default function FinancialManagementPage() {
     if (editingInvestment?.id === id) {
         setEditingInvestment(null);
     }
+  };
+
+  // Savings Goal Handlers
+  const handleSaveSavingsGoal = (goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => {
+    if (isEditing && editingSavingsGoal) {
+      const updatedGoal: SavingsGoal = {
+        ...editingSavingsGoal,
+        name: goalData.name,
+        targetAmount: goalData.targetAmount,
+        targetDate: goalData.targetDate,
+      };
+      setSavingsGoals(prevGoals => prevGoals.map(g => g.id === editingSavingsGoal.id ? updatedGoal : g));
+      toast({ title: "هدف پس‌انداز ویرایش شد", description: `هدف "${goalData.name}" با موفقیت ویرایش شد.` });
+      setEditingSavingsGoal(null);
+    } else {
+      const newGoal: SavingsGoal = {
+        ...goalData,
+        id: crypto.randomUUID(),
+        currentAmount: 0,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+      };
+      setSavingsGoals(prevGoals => [newGoal, ...prevGoals]);
+      toast({ title: "هدف پس‌انداز اضافه شد", description: `هدف "${goalData.name}" با موفقیت اضافه شد.` });
+    }
+  };
+
+  const handleDeleteSavingsGoal = (id: string) => {
+    const goalToDelete = savingsGoals.find(g => g.id === id);
+    setSavingsGoals(prevGoals => prevGoals.filter(g => g.id !== id));
+    if (goalToDelete) {
+      toast({ title: "هدف پس‌انداز حذف شد", description: `هدف "${goalToDelete.name}" حذف شد.`, variant: "destructive" });
+    }
+    if (editingSavingsGoal?.id === id) {
+      setEditingSavingsGoal(null);
+    }
+  };
+
+  const handleAddFundsToSavingsGoal = (id: string, amount: number) => {
+    setSavingsGoals(prevGoals =>
+      prevGoals.map(goal => {
+        if (goal.id === id) {
+          const newCurrentAmount = goal.currentAmount + amount;
+          return { 
+            ...goal, 
+            currentAmount: newCurrentAmount,
+            status: newCurrentAmount >= goal.targetAmount ? 'achieved' : goal.status
+          };
+        }
+        return goal;
+      })
+    );
+    toast({ title: "وجه اضافه شد", description: `مبلغ ${formatCurrency(amount)} به هدف اضافه شد.` });
+  };
+  
+  const handleSetSavingsGoalStatus = (id: string, status: SavingsGoal['status']) => {
+     setSavingsGoals(prevGoals =>
+      prevGoals.map(goal => goal.id === id ? { ...goal, status } : goal)
+    );
+    const statusText = status === 'achieved' ? 'رسیده شده' : status === 'cancelled' ? 'لغو شده' : 'فعال';
+    toast({ title: "وضعیت هدف تغییر کرد", description: `وضعیت هدف به "${statusText}" تغییر یافت.` });
   };
 
 
@@ -462,14 +534,20 @@ export default function FinancialManagementPage() {
                     <CardDescription>اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">قابلیت اهداف پس‌انداز به زودی اضافه خواهد شد.</p>
-                    <div className="mt-4 p-4 border rounded-md bg-secondary/30">
+                     <CreateSavingsGoalForm onSaveGoal={handleSaveSavingsGoal} existingGoal={editingSavingsGoal} />
+                     <SavingsGoalList 
+                        goals={savingsGoals} 
+                        onDeleteGoal={handleDeleteSavingsGoal} 
+                        onEditGoal={(goal) => setEditingSavingsGoal(goal)}
+                        onAddFunds={handleAddFundsToSavingsGoal}
+                        onSetStatus={handleSetSavingsGoalStatus}
+                      />
+                    <div className="mt-8 p-4 border rounded-md bg-secondary/30">
                         <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right">
-                          <li>تعریف اهداف پس‌انداز با مبلغ و تاریخ هدف</li>
-                          <li>اختصاص دادن بخشی از درآمد یا تراکنش‌های خاص به هر هدف</li>
-                          <li>پیگیری پیشرفت به سمت هر هدف پس‌انداز</li>
-                          <li>نمودار تجسمی برای اهداف پس‌انداز</li>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+                          <li>اختصاص دادن بخشی از درآمد یا تراکنش‌های خاص به هر هدف (اتصال به تراکنش‌ها).</li>
+                          <li>نمودار تجسمی برای پیگیری پیشرفت اهداف پس‌انداز.</li>
+                          <li>یادآوری برای واریز به اهداف پس‌انداز.</li>
                         </ul>
                       </div>
                   </CardContent>

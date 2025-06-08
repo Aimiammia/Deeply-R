@@ -105,3 +105,13 @@ export interface FinancialInvestment {
   notes?: string | null;
   createdAt: string; // ISO date string
 }
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate?: string | null; // ISO date string, optional
+  createdAt: string; // ISO date string
+  status: 'active' | 'achieved' | 'cancelled';
+}
