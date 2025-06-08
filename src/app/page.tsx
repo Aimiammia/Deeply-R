@@ -13,7 +13,7 @@ import {
   Dumbbell,
   BookOpen,
   PieChart, // Icon for Section 10
-  Lightbulb, // New icon for Section 8
+  FileText, // New icon for Section 8
   Settings // Generic "Future" icon or similar
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -27,7 +27,7 @@ const sectionIcons: LucideIcon[] = [
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  Lightbulb,        // Section 8 (Notes and Ideation) - Changed from PieChart
+  FileText,         // Section 8 (Daily Activity Log) - Changed from Lightbulb
   Target,           // Section 9 (Long-Term Planning)
   PieChart          // Section 10 (Data Analysis and Reports)
 ];
@@ -79,9 +79,9 @@ export default function HomePage() {
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             } else if (sectionNumber === 8) {
-              sectionTitle = "یادداشت‌ها و ایده‌پردازی";
-              sectionDescription = "افکار، ایده‌ها و یادداشت‌های خود را ثبت و سازماندهی کنید.";
-              sectionContent = "فضایی برای ثبت جرقه‌های ذهنی، یادداشت‌های سریع و سازماندهی ایده‌هایتان.";
+              sectionTitle = "یادداشت فعالیت‌های روزانه";
+              sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
+              sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
             } else if (sectionNumber === 9) {
               sectionTitle = "برنامه‌ریزی بلند مدت"; 
               sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";

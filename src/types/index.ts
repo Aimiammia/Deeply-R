@@ -73,3 +73,9 @@ export interface EducationalLevelStorage {
     isConfirmed: boolean;
     lastPromotionCheckDate: string; // ISO Date string
 }
+
+export interface DailyActivityLogEntry {
+  id: string;
+  date: string; // ISO date string of when it was saved
+  text: string;
+}
