@@ -13,19 +13,19 @@ import {
   formatJalaliDateDisplay,
   parseJalaliDate,
   jalaliToGregorian,
-  gregorianToJalali,
+  // gregorianToJalali is not used in this component directly, but available from helpers
 } from '@/lib/calendar-helpers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronLeft, ChevronRight, Gift, PlusCircle, Trash2, CalendarPlus, GripVertical, Edit2, CalendarCheck2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Gift, PlusCircle, Trash2, CalendarPlus, Edit2, CalendarCheck2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BirthdayEntry, CalendarEvent } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { faIR } from 'date-fns/locale';
+import { format as formatGregorian, startOfMonth as startOfGregorianMonth, endOfMonth as endOfGregorianMonth, parseISO } from 'date-fns';
+import { faIR as faIRLocale } from 'date-fns/locale';
 
 
 interface PersianCalendarViewProps {
@@ -34,12 +34,12 @@ interface PersianCalendarViewProps {
 }
 
 export function PersianCalendarView({ initialYear, initialMonth }: PersianCalendarViewProps) {
-  const today = getJalaliToday();
-  const [currentJalaliYear, setCurrentJalaliYear] = useState(initialYear || today.year);
-  const [currentJalaliMonth, setCurrentJalaliMonth] = useState(initialMonth || today.month); // 1-indexed
+  const todayJalali = getJalaliToday();
+  const [currentJalaliYear, setCurrentJalaliYear] = useState(initialYear || todayJalali.year);
+  const [currentJalaliMonth, setCurrentJalaliMonth] = useState(initialMonth || todayJalali.month); // 1-indexed
 
-  const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
-  const [firstDayOfWeek, setFirstDayOfWeek] = useState(0); // 0 for Saturday, 6 for Friday
+  const [daysInMonthArray, setDaysInMonthArray] = useState<number[]>([]);
+  const [firstDayOfWeekIndex, setFirstDayOfWeekIndex] = useState(0); // 0 for Saturday, 6 for Friday
 
   // Birthdays State
   const [birthdays, setBirthdays] = useState<BirthdayEntry[]>([]);
@@ -66,22 +66,25 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
 
   useEffect(() => {
     const numDays = getDaysInJalaliMonth(currentJalaliYear, currentJalaliMonth);
-    setDaysInMonth(Array.from({ length: numDays }, (_, i) => i + 1));
-    setFirstDayOfWeek(getJalaliMonthFirstDayOfWeek(currentJalaliYear, currentJalaliMonth));
+    setDaysInMonthArray(Array.from({ length: numDays }, (_, i) => i + 1));
+    setFirstDayOfWeekIndex(getJalaliMonthFirstDayOfWeek(currentJalaliYear, currentJalaliMonth));
+    
+    // Reset selections when month changes if forms are open
     if (showAddBirthdayForm) setSelectedBirthdayDate(null);
-    if (showAddEventForm) setSelectedEventDate(null);
+    if (showAddEventForm || editingEvent) setSelectedEventDate(null);
+
     setInputYear(String(currentJalaliYear));
     setInputMonth(String(currentJalaliMonth));
-  }, [currentJalaliYear, currentJalaliMonth, showAddBirthdayForm, showAddEventForm]);
+  }, [currentJalaliYear, currentJalaliMonth, showAddBirthdayForm, showAddEventForm, editingEvent]);
 
   // Load birthdays from localStorage
   useEffect(() => {
     try {
-      const storedBirthdays = localStorage.getItem('calendarBirthdays');
+      const storedBirthdays = localStorage.getItem('calendarBirthdaysDeeply');
       if (storedBirthdays) setBirthdays(JSON.parse(storedBirthdays));
     } catch (error) {
       console.error("Failed to parse birthdays from localStorage", error);
-      localStorage.removeItem('calendarBirthdays');
+      localStorage.removeItem('calendarBirthdaysDeeply');
     }
     setIsInitialBirthdaysLoadComplete(true);
   }, []);
@@ -89,18 +92,18 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   // Save birthdays to localStorage
   useEffect(() => {
     if (isInitialBirthdaysLoadComplete) {
-      localStorage.setItem('calendarBirthdays', JSON.stringify(birthdays));
+      localStorage.setItem('calendarBirthdaysDeeply', JSON.stringify(birthdays));
     }
   }, [birthdays, isInitialBirthdaysLoadComplete]);
 
   // Load events from localStorage
   useEffect(() => {
     try {
-      const storedEvents = localStorage.getItem('calendarEvents');
+      const storedEvents = localStorage.getItem('calendarEventsDeeply');
       if (storedEvents) setEvents(JSON.parse(storedEvents));
     } catch (error) {
       console.error("Failed to parse events from localStorage", error);
-      localStorage.removeItem('calendarEvents');
+      localStorage.removeItem('calendarEventsDeeply');
     }
     setIsInitialEventsLoadComplete(true);
   }, []);
@@ -108,7 +111,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   // Save events to localStorage
   useEffect(() => {
     if (isInitialEventsLoadComplete) {
-      localStorage.setItem('calendarEvents', JSON.stringify(events));
+      localStorage.setItem('calendarEventsDeeply', JSON.stringify(events));
     }
   }, [events, isInitialEventsLoadComplete]);
 
@@ -132,8 +135,8 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   };
   
   const handleGoToToday = () => {
-    setCurrentJalaliYear(today.year);
-    setCurrentJalaliMonth(today.month);
+    setCurrentJalaliYear(todayJalali.year);
+    setCurrentJalaliMonth(todayJalali.month);
   };
 
   const handleDayClick = (day: number) => {
@@ -142,7 +145,6 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     } else if (showAddEventForm || editingEvent) {
        setSelectedEventDate({ year: currentJalaliYear, month: currentJalaliMonth, day });
     }
-    // Future: else, handle displaying events for the day
   };
   
   const handleSaveBirthday = () => {
@@ -181,7 +183,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             jMonth: selectedEventDate.month,
             jDay: selectedEventDate.day,
         };
-        setEvents(prev => prev.map(e => e.id === editingEvent.id ? updatedEvent : e).sort((a,b) => a.jDay - b.jDay));
+        setEvents(prev => prev.map(e => e.id === editingEvent.id ? updatedEvent : e).sort((a,b) => a.jDay - b.jDay)); // Sort by day
         toast({ title: "رویداد ویرایش شد", description: `رویداد "${updatedEvent.name}" با موفقیت ویرایش شد.` });
     } else {
         const newEvent: CalendarEvent = {
@@ -191,7 +193,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           jYear: selectedEventDate.year, jMonth: selectedEventDate.month, jDay: selectedEventDate.day,
           createdAt: new Date().toISOString(),
         };
-        setEvents(prev => [...prev, newEvent].sort((a,b) => a.jDay - b.jDay));
+        setEvents(prev => [...prev, newEvent].sort((a,b) => a.jDay - b.jDay)); // Sort by day
         toast({ title: "رویداد اضافه شد", description: `رویداد "${newEvent.name}" با موفقیت اضافه شد.` });
     }
     setNewEventName(''); setNewEventDescription(''); setSelectedEventDate(null); setShowAddEventForm(false); setEditingEvent(null);
@@ -202,7 +204,8 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     setNewEventName(event.name);
     setNewEventDescription(event.description || '');
     setSelectedEventDate({year: event.jYear, month: event.jMonth, day: event.jDay});
-    setShowAddEventForm(true); // Show the form populated with event data
+    setShowAddEventForm(true); 
+    setShowAddBirthdayForm(false); // Ensure birthday form is closed
   };
 
   const handleDeleteEvent = (id: string) => {
@@ -230,7 +233,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const handleGoToInputDate = () => {
     const year = parseInt(inputYear);
     const month = parseInt(inputMonth);
-    if (!isNaN(year) && !isNaN(month) && month >= 1 && month <= 12 && year > 1000 && year < 2000) { // Basic validation
+    if (!isNaN(year) && !isNaN(month) && month >= 1 && month <= 12 && year > 1000 && year < 2000) {
       setCurrentJalaliYear(year);
       setCurrentJalaliMonth(month);
     } else {
@@ -238,45 +241,52 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     }
   };
 
-  const getGregorianMonthRange = useMemo(() => {
+  const getGregorianMonthRangeDisplay = useMemo(() => {
     try {
-      const jalaliStartDate = parseJalaliDate(currentJalaliYear, currentJalaliMonth, 1);
-      if (!jalaliStartDate) return "";
-      const gregorianStartDate = jalaliToGregorian(jalaliStartDate.getFullYear(), jalaliStartDate.getMonth() + 1, jalaliStartDate.getDate());
+      const firstJalaliDay = parseJalaliDate(currentJalaliYear, currentJalaliMonth, 1);
+      if (!firstJalaliDay) return "";
       
-      const daysInJalaliM = getDaysInJalaliMonth(currentJalaliYear, currentJalaliMonth);
-      const jalaliEndDate = parseJalaliDate(currentJalaliYear, currentJalaliMonth, daysInJalaliM);
-      if (!jalaliEndDate) return "";
-      const gregorianEndDate = jalaliToGregorian(jalaliEndDate.getFullYear(), jalaliEndDate.getMonth() + 1, jalaliEndDate.getDate());
+      const numDaysInJalali = getDaysInJalaliMonth(currentJalaliYear, currentJalaliMonth);
+      const lastJalaliDay = parseJalaliDate(currentJalaliYear, currentJalaliMonth, numDaysInJalali);
+      if (!lastJalaliDay) return "";
 
-      const startStr = format(new Date(gregorianStartDate.gy, gregorianStartDate.gm -1, gregorianStartDate.gd), "MMMM yyyy", {locale: faIR});
-      const endStr = format(new Date(gregorianEndDate.gy, gregorianEndDate.gm -1, gregorianEndDate.gd), "MMMM yyyy", {locale: faIR});
+      // Convert Jalali start and end to Gregorian
+      const gregStartDateParts = jalaliToGregorian(currentJalaliYear, currentJalaliMonth, 1);
+      const gregEndDateParts = jalaliToGregorian(currentJalaliYear, currentJalaliMonth, numDaysInJalali);
+      
+      const gregStartDate = new Date(gregStartDateParts.gy, gregStartDateParts.gm - 1, gregStartDateParts.gd);
+      const gregEndDate = new Date(gregEndDateParts.gy, gregEndDateParts.gm - 1, gregEndDateParts.gd);
+
+      const startStr = formatGregorian(gregStartDate, "MMMM yyyy", {locale: faIRLocale});
+      const endStr = formatGregorian(gregEndDate, "MMMM yyyy", {locale: faIRLocale});
       
       if (startStr === endStr) return startStr;
       return `${startStr} - ${endStr}`;
 
     } catch (e) {
-        return "نامشخص"
+        console.error("Error calculating Gregorian month range:", e);
+        return "نامشخص";
     }
   }, [currentJalaliYear, currentJalaliMonth]);
 
 
   const renderDayCells = () => {
     const dayCells = [];
-    for (let i = 0; i < firstDayOfWeek; i++) {
+    for (let i = 0; i < firstDayOfWeekIndex; i++) {
       dayCells.push(<div key={`empty-prev-${i}`} className="p-1 sm:p-2 border border-transparent"></div>);
     }
 
-    daysInMonth.map(day => {
+    daysInMonthArray.map(day => {
       const isToday = checkIsToday(currentJalaliYear, currentJalaliMonth, day);
-      const dayOfWeek = (firstDayOfWeek + day - 1) % 7;
-      const isFriday = dayOfWeek === 6;
+      const dayOfWeek = (firstDayOfWeekIndex + day - 1) % 7;
+      const isFriday = dayOfWeek === 6; // Friday
       const holidayInfo = getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day);
       const isPublicHoliday = holidayInfo?.isPublicHoliday || false;
       const hasBirthday = isBirthdayOnDate(currentJalaliYear, currentJalaliMonth, day);
       const hasEvent = isEventOnDate(currentJalaliYear, currentJalaliMonth, day);
-      const isSelectedForNew = (showAddBirthdayForm && selectedBirthdayDate?.day === day && selectedBirthdayDate?.month === currentJalaliMonth && selectedBirthdayDate?.year === currentJalaliYear) ||
-                               ((showAddEventForm || editingEvent) && selectedEventDate?.day === day && selectedEventDate?.month === currentJalaliMonth && selectedEventDate?.year === currentJalaliYear);
+      const isSelectedForNew = 
+        (showAddBirthdayForm && selectedBirthdayDate?.day === day && selectedBirthdayDate?.month === currentJalaliMonth && selectedBirthdayDate?.year === currentJalaliYear) ||
+        ((showAddEventForm || editingEvent) && selectedEventDate?.day === day && selectedEventDate?.month === currentJalaliMonth && selectedEventDate?.year === currentJalaliYear);
 
       dayCells.push(
         <div
@@ -291,8 +301,8 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             !isToday && !isSelectedForNew && !isPublicHoliday && isFriday && "text-orange-600 dark:text-orange-400 bg-secondary/30",
             !isToday && !isSelectedForNew && !isPublicHoliday && !isFriday && "bg-card hover:bg-muted/80",
              hasBirthday && !isSelectedForNew && "shadow-inner shadow-yellow-400/50",
-             hasEvent && !isSelectedForNew && !hasBirthday && "shadow-inner shadow-green-400/50", // Different shadow for event if no birthday
-             hasEvent && hasBirthday && !isSelectedForNew && "shadow-inner shadow-purple-400/50" // Combined shadow
+             hasEvent && !isSelectedForNew && !hasBirthday && "shadow-inner shadow-green-400/50",
+             hasEvent && hasBirthday && !isSelectedForNew && "shadow-inner shadow-purple-400/50"
           )}
           title={holidayInfo?.occasion || (hasBirthday ? 'تولد!' : '') || (hasEvent ? 'رویداد!' : '')}
         >
@@ -308,7 +318,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       );
     });
 
-    const totalCells = Math.ceil((firstDayOfWeek + daysInMonth.length) / 7) * 7;
+    const totalCells = Math.ceil((firstDayOfWeekIndex + daysInMonthArray.length) / 7) * 7;
      for (let i = dayCells.length; i < totalCells; i++) {
       dayCells.push(<div key={`empty-next-${i}`} className="p-1 sm:p-2 border border-transparent"></div>);
     }
@@ -316,27 +326,24 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     return dayCells;
   };
   
-  const khordadEventsHardcoded = currentJalaliYear === 1404 && currentJalaliMonth === 3 ? [
-    { day: 14, text: 'رحلت امام خمینی' },
-    { day: 15, text: 'قیام خونین ۱۵ خرداد' },
-    { day: 16, text: 'عید سعید قربان' },
-    { day: 24, text: 'عید سعید غدیر خم (نمونه)' },
-  ] : [];
+  const currentMonthOfficialHolidays = daysInMonthArray
+    .map(day => getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day))
+    .filter(Boolean) as { occasion: string, isPublicHoliday: boolean, day: number }[]; // Need to add day back if displaying
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-lg shadow-lg">
       <div className="flex items-center justify-between mb-4 p-2 bg-primary text-primary-foreground rounded-md shadow">
         <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="hover:bg-primary/80">
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-6 w-6" /> {/* Icon for prev month in RTL */}
         </Button>
         <div className="text-center">
             <h2 className="text-lg sm:text-xl font-bold">
             {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear.toLocaleString('fa-IR')}
             </h2>
-            <p className="text-xs opacity-80">{getGregorianMonthRange}</p>
+            <p className="text-xs opacity-80">{getGregorianMonthRangeDisplay}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={handleNextMonth} className="hover:bg-primary/80">
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-6 w-6" /> {/* Icon for next month in RTL */}
         </Button>
       </div>
 
@@ -384,7 +391,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           <div>
             <Label className="mb-1 block text-sm">تاریخ تولد (از تقویم بالا انتخاب کنید)</Label>
             <div className="p-2 border rounded-md bg-background text-center h-10 flex items-center justify-center">
-              {selectedBirthdayDate 
+              {selectedBirthdayDate && parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)
                 ? formatJalaliDateDisplay(parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)!)
                 : <span className="text-muted-foreground">تاریخی انتخاب نشده</span>
               }
@@ -408,7 +415,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           <div>
             <Label className="mb-1 block text-sm">تاریخ رویداد (از تقویم بالا انتخاب کنید)</Label>
             <div className="p-2 border rounded-md bg-background text-center h-10 flex items-center justify-center">
-              {selectedEventDate 
+              {selectedEventDate && parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)
                 ? formatJalaliDateDisplay(parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)!)
                 : <span className="text-muted-foreground">تاریخی انتخاب نشده</span>
               }
@@ -423,7 +430,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm font-medium text-muted-foreground mb-2">
         {JALALI_DAY_NAMES_LONG.map(dayName => (
-          <div key={dayName} className={cn(dayName === 'جمعه' && "text-orange-600 dark:text-orange-400")}>{dayName}</div>
+          <div key={dayName} className={cn("py-1", dayName === 'جمعه' && "text-orange-600 dark:text-orange-400")}>{dayName}</div>
         ))}
       </div>
 
@@ -431,7 +438,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         {renderDayCells()}
       </div>
       
-      {(khordadEventsHardcoded.length > 0 || birthdaysInCurrentMonth.length > 0 || eventsInCurrentMonth.length > 0) && <Separator className="my-6" />}
+      {(currentMonthOfficialHolidays.length > 0 || birthdaysInCurrentMonth.length > 0 || eventsInCurrentMonth.length > 0) && <Separator className="my-6" />}
 
       {birthdaysInCurrentMonth.length > 0 && (
          <div className="mb-6">
@@ -485,13 +492,13 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         </div>
       )}
       
-      {khordadEventsHardcoded.length > 0 && (
+      {currentMonthOfficialHolidays.length > 0 && (
          <div className="mt-4 pt-4 border-t">
-          <h3 className="text-md sm:text-lg font-semibold text-primary mb-2">مناسبت‌های {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} (نمونه):</h3>
+          <h3 className="text-md sm:text-lg font-semibold text-primary mb-2">مناسبت‌های {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</h3>
           <ul className="space-y-1 text-sm text-foreground">
-            {khordadEventsHardcoded.map(event => (
-              <li key={event.day}>
-                <span className="font-medium text-accent">{event.day.toLocaleString('fa-IR')} {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</span> {event.text}
+            {currentMonthOfficialHolidays.map(event => (
+              <li key={`${event.day}-${event.occasion}`}> {/* Added day to key for uniqueness */}
+                <span className="font-medium text-accent">{((event as any).day)?.toLocaleString('fa-IR')} {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</span> {event.occasion}
               </li>
             ))}
           </ul>

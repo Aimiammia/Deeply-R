@@ -8,7 +8,7 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  // CalendarDays, // Icon for removed Section 4
+  CalendarDays, // Icon for Section 4 (Calendar)
   Target,
   Dumbbell,
   BookOpen,
@@ -23,20 +23,19 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  // Section 4 (Calendar) was removed. Placeholder icon (Award) will be used if section 4 logic was not fully removed.
-  // The filtering logic below should prevent section 4 from appearing.
+  CalendarDays,     // Section 4 (Calendar) - Restored
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
   PieChart,         // Section 8
   FileEdit,         // Section 9
-  Award,            // Section 10
-  Award             // Placeholder for icon array length consistency if needed, actual display is filtered
+  Award             // Section 10
 ];
 
 export default function HomePage() {
   const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
-  const sectionsToDisplay = allSectionNumbers.filter(num => num !== 4); // Filter out section 4
+  // Filter for sections to display is removed, so all 10 sections will be attempted to render
+  const sectionsToDisplay = allSectionNumbers; 
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -44,14 +43,9 @@ export default function HomePage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
-            // Adjust icon indexing due to removal of section 4
-            let iconIndex = sectionNumber -1;
-            if (sectionNumber > 4) {
-                iconIndex = sectionNumber - 2; // Shift index for sections after the removed one
-            }
-            // Fallback icon if index is out of bounds after filtering, though it shouldn't happen with current logic
-            const IconComponent = sectionIcons[iconIndex] || Award;
-
+            // Icon indexing is direct as no section is filtered out
+            const iconIndex = sectionNumber -1;
+            const IconComponent = sectionIcons[iconIndex] || Award; // Fallback icon
 
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
@@ -69,6 +63,10 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
+            } else if (sectionNumber === 4) { // Content for Section 4 (Calendar)
+              sectionTitle = "تقویم و رویدادها";
+              sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
+              sectionContent = "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید.";
             } else if (sectionNumber === 5) {
               sectionTitle = "اهداف و عادت‌ها";
               sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";

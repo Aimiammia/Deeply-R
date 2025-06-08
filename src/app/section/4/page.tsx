@@ -7,10 +7,13 @@ import Link from 'next/link';
 import { ArrowLeft, CalendarDays, CheckSquare, Edit, ListChecks, GanttChartSquare, BellDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; 
+import { getJalaliToday } from '@/lib/calendar-helpers';
 
 export default function CalendarPage() {
   const sectionTitle = "تقویم و رویدادها";
   const sectionPageDescription = "تقویم شمسی را مشاهده کنید، رویدادها، تولدها و مناسبت‌های مهم را پیگیری نمایید.";
+  
+  const todayJalali = getJalaliToday();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -35,7 +38,8 @@ export default function CalendarPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
-            <PersianCalendarView initialYear={1403} initialMonth={4} /> 
+            {/* Pass current Jalali year and month to the calendar */}
+            <PersianCalendarView initialYear={todayJalali.year} initialMonth={todayJalali.month} /> 
             
             <div className="p-4 border rounded-lg bg-secondary/30">
                 <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های پیاده‌سازی شده و آینده:</h4>
@@ -45,7 +49,7 @@ export default function CalendarPage() {
                   <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />افزودن، ویرایش، نمایش و حذف رویدادها (ذخیره در localStorage)</li>
                   <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش نشانگر برای روزهای دارای تولد یا رویداد</li>
                   <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش بازه معادل میلادی برای ماه شمسی جاری</li>
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش مناسبت‌های نمونه برای خرداد ۱۴۰۴</li>
+                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش مناسبت‌های نمونه</li>
                   <li className="flex items-center"><Edit className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />ویرایش پیشرفته‌تر رویدادها (مانند انتخاب رنگ، تکرار و ...)</li>
                   <li className="flex items-center"><GanttChartSquare className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />نمایش‌های مختلف (هفتگی، روزانه) برای رویدادها</li>
                   <li className="flex items-center"><BellDot className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />تنظیم یادآور برای رویدادها</li>
