@@ -12,8 +12,8 @@ import {
   Target, // Used for Section 5 (Goals/Habits) AND now for Section 9 (Long-Term Planning)
   Dumbbell,
   BookOpen,
-  PieChart, // Icon for Section 8
-  Award,
+  PieChart, // Icon for Section 8 AND now for Section 10
+  Award,    // No longer used for active sections after this change
   Settings // Generic "Future" icon or similar - kept for Section 10 or if another "Future" is needed
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -27,9 +27,9 @@ const sectionIcons: LucideIcon[] = [
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  PieChart,         // Section 8 (Data Analysis and Reports - was Future)
-  Target,           // Section 9 (Now Long-Term Planning, Icon updated to Target)
-  Award             // Section 10
+  PieChart,         // Section 8 (Data Analysis and Reports)
+  Target,           // Section 9 (Long-Term Planning)
+  PieChart          // Section 10 (Data Analysis and Reports) - Changed from Award
 ];
 
 export default function HomePage() {
@@ -43,7 +43,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
             const iconIndex = sectionNumber -1;
-            const IconComponent = sectionIcons[iconIndex] || Award; // Fallback icon
+            const IconComponent = sectionIcons[iconIndex] || Settings; // Fallback icon
 
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
@@ -83,12 +83,14 @@ export default function HomePage() {
               sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
               sectionContent = "در این بخش گزارشات و تحلیل‌های داده‌های مختلف برنامه نمایش داده خواهد شد.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "برنامه‌ریزی بلند مدت"; // Changed title for section 9
+              sectionTitle = "برنامه‌ریزی بلند مدت"; 
               sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
               sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
-              // Link remains /section/9, but its page content will be the long-term planner
+            } else if (sectionNumber === 10) {
+              sectionTitle = "تحلیل داده و گزارشات";
+              sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
+              sectionContent = "در این بخش نیز می‌توانید گزارشات و تحلیل‌های داده‌های برنامه را مشاهده کنید.";
             }
-            // Section 10 will use the default title/description/content
 
             return (
               <Link href={sectionLink} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
