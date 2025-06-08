@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -45,7 +46,10 @@ async (input) => {
     reflectionText,
   });
 
-  return promptResult.output!;
+  if (!promptResult.output) {
+    throw new Error("AI model did not return a valid output from reflectionAnalysisPrompt tool.");
+  }
+  return promptResult.output;
 });
 
 // Define the prompt for analyzing the user reflections
@@ -76,7 +80,10 @@ const analyzeUserReflectionsFlow = ai.defineFlow({
   // Call the analyzeReflections tool to get the analysis results
   // IMPORTANT: We are calling the PROMPT here, not the tool directly.
   const promptResult = await reflectionAnalysisPrompt(input);
-  return promptResult.output!;
+  if (!promptResult.output) {
+    throw new Error("AI model did not return a valid output for reflection analysis.");
+  }
+  return promptResult.output;
 });
 
 /**

@@ -103,7 +103,10 @@ const assessGoalProgressFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await assessGoalProgressPrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("AI model did not return a valid output for goal assessment.");
+    }
+    return output;
   }
 );
 
