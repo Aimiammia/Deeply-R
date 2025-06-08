@@ -1,7 +1,9 @@
 
 import moment from 'jalali-moment';
-import { format as formatGregorianDateFns, parseISO as parseISOGregorian } from 'date-fns';
-import { faIR as faIRLocale } from 'date-fns/locale';
+import { parseISO as parseISOGregorian } from 'date-fns'; // Keep for parseGenericDate
+import { format as formatGregorianDateFns } from 'date-fns'; // Keep for PersianCalendarView
+import { faIR as faIRLocale } from 'date-fns/locale'; // Keep for PersianCalendarView
+
 
 export const JALALI_MONTH_NAMES = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -81,15 +83,10 @@ export const gregorianToJalali = (gy: number, gm: number, gd: number): { jy: num
 };
 
 export const getJalaliHolidayInfo = (year: number, month: number, day: number): { occasion: string, isPublicHoliday: boolean, day: number } | null => {
-  // Khordad 1404 Examples
-  if (year === 1404 && month === 3 && day === 14) return { occasion: 'رحلت امام خمینی', isPublicHoliday: true, day };
-  if (year === 1404 && month === 3 && day === 15) return { occasion: 'قیام خونین ۱۵ خرداد', isPublicHoliday: true, day };
-  if (year === 1404 && month === 3 && day === 16) return { occasion: 'عید سعید قربان', isPublicHoliday: true, day };
-  if (year === 1404 && month === 3 && day === 24) return { occasion: 'عید سعید غدیر خم', isPublicHoliday: true, day };
-  
-  // Mehr 1403 (Approx current year for testing)
-  if (year === 1403 && month === 7 && day === 3) return { occasion: 'شهادت امام رضا (ع)', isPublicHoliday: true, day }; // Example
-  if (year === 1403 && month === 7 && day === 11) return { occasion: 'شهادت امام حسن عسکری (ع)', isPublicHoliday: true, day }; // Example
+  // Example holidays for 1403 (current approximate year for testing)
+  if (year === 1403 && month === 7 && day === 3) return { occasion: 'شهادت امام رضا (ع) (نمونه)', isPublicHoliday: true, day };
+  if (year === 1403 && month === 7 && day === 11) return { occasion: 'شهادت امام حسن عسکری (ع) (نمونه)', isPublicHoliday: true, day };
+  // Add more official holidays as needed or integrate with a dynamic API
 
   return null;
 };
@@ -107,3 +104,6 @@ export const parseGenericDate = (dateString: string): Date | null => {
     console.warn("Could not parse date string:", dateString);
     return null;
 };
+
+// Keep these exports for potential use by other components, though PersianCalendarView uses its own fns imports now
+export { formatGregorianDateFns, faIRLocale };
