@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; // Changed import
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -122,12 +122,11 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                initialFocus
-                dir="rtl"
+              <JalaliDatePicker // Replaced Calendar with JalaliDatePicker
+                value={date}
+                onChange={setDate}
+                initialYear={date ? new Date(date).getFullYear() : undefined} // Pass initial year and month
+                initialMonth={date ? new Date(date).getMonth() + 1 : undefined}
               />
             </PopoverContent>
           </Popover>
