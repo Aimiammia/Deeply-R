@@ -79,3 +79,15 @@ export interface DailyActivityLogEntry {
   date: string; // ISO date string of when it was saved
   text: string;
 }
+
+export interface FinancialAsset {
+  id: string;
+  name: string;
+  type: 'real_estate' | 'vehicle' | 'bank_account' | 'stocks' | 'crypto' | 'collectibles' | 'other';
+  initialValue: number;
+  purchaseDate: string; // ISO date string
+  currentValue: number;
+  lastValueUpdate: string; // ISO date string of when currentValue was last set
+  notes?: string | null;
+  createdAt: string; // ISO date string of when asset was first created
+}

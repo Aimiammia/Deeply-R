@@ -4,13 +4,13 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
 import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
 import { TransactionList } from '@/components/financials/TransactionList';
-import type { FinancialTransaction, Budget } from '@/types';
+import type { FinancialTransaction, Budget, FinancialAsset } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +18,8 @@ import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
 import { BudgetList } from '@/components/financials/BudgetList';
+import { CreateAssetForm } from '@/components/financials/CreateAssetForm';
+import { AssetList } from '@/components/financials/AssetList';
 
 const persianMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -33,6 +35,10 @@ export default function FinancialManagementPage() {
   const [transactions, setTransactions] = useDebouncedLocalStorage<FinancialTransaction[]>('financialTransactions', []);
   const [budgets, setBudgets] = useDebouncedLocalStorage<Budget[]>('financialBudgets', []);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+  
+  const [assets, setAssets] = useDebouncedLocalStorage<FinancialAsset[]>('financialAssets', []);
+  const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
+
 
   useEffect(() => {
     setIsClient(true);
@@ -69,11 +75,11 @@ export default function FinancialManagementPage() {
       const existingBudgetIndex = prevBudgets.findIndex(b => b.category === category);
       if (existingBudgetIndex > -1) {
         const updatedBudgets = [...prevBudgets];
-        updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() };
+        updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() }; // Keep ID, update amount and timestamp
         return updatedBudgets;
       } else {
         const newBudget: Budget = {
-          id: category, 
+          id: crypto.randomUUID(), 
           category,
           amount,
           createdAt: new Date().toISOString(),
@@ -88,20 +94,57 @@ export default function FinancialManagementPage() {
     setEditingBudget(null); 
   };
 
-  const handleDeleteBudget = (categoryId: string) => {
-    setBudgets(prevBudgets => prevBudgets.filter(b => b.category !== categoryId));
-    toast({
-      title: "بودجه حذف شد",
-      description: `بودجه برای دسته‌بندی "${categoryId}" حذف شد.`,
-      variant: "destructive",
-    });
-     if (editingBudget?.category === categoryId) {
+  const handleDeleteBudget = (categoryId: string) => { // ID is category for budgets now
+    const budgetToDelete = budgets.find(b => b.id === categoryId);
+    setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== categoryId));
+     if (budgetToDelete) {
+        toast({
+        title: "بودجه حذف شد",
+        description: `بودجه برای دسته‌بندی "${budgetToDelete.category}" حذف شد.`,
+        variant: "destructive",
+        });
+    }
+     if (editingBudget?.id === categoryId) {
       setEditingBudget(null);
     }
   };
   
   const handleEditBudget = (budgetToEdit: Budget) => {
     setEditingBudget(budgetToEdit);
+  };
+
+  // Asset Management Handlers
+  const handleSaveAsset = (assetData: Omit<FinancialAsset, 'id' | 'createdAt' | 'lastValueUpdate'>, isEditingExisting: boolean) => {
+    if (isEditingExisting && editingAsset) {
+      const updatedAsset: FinancialAsset = {
+        ...editingAsset,
+        ...assetData,
+        lastValueUpdate: new Date().toISOString(),
+      };
+      setAssets(prevAssets => prevAssets.map(a => a.id === editingAsset.id ? updatedAsset : a));
+      toast({ title: "دارایی ویرایش شد", description: `دارایی "${assetData.name}" با موفقیت ویرایش شد.` });
+      setEditingAsset(null);
+    } else {
+      const newAsset: FinancialAsset = {
+        ...assetData,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        lastValueUpdate: new Date().toISOString(),
+      };
+      setAssets(prevAssets => [newAsset, ...prevAssets]);
+      toast({ title: "دارایی اضافه شد", description: `دارایی "${assetData.name}" با موفقیت اضافه شد.` });
+    }
+  };
+
+  const handleDeleteAsset = (id: string) => {
+    const assetToDelete = assets.find(a => a.id === id);
+    setAssets(prevAssets => prevAssets.filter(a => a.id !== id));
+    if (assetToDelete) {
+      toast({ title: "دارایی حذف شد", description: `دارایی "${assetToDelete.name}" حذف شد.`, variant: "destructive" });
+    }
+    if (editingAsset?.id === id) {
+        setEditingAsset(null); // Clear editing state if deleted asset was being edited
+    }
   };
 
 
@@ -313,22 +356,32 @@ export default function FinancialManagementPage() {
                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
                   <CardHeader>
                     <CardTitle className="text-xl flex items-center text-foreground">
-                       <Building className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                       <PackageSearch className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       مدیریت دارایی‌ها
                     </CardTitle>
-                    <CardDescription>لیست دارایی‌های خود (مانند ملک، خودرو، ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
+                    <CardDescription>لیست دارایی‌های خود (مانند ملک، خودرو، حساب بانکی، سهام و ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">قابلیت مدیریت دارایی‌ها به زودی اضافه خواهد شد.</p>
-                    <div className="mt-4 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                          <li>ثبت انواع دارایی (ملک، خودرو، موجودی حساب خاص و ...)</li>
-                          <li>وارد کردن ارزش اولیه و تاریخ خرید</li>
-                          <li>امکان به‌روزرسانی ارزش دارایی‌ها</li>
-                          <li>نمودار تغییرات ارزش کل دارایی‌ها در طول زمان</li>
-                          <li>محاسبه خالص دارایی (دارایی‌ها منهای بدهی‌ها - نیازمند بخش بدهی‌ها)</li>
-                        </ul>
+                    <CreateAssetForm onSaveAsset={handleSaveAsset} existingAsset={editingAsset} />
+                    <AssetList assets={assets} onDeleteAsset={handleDeleteAsset} onEditAsset={handleSaveAsset} onSetEditingAsset={setEditingAsset} />
+                    
+                    <div className="mt-8 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                          <BarChartBig className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                          نمودار تغییرات ارزش کل دارایی‌ها
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          (قابلیت آینده) نمایش نموداری از تغییرات ارزش کل دارایی‌های شما در طول زمان.
+                        </p>
+                      </div>
+                      <div className="mt-6 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                          <CircleDollarSign className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                           محاسبه خالص دارایی (Net Worth)
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          (قابلیت آینده) محاسبه و نمایش خالص دارایی شما (مجموع ارزش دارایی‌ها منهای مجموع بدهی‌ها). این قابلیت نیازمند بخش مدیریت بدهی‌ها نیز خواهد بود.
+                        </p>
                       </div>
                   </CardContent>
                 </Card>
@@ -341,17 +394,16 @@ export default function FinancialManagementPage() {
                        <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       پیگیری سرمایه‌گذاری‌ها
                     </CardTitle>
-                    <CardDescription>سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید.</CardDescription>
+                    <CardDescription>سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید. این بخش می‌تواند با بخش دارایی‌ها همپوشانی داشته باشد.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">قابلیت پیگیری سرمایه‌گذاری‌ها به زودی اضافه خواهد شد.</p>
+                    <p className="text-muted-foreground">قابلیت پیگیری تخصصی سرمایه‌گذاری‌ها به زودی اضافه خواهد شد. در حال حاضر می‌توانید سرمایه‌گذاری‌های خود را به عنوان یک نوع "دارایی" ثبت کنید.</p>
                      <div className="mt-4 p-4 border rounded-md bg-secondary/30">
                         <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                         <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                          <li>ثبت انواع سرمایه‌گذاری (سهام، ارز، طلا، صندوق و ...)</li>
-                          <li>وارد کردن مقدار، قیمت خرید و تاریخ</li>
-                          <li>امکان به‌روزرسانی قیمت فعلی و محاسبه سود/زیان</li>
-                          <li>نمودار عملکرد پورتفوی سرمایه‌گذاری</li>
+                          <li>ثبت جزئیات دقیق‌تر سرمایه‌گذاری (تعداد واحد، قیمت هر واحد، کارمزد و ...)</li>
+                          <li>امکان به‌روزرسانی قیمت فعلی و محاسبه خودکار سود/زیان هر سرمایه‌گذاری و کل پورتفوی</li>
+                          <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها</li>
                           <li>اتصال به API برای دریافت قیمت‌های لحظه‌ای (در صورت امکان)</li>
                         </ul>
                       </div>
@@ -374,7 +426,7 @@ export default function FinancialManagementPage() {
                         <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                         <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right">
                           <li>تعریف اهداف پس‌انداز با مبلغ و تاریخ هدف</li>
-                          <li>اختصاص دادن بخشی از درآمد به هر هدف</li>
+                          <li>اختصاص دادن بخشی از درآمد یا تراکنش‌های خاص به هر هدف</li>
                           <li>پیگیری پیشرفت به سمت هر هدف پس‌انداز</li>
                           <li>نمودار تجسمی برای اهداف پس‌انداز</li>
                         </ul>
@@ -392,4 +444,3 @@ export default function FinancialManagementPage() {
     </div>
   );
 }
-
