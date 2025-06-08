@@ -17,6 +17,7 @@ import { TaskList } from '@/components/tasks/TaskList';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
+import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 export default function PlannerLandingPage() {
   const sectionTitle = "برنامه‌ریز";
@@ -25,33 +26,12 @@ export default function PlannerLandingPage() {
   // State and logic for Short-Term Planner
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+  
+  const [tasks, setTasks] = useDebouncedLocalStorage<Task[]>('dailyTasksPlanner', []);
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
   }, []);
-
-  // Load tasks from localStorage on initial mount
-  useEffect(() => {
-    try {
-      const storedTasks = localStorage.getItem('dailyTasksPlanner');
-      if (storedTasks) {
-        setTasks(JSON.parse(storedTasks));
-      }
-    } catch (error) {
-      console.error("Failed to parse tasks from localStorage", error);
-      localStorage.removeItem('dailyTasksPlanner'); // Clear corrupted data
-    }
-    setIsInitialLoadComplete(true);
-  }, []);
-
-  // Save tasks to localStorage whenever they change, but only after initial load
-  useEffect(() => {
-    if (isInitialLoadComplete) {
-      localStorage.setItem('dailyTasksPlanner', JSON.stringify(tasks));
-    }
-  }, [tasks, isInitialLoadComplete]);
 
   const handleAddTask = (
     title: string, 

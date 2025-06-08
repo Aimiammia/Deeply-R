@@ -14,6 +14,7 @@ import type { FinancialTransaction, Budget } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
 import { BudgetList } from '@/components/financials/BudgetList';
@@ -29,45 +30,13 @@ export default function FinancialManagementPage() {
 
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<FinancialTransaction[]>([]);
-  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [transactions, setTransactions] = useDebouncedLocalStorage<FinancialTransaction[]>('financialTransactions', []);
+  const [budgets, setBudgets] = useDebouncedLocalStorage<Budget[]>('financialBudgets', []);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
-  // Load transactions from localStorage
   useEffect(() => {
     setIsClient(true);
-    try {
-      const storedTransactions = localStorage.getItem('financialTransactions');
-      if (storedTransactions) {
-        setTransactions(JSON.parse(storedTransactions));
-      }
-      const storedBudgets = localStorage.getItem('financialBudgets');
-      if (storedBudgets) {
-        setBudgets(JSON.parse(storedBudgets));
-      }
-    } catch (error) {
-      console.error("Failed to parse data from localStorage", error);
-      localStorage.removeItem('financialTransactions');
-      localStorage.removeItem('financialBudgets');
-    }
-    setIsInitialLoadComplete(true);
   }, []);
-
-  // Save transactions to localStorage
-  useEffect(() => {
-    if (isInitialLoadComplete) {
-      localStorage.setItem('financialTransactions', JSON.stringify(transactions));
-    }
-  }, [transactions, isInitialLoadComplete]);
-
-  // Save budgets to localStorage
-  useEffect(() => {
-    if (isInitialLoadComplete) {
-      localStorage.setItem('financialBudgets', JSON.stringify(budgets));
-    }
-  }, [budgets, isInitialLoadComplete]);
-
 
   const handleAddTransaction = (transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
     const newTransaction: FinancialTransaction = {
@@ -99,14 +68,12 @@ export default function FinancialManagementPage() {
     setBudgets(prevBudgets => {
       const existingBudgetIndex = prevBudgets.findIndex(b => b.category === category);
       if (existingBudgetIndex > -1) {
-        // Update existing budget
         const updatedBudgets = [...prevBudgets];
         updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() };
         return updatedBudgets;
       } else {
-        // Add new budget
         const newBudget: Budget = {
-          id: category, // Using category as ID for simplicity, ensures one budget per category
+          id: category, 
           category,
           amount,
           createdAt: new Date().toISOString(),
@@ -118,7 +85,7 @@ export default function FinancialManagementPage() {
       title: editingBudget ? "بودجه ویرایش شد" : "بودجه تنظیم شد",
       description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تنظیم شد.`,
     });
-    setEditingBudget(null); // Clear editing state
+    setEditingBudget(null); 
   };
 
   const handleDeleteBudget = (categoryId: string) => {
@@ -139,7 +106,7 @@ export default function FinancialManagementPage() {
 
 
   const chartData = useMemo(() => {
-    if (!isInitialLoadComplete || transactions.length === 0) {
+    if (!isClient || transactions.length === 0) { // Use isClient instead of isInitialLoadComplete
       return [];
     }
 
@@ -175,7 +142,7 @@ export default function FinancialManagementPage() {
         }
         return a.monthIndex - b.monthIndex;
       });
-  }, [transactions, isInitialLoadComplete]);
+  }, [transactions, isClient]);
 
 
   const formatCurrency = (value: number) => {

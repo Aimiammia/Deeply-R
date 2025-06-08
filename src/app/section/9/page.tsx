@@ -7,37 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Target } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
 import type { LongTermGoal } from '@/types';
 import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm';
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
 import { useToast } from "@/hooks/use-toast";
+import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 export default function SectionNineLongTermPlannerPage() {
   const sectionTitle = "برنامه‌ریزی بلند مدت";
   const sectionPageDescription = "اهداف بزرگتر و برنامه‌های طولانی‌مدت خود را در این بخش تعریف و پیگیری کنید.";
   const { toast } = useToast();
-  const [goals, setGoals] = useState<LongTermGoal[]>([]);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
-
-  useEffect(() => {
-    try {
-      const storedGoals = localStorage.getItem('longTermGoals');
-      if (storedGoals) {
-        setGoals(JSON.parse(storedGoals));
-      }
-    } catch (error) {
-      console.error("Failed to parse long-term goals from localStorage", error);
-      localStorage.removeItem('longTermGoals');
-    }
-    setIsInitialLoadComplete(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialLoadComplete) {
-      localStorage.setItem('longTermGoals', JSON.stringify(goals));
-    }
-  }, [goals, isInitialLoadComplete]);
+  const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
 
   const handleAddGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt' | 'status'>) => {
     const newGoal: LongTermGoal = {

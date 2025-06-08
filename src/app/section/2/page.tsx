@@ -15,37 +15,18 @@ import { useToast } from '@/hooks/use-toast';
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { analyzeUserReflections, type AnalyzeUserReflectionsInput, type AnalyzeUserReflectionsOutput } from '@/ai/flows/analyze-user-reflections';
 import type { ReflectionEntry } from '@/types';
+import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 export default function ReflectionsPage() {
   const { toast } = useToast();
   const currentPrompt = getDailySuccessQuote();
 
-  const [reflections, setReflections] = useState<ReflectionEntry[]>([]);
+  const [reflections, setReflections] = useDebouncedLocalStorage<ReflectionEntry[]>('dailyReflections', []);
   const [selectedReflection, setSelectedReflection] = useState<ReflectionEntry | null>(null);
   const [insights, setInsights] = useState<AnalyzeUserReflectionsOutput | undefined>(undefined);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [insightsError, setInsightsError] = useState<string | null>(null);
   const [isSavingReflection, setIsSavingReflection] = useState(false);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
-
-  useEffect(() => {
-    try {
-      const storedReflections = localStorage.getItem('dailyReflections');
-      if (storedReflections) {
-        setReflections(JSON.parse(storedReflections));
-      }
-    } catch (error) {
-      console.error("Failed to parse reflections from localStorage", error);
-      localStorage.removeItem('dailyReflections');
-    }
-    setIsInitialLoadComplete(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialLoadComplete) {
-      localStorage.setItem('dailyReflections', JSON.stringify(reflections));
-    }
-  }, [reflections, isInitialLoadComplete]);
 
   const fetchInsights = async (reflectionText: string) => {
     setIsLoadingInsights(true);

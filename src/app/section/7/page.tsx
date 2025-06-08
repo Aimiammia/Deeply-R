@@ -20,10 +20,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { parseISO, format } from 'date-fns';
-import { faIR } from 'date-fns/locale'; // Import the faIR locale
+import { faIR } from 'date-fns/locale'; 
+import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import type { EducationalLevelStorage } from '@/types';
+
 
 const educationalLevels = [
   { value: 'elementary_1', label: 'اول ابتدایی' },
@@ -41,119 +43,115 @@ const educationalLevels = [
   { value: 'other', label: 'سایر' },
 ];
 
-const MEHR_FIRST_MONTH = 8; // September (0-indexed for Date object month, so 8 is September)
-const MEHR_FIRST_DAY = 23; // Approximate day for Mehr 1st in Gregorian calendar
+const MEHR_FIRST_MONTH = 8; 
+const MEHR_FIRST_DAY = 23; 
 
 function findNextLevelValue(currentValue: string): string | undefined {
   const currentIndex = educationalLevels.findIndex(level => level.value === currentValue);
   if (currentIndex === -1 || currentIndex >= educationalLevels.length - 1) {
-    return undefined; // Not found or already the last actual grade
+    return undefined; 
   }
   const nextLevel = educationalLevels[currentIndex + 1];
-  // Do not auto-promote to 'other' or if current is 'high_12' (already handled by currentIndex check mostly)
   if (nextLevel.value === 'other' || currentValue === 'high_12') {
     return undefined;
   }
   return nextLevel.value;
 }
 
+const initialEducationalSettings: EducationalLevelStorage = {
+  levelValue: '',
+  isConfirmed: false,
+  lastPromotionCheckDate: new Date(1970, 0, 1).toISOString(), // Default to a very old date
+};
+
 export default function EducationPage() {
   const sectionTitle = "تحصیل";
   const sectionPageDescription = "برنامه‌های درسی، یادداشت‌ها، منابع آموزشی و پیشرفت تحصیلی خود را در این بخش مدیریت کنید.";
   const { toast } = useToast();
 
-  const [selectedLevel, setSelectedLevel] = useState<string | undefined>(undefined);
-  const [isLevelConfirmed, setIsLevelConfirmed] = useState<boolean>(false);
-  // lastPromotionCheckDate stores the ISO string of the last Mehr 1st that triggered a promotion, or the date of initial confirmation.
-  const [lastPromotionCheckDate, setLastPromotionCheckDate] = useState<string | undefined>(undefined);
+  const [educationalSettings, setEducationalSettings] = useDebouncedLocalStorage<EducationalLevelStorage>(
+    'educationalLevelSettingsDeeply', 
+    initialEducationalSettings
+  );
   
   const [isClient, setIsClient] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [levelToConfirm, setLevelToConfirm] = useState<string | undefined>(undefined);
+  const [transientSelectedLevel, setTransientSelectedLevel] = useState<string | undefined>(educationalSettings.levelValue);
 
-  const calculateAutoPromotion = useCallback((initialLevelValue: string, lastPromoDateISO: string | null): { newLevelValue: string, newLastPromotionDateISO: string, promotionsMade: number } => {
-    if (!initialLevelValue || initialLevelValue === 'other' || initialLevelValue === 'high_12') {
-      return { newLevelValue: initialLevelValue, newLastPromotionDateISO: lastPromoDateISO || new Date().toISOString(), promotionsMade: 0 };
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Update transientSelectedLevel when educationalSettings.levelValue changes from storage
+  useEffect(() => {
+    if (isClient) {
+      setTransientSelectedLevel(educationalSettings.levelValue);
+    }
+  }, [educationalSettings.levelValue, isClient]);
+
+
+  const calculateAutoPromotion = useCallback((currentSettings: EducationalLevelStorage): EducationalLevelStorage | null => {
+    const { levelValue, lastPromotionCheckDate: lastPromoDateISO, isConfirmed } = currentSettings;
+
+    if (!isConfirmed || !levelValue || levelValue === 'other' || levelValue === 'high_12') {
+      return null; // No promotion needed or possible
     }
 
-    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1); // Fallback to a very old date if null
+    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
     const today = new Date();
-    let currentProcessingLevel = initialLevelValue;
-    let promotions = 0;
+    let currentProcessingLevel = levelValue;
+    let promotionsMade = 0;
     let effectiveLastPromotionDate = lastPromoDate;
 
-    // Iterate from the year after the last promotion check up to the current year
     for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
-      // Mehr 1st of the current iteration year (approximate Gregorian date)
-      // Note: Month is 0-indexed for Date, so MEHR_FIRST_MONTH (e.g., 8 for September) is correct.
       const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH, MEHR_FIRST_DAY);
       
-      // Check if this Mehr 1st has passed since the last promotion and is not in the future
       if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
         const nextLevel = findNextLevelValue(currentProcessingLevel);
         if (nextLevel) {
           currentProcessingLevel = nextLevel;
-          promotions++;
-          effectiveLastPromotionDate = mehrFirstInYear; // This Mehr 1st triggered promotion
-          if (currentProcessingLevel === 'high_12' || currentProcessingLevel === 'other') break; // Stop if max level or 'other'
+          promotionsMade++;
+          effectiveLastPromotionDate = mehrFirstInYear; 
+          if (currentProcessingLevel === 'high_12' || currentProcessingLevel === 'other') break;
         } else {
-          break; // No next level, stop promoting
+          break; 
         }
       }
     }
-    return { newLevelValue: currentProcessingLevel, newLastPromotionDateISO: effectiveLastPromotionDate.toISOString(), promotionsMade: promotions };
+    if (promotionsMade > 0) {
+      return {
+        ...currentSettings,
+        levelValue: currentProcessingLevel,
+        lastPromotionCheckDate: effectiveLastPromotionDate.toISOString(),
+      };
+    }
+    return null; // No promotion occurred
   }, []);
 
 
   useEffect(() => {
-    setIsClient(true); // Ensure this runs only on client
-    try {
-      const storedLevel = localStorage.getItem('educationalLevel');
-      const storedConfirmed = localStorage.getItem('isEducationalLevelConfirmed');
-      const storedLastPromoDate = localStorage.getItem('educationalLevelLastPromotionDate');
-
-      if (storedLevel) {
-        setSelectedLevel(storedLevel);
+    if (isClient && educationalSettings.isConfirmed) {
+      const newSettings = calculateAutoPromotion(educationalSettings);
+      if (newSettings) {
+        setEducationalSettings(newSettings); // This will trigger debounced save
+        toast({
+          title: "مقطع تحصیلی به‌روز شد",
+          description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettings.levelValue)?.label}" ارتقا یافت.`,
+          duration: 7000,
+        });
       }
-      if (storedConfirmed) {
-        setIsLevelConfirmed(storedConfirmed === 'true');
-      }
-      if (storedLastPromoDate) {
-        setLastPromotionCheckDate(storedLastPromoDate);
-      }
-
-      if (storedConfirmed === 'true' && storedLevel && isClient) { // Check isClient again before localStorage dependent logic
-        const { newLevelValue, newLastPromotionDateISO, promotionsMade } = calculateAutoPromotion(storedLevel, storedLastPromoDate);
-        if (promotionsMade > 0) {
-          setSelectedLevel(newLevelValue);
-          setLastPromotionCheckDate(newLastPromotionDateISO);
-          localStorage.setItem('educationalLevel', newLevelValue);
-          localStorage.setItem('educationalLevelLastPromotionDate', newLastPromotionDateISO);
-          toast({
-            title: "مقطع تحصیلی به‌روز شد",
-            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newLevelValue)?.label}" ارتقا یافت.`,
-            duration: 7000,
-          });
-        }
-      }
-
-    } catch (error) {
-      console.error("Failed to load educational settings from localStorage", error);
-      // Optionally clear corrupted data
-      // localStorage.removeItem('educationalLevel');
-      // localStorage.removeItem('isEducationalLevelConfirmed');
-      // localStorage.removeItem('educationalLevelLastPromotionDate');
     }
-  }, [isClient, calculateAutoPromotion, toast]);
+  }, [isClient, educationalSettings.isConfirmed, calculateAutoPromotion, toast, setEducationalSettings, educationalSettings]);
 
 
   const handleLevelChange = (value: string) => {
-    setSelectedLevel(value);
+    setTransientSelectedLevel(value);
   };
 
   const handleOpenConfirmationDialog = () => {
-    if (selectedLevel) {
-      setLevelToConfirm(selectedLevel);
+    if (transientSelectedLevel) {
+      setLevelToConfirm(transientSelectedLevel);
       setShowConfirmationDialog(true);
     } else {
       toast({
@@ -167,13 +165,11 @@ export default function EducationPage() {
   const handleConfirmLevel = () => {
     if (levelToConfirm) {
       const currentDateISO = new Date().toISOString();
-      setSelectedLevel(levelToConfirm); 
-      setIsLevelConfirmed(true);
-      setLastPromotionCheckDate(currentDateISO); 
-
-      localStorage.setItem('educationalLevel', levelToConfirm);
-      localStorage.setItem('isEducationalLevelConfirmed', 'true');
-      localStorage.setItem('educationalLevelLastPromotionDate', currentDateISO);
+      setEducationalSettings({
+        levelValue: levelToConfirm,
+        isConfirmed: true,
+        lastPromotionCheckDate: currentDateISO,
+      });
       
       toast({
         title: "مقطع تحصیلی ذخیره شد",
@@ -181,10 +177,10 @@ export default function EducationPage() {
       });
     }
     setShowConfirmationDialog(false);
-    setLevelToConfirm(undefined); // Reset levelToConfirm
+    setLevelToConfirm(undefined);
   };
   
-  const currentLevelLabel = educationalLevels.find(l => l.value === selectedLevel)?.label;
+  const currentLevelLabel = educationalLevels.find(l => l.value === educationalSettings.levelValue)?.label;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -210,13 +206,13 @@ export default function EducationPage() {
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="max-w-md mx-auto">
-              {!isLevelConfirmed && isClient && (
+              {!educationalSettings.isConfirmed && isClient && (
                 <>
                   <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
                     مقطع تحصیلی فعلی خود را انتخاب کنید:
                   </Label>
                   <Select
-                    value={selectedLevel}
+                    value={transientSelectedLevel}
                     onValueChange={handleLevelChange}
                     dir="rtl"
                   >
@@ -231,13 +227,13 @@ export default function EducationPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleOpenConfirmationDialog} className="w-full mt-4" disabled={!selectedLevel}>
+                  <Button onClick={handleOpenConfirmationDialog} className="w-full mt-4" disabled={!transientSelectedLevel}>
                     ذخیره و تایید مقطع
                   </Button>
                 </>
               )}
 
-              {isClient && isLevelConfirmed && currentLevelLabel && (
+              {isClient && educationalSettings.isConfirmed && currentLevelLabel && (
                 <div className="p-4 border rounded-lg bg-secondary/30 text-center">
                   <p className="text-lg font-semibold text-foreground mb-1">
                     مقطع تحصیلی فعلی شما:
@@ -245,9 +241,9 @@ export default function EducationPage() {
                   <p className="text-2xl text-primary font-bold">
                     {currentLevelLabel}
                   </p>
-                  {lastPromotionCheckDate && (
+                  {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && ( // Check if it's not the default old date
                      <p className="text-xs text-muted-foreground mt-2">
-                      آخرین بررسی ارتقا: {format(parseISO(lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
+                      آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
                     </p>
                   )}
                    <p className="text-sm text-muted-foreground mt-3">
@@ -315,7 +311,3 @@ export default function EducationPage() {
     </div>
   );
 }
-
-    
-
-    

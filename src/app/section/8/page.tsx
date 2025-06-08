@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Changed from Textarea
+import { Input } from '@/components/ui/input'; 
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, FileText, Save, Trash2, ListChecks } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 
 export default function DailyActivityLogPage() {
@@ -32,29 +33,10 @@ export default function DailyActivityLogPage() {
   const sectionTitle = "یادداشت فعالیت‌های روزانه";
   const sectionPageDescription = "فعالیت‌ها، دستاوردها و کارهایی که در طول روز انجام داده‌اید را در اینجا به صورت آیتم‌های لیست وارد و مرور کنید.";
 
-  const [logs, setLogs] = useState<DailyActivityLogEntry[]>([]);
+  const [logs, setLogs] = useDebouncedLocalStorage<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
-  useEffect(() => {
-    try {
-      const storedLogs = localStorage.getItem('dailyActivityLogsDeeply');
-      if (storedLogs) {
-        setLogs(JSON.parse(storedLogs));
-      }
-    } catch (error) {
-      console.error("Failed to parse daily activity logs from localStorage", error);
-      localStorage.removeItem('dailyActivityLogsDeeply');
-    }
-    setIsInitialLoadComplete(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialLoadComplete) {
-      localStorage.setItem('dailyActivityLogsDeeply', JSON.stringify(logs));
-    }
-  }, [logs, isInitialLoadComplete]);
 
   const handleSaveLog = async (e: FormEvent) => {
     e.preventDefault();
@@ -74,8 +56,7 @@ export default function DailyActivityLogPage() {
       text: currentLogText.trim(),
     };
 
-    // Simulate async operation if needed, or directly update
-    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate save delay
+    await new Promise(resolve => setTimeout(resolve, 300)); 
 
     setLogs(prevLogs => [newLog, ...prevLogs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     setCurrentLogText('');
