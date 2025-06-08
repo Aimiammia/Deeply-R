@@ -83,9 +83,28 @@ export const gregorianToJalali = (gy: number, gm: number, gd: number): { jy: num
 };
 
 export const getJalaliHolidayInfo = (year: number, month: number, day: number): { occasion: string, isPublicHoliday: boolean, day: number } | null => {
-  // Example holidays for 1403 (current approximate year for testing)
-  if (year === 1403 && month === 7 && day === 3) return { occasion: 'شهادت امام رضا (ع) (نمونه)', isPublicHoliday: true, day };
-  if (year === 1403 && month === 7 && day === 11) return { occasion: 'شهادت امام حسن عسکری (ع) (نمونه)', isPublicHoliday: true, day };
+  // Sample holidays for 1403
+  if (year === 1403) {
+    if (month === 1) { // Farvardin
+      if (day === 1) return { occasion: 'عید نوروز / آغاز سال نو', isPublicHoliday: true, day };
+      if (day === 2) return { occasion: 'عید نوروز', isPublicHoliday: true, day };
+      if (day === 3) return { occasion: 'عید نوروز', isPublicHoliday: true, day };
+      if (day === 4) return { occasion: 'عید نوروز', isPublicHoliday: true, day };
+      if (day === 12) return { occasion: 'روز جمهوری اسلامی ایران', isPublicHoliday: true, day };
+      if (day === 13) return { occasion: 'روز طبیعت (سیزده بدر)', isPublicHoliday: true, day };
+    }
+    if (month === 7) { // Mehr
+        if (day === 3) return { occasion: 'شهادت امام رضا (ع) (نمونه)', isPublicHoliday: true, day };
+        if (day === 11) return { occasion: 'شهادت امام حسن عسکری (ع) (نمونه)', isPublicHoliday: true, day };
+    }
+    // Add more 1403 holidays as needed
+  }
+
+  // Sample holidays for 1404 (example)
+  if (year === 1404) {
+    if (month === 1 && day === 1) return { occasion: 'عید نوروز (نمونه ۱۴۰۴)', isPublicHoliday: true, day };
+    if (month === 1 && day === 13) return { occasion: 'روز طبیعت (سیزده بدر) (نمونه ۱۴۰۴)', isPublicHoliday: true, day };
+  }
   // Add more official holidays as needed or integrate with a dynamic API
 
   return null;
@@ -107,3 +126,4 @@ export const parseGenericDate = (dateString: string): Date | null => {
 
 // Keep these exports for potential use by other components, though PersianCalendarView uses its own fns imports now
 export { formatGregorianDateFns, faIRLocale };
+
