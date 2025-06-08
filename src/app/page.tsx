@@ -13,7 +13,8 @@ import {
   Dumbbell,
   BookOpen,
   PieChart, // Icon for Section 10
-  FileText, 
+  FileText,
+  Languages, // Icon for new Section 11
   Settings // Generic "Future" icon or similar
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -29,12 +30,13 @@ const sectionIcons: LucideIcon[] = [
   BookOpen,         // Section 7 (Education/Study)
   FileText,         // Section 8 (Daily Activity Log)
   Target,           // Section 9 (Long-Term Planning)
-  PieChart          // Section 10 (Data Analysis and Reports)
+  PieChart,         // Section 10 (Data Analysis and Reports)
+  Languages         // Section 11 (Language Learning)
 ];
 
 export default function HomePage() {
-  // Reverted to original order
-  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
+  // Reverted to original order, added new section 11
+  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,10 +44,9 @@ export default function HomePage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
-            const iconIndex = sectionNumber -1; // This remains correct as sectionIcons is 0-indexed by original section number
+            const iconIndex = sectionNumber -1; 
             let IconComponent = Settings; // Fallback icon
             
-            // Ensure iconIndex is valid before accessing sectionIcons
             if (iconIndex >= 0 && iconIndex < sectionIcons.length) {
               IconComponent = sectionIcons[iconIndex];
             }
@@ -83,7 +84,7 @@ export default function HomePage() {
             } else if (sectionNumber === 7) {
               sectionTitle = "تحصیل";
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
-              sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید. (بخش آینده)";
+              sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             } else if (sectionNumber === 8) {
               sectionTitle = "یادداشت فعالیت‌های روزانه"; 
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
@@ -96,6 +97,11 @@ export default function HomePage() {
               sectionTitle = "تحلیل هوشمند و گزارش جامع";
               sectionDescription = "مرکز تحلیل داده‌های برنامه با استفاده از هوش مصنوعی.";
               sectionContent = "در این بخش، گزارشات تحلیلی، نمودارها و بینش‌های هوشمند از تمام داده‌های شما ارائه می‌شود.";
+            } else if (sectionNumber === 11) {
+              sectionTitle = "یادگیری زبان";
+              sectionDescription = "ابزارهایی برای کمک به یادگیری زبان‌های جدید.";
+              sectionContent = "لغات جدید یاد بگیرید، گرامر تمرین کنید و پیشرفت خود را در زبان‌های مختلف پیگیری نمایید. (بخش آینده)";
+              sectionLink = `/section/11`;
             }
 
             return (
