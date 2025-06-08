@@ -5,24 +5,31 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PieChart, ClipboardList, Target, FileText } from 'lucide-react';
+import { ArrowLeft, PieChart, ClipboardList, Target, FileText, Sparkles, Brain, Loader2, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { Task, LongTermGoal, DailyActivityLogEntry } from '@/types';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from "@/hooks/use-toast";
+import { assessGoalProgress, type AssessGoalProgressInput, type AssessGoalProgressOutput } from '@/ai/flows/assess-goal-progress-flow';
 
 const MAX_PREVIEW_ITEMS = 3;
 
 export default function IntelligentAnalysisPage() {
   const sectionTitle = "تحلیل هوشمند و گزارش جامع";
-  const sectionPageDescription = "مرکز تحلیل داده‌های برنامه شما با پیش‌نمایش از بخش‌های کلیدی و (در آینده) بینش‌های هوشمند.";
+  const sectionPageDescription = "مرکز تحلیل داده‌های برنامه شما با پیش‌نمایش از بخش‌های کلیدی و بینش‌های هوشمند.";
+  const { toast } = useToast();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [longTermGoals, setLongTermGoals] = useState<LongTermGoal[]>([]);
   const [activityLogs, setActivityLogs] = useState<DailyActivityLogEntry[]>([]);
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+
+  const [goalAssessment, setGoalAssessment] = useState<string | null>(null);
+  const [isAssessingGoals, setIsAssessingGoals] = useState(false);
+  const [assessmentError, setAssessmentError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -40,6 +47,45 @@ export default function IntelligentAnalysisPage() {
     }
     setIsInitialLoadComplete(true);
   }, []);
+
+  const handleAssessGoalProgress = async () => {
+    if (!isInitialLoadComplete) {
+      toast({ title: "خطا", description: "داده‌ها هنوز به طور کامل بارگذاری نشده‌اند.", variant: "destructive" });
+      return;
+    }
+    if (longTermGoals.length === 0 && tasks.length === 0 && activityLogs.length === 0) {
+      toast({ title: "اطلاعات ناکافی", description: "برای تحلیل، حداقل باید در یکی از بخش‌های اهداف، وظایف یا فعالیت‌ها داده‌ای ثبت کرده باشید.", variant: "default" });
+      return;
+    }
+
+    setIsAssessingGoals(true);
+    setGoalAssessment(null);
+    setAssessmentError(null);
+
+    try {
+      const input: AssessGoalProgressInput = {
+        tasks: tasks,
+        longTermGoals: longTermGoals,
+        activityLogs: activityLogs,
+      };
+      const result = await assessGoalProgress(input);
+      setGoalAssessment(result.assessment);
+      toast({ title: "تحلیل انجام شد", description: "بینش هوش مصنوعی در مورد پیشرفت اهداف شما آماده است." });
+    } catch (error) {
+      console.error("Error assessing goal progress:", error);
+      const errorMessage = error instanceof Error ? error.message : "یک خطای ناشناخته در ارتباط با سرویس هوش مصنوعی رخ داد.";
+      setAssessmentError(`خطا در تحلیل پیشرفت اهداف: ${errorMessage}`);
+      toast({
+        title: "خطا در تحلیل",
+        description: "متاسفانه در هنگام تحلیل پیشرفت اهداف شما مشکلی پیش آمد. لطفاً از اتصال اینترنت خود و صحیح بودن کلید API اطمینان حاصل کنید.",
+        variant: "destructive",
+        duration: 7000,
+      });
+    } finally {
+      setIsAssessingGoals(false);
+    }
+  };
+
 
   const upcomingTasks = tasks
     .filter(task => !task.completed)
@@ -97,6 +143,50 @@ export default function IntelligentAnalysisPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6 space-y-8">
+            {/* AI Goal Assessment Section */}
+            <Card className="bg-primary/10">
+              <CardHeader>
+                <div className="flex items-center">
+                    <Brain className="mr-3 h-6 w-6 text-primary rtl:ml-3 rtl:mr-0" />
+                    <CardTitle className="text-xl text-primary">تحلیل هوشمند پیشرفت اهداف</CardTitle>
+                </div>
+                <CardDescription>با استفاده از هوش مصنوعی، میزان همسویی و پیشرفت خود به سمت اهداف بلندمدت را ارزیابی کنید.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={handleAssessGoalProgress} disabled={isAssessingGoals || !isInitialLoadComplete} className="w-full sm:w-auto">
+                  {isAssessingGoals ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      در حال تحلیل...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      دریافت تحلیل پیشرفت با هوش مصنوعی
+                    </>
+                  )}
+                </Button>
+
+                {isAssessingGoals && (
+                  <p className="text-sm text-muted-foreground mt-4 text-center">درحال پردازش اطلاعات و تولید تحلیل توسط هوش مصنوعی. این فرآیند ممکن است چند لحظه طول بکشد...</p>
+                )}
+
+                {assessmentError && (
+                  <div className="mt-4 p-3 border border-destructive/50 rounded-md bg-destructive/10 text-destructive flex items-start">
+                    <AlertCircle className="h-5 w-5 mr-2 rtl:ml-2 rtl:mr-0 flex-shrink-0" />
+                    <p className="text-sm">{assessmentError}</p>
+                  </div>
+                )}
+
+                {goalAssessment && !isAssessingGoals && (
+                  <div className="mt-6 p-4 border rounded-lg bg-background shadow">
+                    <h4 className="text-lg font-semibold text-primary mb-2">نتیجه تحلیل هوش مصنوعی:</h4>
+                    <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">{goalAssessment}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Daily Planner Preview */}
             <Card className="bg-secondary/30">
               <CardHeader>
@@ -197,17 +287,16 @@ export default function IntelligentAnalysisPage() {
               </CardContent>
             </Card>
 
-            <div className="mt-12 p-6 border rounded-lg bg-primary/10 shadow-inner">
-              <h3 className="text-xl font-semibold text-primary mb-3 text-center">بینش‌های هوشمند (آینده)</h3>
+            <div className="mt-12 p-6 border rounded-lg bg-primary/5 shadow-inner">
+              <h3 className="text-xl font-semibold text-primary mb-3 text-center">سایر بینش‌های هوشمند (آینده)</h3>
               <p className="text-muted-foreground text-center mb-4">
-                در آینده، این بخش با استفاده از هوش مصنوعی، تحلیل‌های جامعی از داده‌های شما در بخش‌های مختلف ارائه خواهد داد. برای مثال:
+                در آینده، این بخش می‌تواند تحلیل‌های بیشتری ارائه دهد، مانند:
               </p>
               <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90 max-w-xl mx-auto">
                 <li>شناسایی الگوهای بهره‌وری بر اساس وظایف انجام شده و فعالیت‌های روزانه.</li>
-                <li>پیشنهاد برای تنظیم بهتر اهداف بلندمدت بر اساس پیشرفت شما.</li>
-                <li>تحلیل ارتباط بین فعالیت‌های روزانه و دستیابی به اهداف.</li>
+                <li>پیشنهاد برای تنظیم بهتر وظایف روزانه برای دستیابی به اهداف.</li>
+                <li>تحلیل ارتباط بین خلق و خو (از بخش تاملات) و پیشرفت در وظایف/اهداف.</li>
                 <li>ارائه گزارشات دوره‌ای از پیشرفت کلی شما در تمام جنبه‌های برنامه.</li>
-                <li>و قابلیت‌های تحلیلی و هوشمند دیگر...</li>
               </ul>
             </div>
           </CardContent>
@@ -219,4 +308,3 @@ export default function IntelligentAnalysisPage() {
     </div>
   );
 }
-
