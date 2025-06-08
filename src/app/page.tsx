@@ -14,7 +14,6 @@ import {
   BookOpen,
   PieChart, // Icon for Section 10
   FileText, 
-  Lightbulb, // Changed from FileText for Section 8
   Settings // Generic "Future" icon or similar
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -28,14 +27,14 @@ const sectionIcons: LucideIcon[] = [
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  Lightbulb,        // Section 8 (Daily Activity Log) - Changed from FileText back to Lightbulb (or keep FileText if "يادداشت فعاليت‌هاي روزانه" is final)
+  FileText,         // Section 8 (Daily Activity Log)
   Target,           // Section 9 (Long-Term Planning)
   PieChart          // Section 10 (Data Analysis and Reports)
 ];
 
 export default function HomePage() {
-  const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
-  const sectionsToDisplay = allSectionNumbers; 
+  // New order: Daily Planner (1), Long-Term Planning (9), Daily Activity Log (8), then others
+  const sectionsToDisplay = [1, 9, 8, 2, 3, 4, 5, 6, 7, 10]; 
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -43,8 +42,14 @@ export default function HomePage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
-            const iconIndex = sectionNumber -1;
-            const IconComponent = sectionIcons[iconIndex] || Settings; // Fallback icon
+            const iconIndex = sectionNumber -1; // This remains correct as sectionIcons is 0-indexed by original section number
+            let IconComponent = Settings; // Fallback icon
+            
+            // Ensure iconIndex is valid before accessing sectionIcons
+            if (iconIndex >= 0 && iconIndex < sectionIcons.length) {
+              IconComponent = sectionIcons[iconIndex];
+            }
+
 
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
@@ -80,12 +85,9 @@ export default function HomePage() {
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید. (بخش آینده)";
             } else if (sectionNumber === 8) {
-              sectionTitle = "یادداشت فعالیت‌های روزانه"; // Reverted to FileText if preferred
+              sectionTitle = "یادداشت فعالیت‌های روزانه"; 
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
               sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
-              // sectionTitle = "یادداشت‌ها و ایده‌پردازی"; // Kept FileText for consistency with previous state unless user confirms Lightbulb
-              // sectionDescription = "افکار، ایده‌های سریع و یادداشت‌های متفرقه خود را ثبت کنید";
-              // sectionContent = "محلی برای ثبت سریع هرگونه یادداشت، ایده یا فکر گذرا.";
             } else if (sectionNumber === 9) {
               sectionTitle = "برنامه‌ریزی بلند مدت"; 
               sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
