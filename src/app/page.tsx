@@ -12,9 +12,10 @@ import {
   Target,
   Dumbbell,
   BookOpen,
-  PieChart, // Icon for Section 8
-  FileEdit,
-  Award
+  PieChart,
+  FileEdit, // Icon for Section 9
+  Award,
+  Settings // Generic "Future" icon or similar
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -28,7 +29,7 @@ const sectionIcons: LucideIcon[] = [
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
   PieChart,         // Section 8
-  FileEdit,         // Section 9
+  FileEdit,         // Section 9 (Keeping FileEdit for now, can be changed to Settings)
   Award             // Section 10
 ];
 
@@ -83,8 +84,12 @@ export default function HomePage() {
               sectionTitle = "تحلیل داده و گزارشات";
               sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
               sectionContent = "در این بخش گزارشات و تحلیل‌های داده‌های مختلف برنامه نمایش داده خواهد شد.";
+            } else if (sectionNumber === 9) {
+              sectionTitle = "بخش آینده ۹";
+              sectionDescription = "این بخش برای قابلیت‌های جدید در آینده در نظر گرفته شده است.";
+              sectionContent = "منتظر ویژگی‌های هیجان‌انگیز در این بخش باشید!";
             }
-            // Sections 9, 10 will use the default title/description/content
+            // Section 10 will use the default title/description/content
 
             return (
               <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
