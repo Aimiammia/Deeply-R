@@ -85,7 +85,7 @@ export default function HomePage() {
               sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
               sectionContent = "در این بخش گزارشات و تحلیل‌های داده‌های مختلف برنامه نمایش داده خواهد شد.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "بخش آینده ۹";
+              sectionTitle = "آینده"; // Changed title
               sectionDescription = "این بخش برای قابلیت‌های جدید در آینده در نظر گرفته شده است.";
               sectionContent = "منتظر ویژگی‌های هیجان‌انگیز در این بخش باشید!";
             }
