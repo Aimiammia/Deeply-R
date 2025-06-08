@@ -4,10 +4,12 @@ config(); // Load .env file variables at the very start
 
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import nextPlugin from '@genkit-ai/next'; // Reverted to default import
+import nextPlugin from '@genkit-ai/next';
 
 // Check for Google AI API Key
-if (!process.env.GOOGLE_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+const apiKey = process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+if (!apiKey) {
   console.warn(`
     ****************************************************************************************
     * WARNING: Google AI API Key is not set.                                               *
@@ -20,8 +22,9 @@ if (!process.env.GOOGLE_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
 
 export const ai = genkit({
   plugins: [
-    nextPlugin(), // Using the default export
-    googleAI(),
+    nextPlugin(),
+    googleAI({ apiKey: apiKey }), // Explicitly pass the API key
   ],
   model: 'googleai/gemini-2.0-flash',
 });
+
