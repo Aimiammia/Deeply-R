@@ -8,11 +8,11 @@ import {
   CalendarCheck2,
   BookHeart,
   CircleDollarSign,
-  CalendarDays, // Icon for Section 4 (Calendar)
+  CalendarDays,
   Target,
   Dumbbell,
   BookOpen,
-  PieChart,
+  PieChart, // Icon for Section 8
   FileEdit,
   Award
 } from 'lucide-react';
@@ -23,7 +23,7 @@ const sectionIcons: LucideIcon[] = [
   CalendarCheck2,   // Section 1 (Tasks/Planner)
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
-  CalendarDays,     // Section 4 (Calendar) - Restored
+  CalendarDays,     // Section 4 (Calendar)
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
@@ -63,7 +63,7 @@ export default function HomePage() {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
               sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
-            } else if (sectionNumber === 4) { // Content for Section 4 (Calendar)
+            } else if (sectionNumber === 4) {
               sectionTitle = "تقویم و رویدادها";
               sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
               sectionContent = "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید.";
@@ -79,8 +79,12 @@ export default function HomePage() {
               sectionTitle = "تحصیل";
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
+            } else if (sectionNumber === 8) {
+              sectionTitle = "تحلیل داده و گزارشات";
+              sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
+              sectionContent = "در این بخش گزارشات و تحلیل‌های داده‌های مختلف برنامه نمایش داده خواهد شد.";
             }
-            // Sections 8, 9, 10 will use the default title/description/content
+            // Sections 9, 10 will use the default title/description/content
 
             return (
               <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
