@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+// import { Calendar } from '@/components/ui/calendar'; // Replaced with JalaliDatePicker
+import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; // Import new component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -142,13 +143,9 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={dueDate}
-              onSelect={setDueDate}
-              initialFocus
-              dir="rtl"
-              locale={faIR} // Use Persian locale for the calendar
+            <JalaliDatePicker
+              value={dueDate}
+              onChange={setDueDate}
             />
           </PopoverContent>
         </Popover>
