@@ -48,15 +48,16 @@ export default function GoalsAndHabitsPage() {
               className="rounded-md mx-auto shadow-md"
               data-ai-hint="goals habits"
             />
-            <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-                <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+            <div className="mt-8 p-6 border rounded-lg bg-secondary/30 shadow-inner max-w-2xl mx-auto">
+                <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های برنامه‌ریزی شده برای آینده:</h4>
+                <ul className="list-disc list-inside space-y-2 text-sm text-left rtl:text-right text-foreground/90">
                   <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
-                  <li>ایجاد ردیاب عادت (Habit Tracker) با امکان تنظیم تکرار و یادآور</li>
-                  <li>اتصال اهداف به وظایف روزانه در برنامه‌ریز</li>
-                  <li>نمودارهای پیشرفت برای اهداف و عادت‌ها</li>
-                  <li>سیستم پاداش و انگیزش (اختیاری)</li>
-                  <li>امکان دسته‌بندی اهداف و عادت‌ها</li>
+                  <li>ایجاد ردیاب عادت (Habit Tracker) با امکان تنظیم تکرار (روزانه، هفتگی، ...) و یادآور</li>
+                  <li>اتصال اهداف (کوتاه‌مدت و بلندمدت) به وظایف روزانه در بخش برنامه‌ریز برای همسوسازی فعالیت‌ها</li>
+                  <li>نمایش نمودارهای پیشرفت بصری برای اهداف و زنجیره عادت‌ها</li>
+                  <li>سیستم پاداش و انگیزش برای دستیابی به اهداف و پایبندی به عادت‌ها (اختیاری)</li>
+                  <li>امکان دسته‌بندی اهداف و عادت‌ها برای سازماندهی بهتر</li>
+                  <li>پیشنهاد هوشمند برای ایجاد عادت‌های سازنده بر اساس اهداف</li>
                 </ul>
               </div>
           </CardContent>
@@ -68,3 +69,5 @@ export default function GoalsAndHabitsPage() {
     </div>
   );
 }
+
+    
