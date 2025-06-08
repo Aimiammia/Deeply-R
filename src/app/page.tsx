@@ -33,8 +33,8 @@ const sectionIcons: LucideIcon[] = [
 ];
 
 export default function HomePage() {
-  // New order: Daily Planner (1), Long-Term Planning (9), Daily Activity Log (8), then others
-  const sectionsToDisplay = [1, 9, 8, 2, 3, 4, 5, 6, 7, 10]; 
+  // Reverted to original order
+  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
 
   return (
     <div className="flex flex-col min-h-screen">
