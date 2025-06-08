@@ -9,13 +9,12 @@ import {
   BookHeart,
   CircleDollarSign,
   CalendarDays,
-  Target,
+  Target, // Used for Section 5 (Goals/Habits) AND now for Section 9 (Long-Term Planning)
   Dumbbell,
   BookOpen,
-  PieChart,
-  FileEdit, // Icon for Section 9
+  PieChart, // Icon for Section 8
   Award,
-  Settings // Generic "Future" icon or similar
+  Settings // Generic "Future" icon or similar - kept for Section 10 or if another "Future" is needed
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -28,14 +27,13 @@ const sectionIcons: LucideIcon[] = [
   Target,           // Section 5 (Goals and Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  PieChart,         // Section 8
-  FileEdit,         // Section 9 (Keeping FileEdit for now, can be changed to Settings)
+  PieChart,         // Section 8 (Data Analysis and Reports - was Future)
+  Target,           // Section 9 (Now Long-Term Planning, Icon updated to Target)
   Award             // Section 10
 ];
 
 export default function HomePage() {
   const allSectionNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
-  // Filter for sections to display is removed, so all 10 sections will be attempted to render
   const sectionsToDisplay = allSectionNumbers; 
 
   return (
@@ -44,13 +42,13 @@ export default function HomePage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
-            // Icon indexing is direct as no section is filtered out
             const iconIndex = sectionNumber -1;
             const IconComponent = sectionIcons[iconIndex] || Award; // Fallback icon
 
             let sectionTitle = `بخش ${sectionNumber}`;
             let sectionDescription = `جزئیات بخش ${sectionNumber}`;
             let sectionContent = `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
+            let sectionLink = `/section/${sectionNumber}`;
 
             if (sectionNumber === 1) {
               sectionTitle = "برنامه‌ریز روزانه";
@@ -85,14 +83,15 @@ export default function HomePage() {
               sectionDescription = "تحلیل داده‌ها و مشاهده گزارشات";
               sectionContent = "در این بخش گزارشات و تحلیل‌های داده‌های مختلف برنامه نمایش داده خواهد شد.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "آینده"; // Changed title
-              sectionDescription = "این بخش برای قابلیت‌های جدید در آینده در نظر گرفته شده است.";
-              sectionContent = "منتظر ویژگی‌های هیجان‌انگیز در این بخش باشید!";
+              sectionTitle = "برنامه‌ریزی بلند مدت"; // Changed title for section 9
+              sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
+              sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
+              // Link remains /section/9, but its page content will be the long-term planner
             }
             // Section 10 will use the default title/description/content
 
             return (
-              <Link href={`/section/${sectionNumber}`} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
+              <Link href={sectionLink} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
                 <Card className="shadow-lg hover:shadow-xl transform transition-all duration-300 ease-in-out hover:scale-[1.03] cursor-pointer h-full flex flex-col bg-card border border-transparent group-hover:border-primary/50">
                   <CardHeader className="flex-shrink-0 pb-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
