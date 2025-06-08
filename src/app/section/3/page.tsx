@@ -4,7 +4,7 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
@@ -26,7 +26,7 @@ const persianMonthNames = [
 
 export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
-  const sectionPageDescription = "هزینه‌ها، درآمدها و بودجه خود را در اینجا پیگیری و مدیریت کنید.";
+  const sectionPageDescription = "هزینه‌ها، درآمدها، بودجه، دارایی‌ها و سرمایه‌گذاری‌های خود را در اینجا پیگیری و مدیریت کنید.";
 
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
@@ -106,7 +106,7 @@ export default function FinancialManagementPage() {
 
 
   const chartData = useMemo(() => {
-    if (!isClient || transactions.length === 0) { // Use isClient instead of isInitialLoadComplete
+    if (!isClient || transactions.length === 0) { 
       return [];
     }
 
@@ -173,18 +173,30 @@ export default function FinancialManagementPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <Tabs defaultValue="transactions" className="w-full">
-              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 rounded-full bg-primary/10 p-1">
+              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5 mb-6 rounded-full bg-primary/10 p-1">
                 <TabsTrigger
                   value="transactions"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
-                  <Wallet className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> تراکنش‌ها و نمودار
+                  <Wallet className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> تراکنش‌ها
                 </TabsTrigger>
                 <TabsTrigger
                   value="budgeting"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
                   <Landmark className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> بودجه‌بندی
+                </TabsTrigger>
+                <TabsTrigger
+                  value="assets"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <Building className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> دارایی‌ها
+                </TabsTrigger>
+                <TabsTrigger
+                  value="investments"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <TrendingUp className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> سرمایه‌گذاری
                 </TabsTrigger>
                 <TabsTrigger
                   value="savings"
@@ -297,6 +309,56 @@ export default function FinancialManagementPage() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="assets" className="space-y-6">
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                       <Building className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                      مدیریت دارایی‌ها
+                    </CardTitle>
+                    <CardDescription>لیست دارایی‌های خود (مانند ملک، خودرو، ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">قابلیت مدیریت دارایی‌ها به زودی اضافه خواهد شد.</p>
+                    <div className="mt-4 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+                          <li>ثبت انواع دارایی (ملک، خودرو، موجودی حساب خاص و ...)</li>
+                          <li>وارد کردن ارزش اولیه و تاریخ خرید</li>
+                          <li>امکان به‌روزرسانی ارزش دارایی‌ها</li>
+                          <li>نمودار تغییرات ارزش کل دارایی‌ها در طول زمان</li>
+                          <li>محاسبه خالص دارایی (دارایی‌ها منهای بدهی‌ها - نیازمند بخش بدهی‌ها)</li>
+                        </ul>
+                      </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="investments" className="space-y-6">
+                <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                       <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                      پیگیری سرمایه‌گذاری‌ها
+                    </CardTitle>
+                    <CardDescription>سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">قابلیت پیگیری سرمایه‌گذاری‌ها به زودی اضافه خواهد شد.</p>
+                     <div className="mt-4 p-4 border rounded-md bg-secondary/30">
+                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+                          <li>ثبت انواع سرمایه‌گذاری (سهام، ارز، طلا، صندوق و ...)</li>
+                          <li>وارد کردن مقدار، قیمت خرید و تاریخ</li>
+                          <li>امکان به‌روزرسانی قیمت فعلی و محاسبه سود/زیان</li>
+                          <li>نمودار عملکرد پورتفوی سرمایه‌گذاری</li>
+                          <li>اتصال به API برای دریافت قیمت‌های لحظه‌ای (در صورت امکان)</li>
+                        </ul>
+                      </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               <TabsContent value="savings" className="space-y-6">
                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
                   <CardHeader>
@@ -330,3 +392,4 @@ export default function FinancialManagementPage() {
     </div>
   );
 }
+
