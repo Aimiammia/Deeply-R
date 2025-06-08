@@ -91,3 +91,17 @@ export interface FinancialAsset {
   notes?: string | null;
   createdAt: string; // ISO date string of when asset was first created
 }
+
+export interface FinancialInvestment {
+  id: string;
+  name: string; // e.g., "Shares of Company X", "Bitcoin Holding"
+  type: 'stocks' | 'crypto' | 'bonds' | 'gold' | 'fund' | 'other';
+  purchaseDate: string; // ISO date string
+  quantity: number; // Number of units/shares/grams
+  purchasePricePerUnit: number;
+  fees: number; // Total fees for acquisition
+  currentPricePerUnit: number;
+  lastPriceUpdateDate: string; // ISO date string
+  notes?: string | null;
+  createdAt: string; // ISO date string
+}

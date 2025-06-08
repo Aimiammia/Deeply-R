@@ -10,7 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { useState, useEffect, useMemo } from 'react';
 import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
 import { TransactionList } from '@/components/financials/TransactionList';
-import type { FinancialTransaction, Budget, FinancialAsset } from '@/types';
+import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +20,8 @@ import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
 import { BudgetList } from '@/components/financials/BudgetList';
 import { CreateAssetForm } from '@/components/financials/CreateAssetForm';
 import { AssetList } from '@/components/financials/AssetList';
+import { CreateInvestmentForm } from '@/components/financials/CreateInvestmentForm';
+import { InvestmentList } from '@/components/financials/InvestmentList';
 
 const persianMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -38,6 +40,9 @@ export default function FinancialManagementPage() {
   
   const [assets, setAssets] = useDebouncedLocalStorage<FinancialAsset[]>('financialAssets', []);
   const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
+
+  const [investments, setInvestments] = useDebouncedLocalStorage<FinancialInvestment[]>('financialInvestments', []);
+  const [editingInvestment, setEditingInvestment] = useState<FinancialInvestment | null>(null);
 
 
   useEffect(() => {
@@ -143,7 +148,42 @@ export default function FinancialManagementPage() {
       toast({ title: "دارایی حذف شد", description: `دارایی "${assetToDelete.name}" حذف شد.`, variant: "destructive" });
     }
     if (editingAsset?.id === id) {
-        setEditingAsset(null); // Clear editing state if deleted asset was being edited
+        setEditingAsset(null); 
+    }
+  };
+
+  // Investment Management Handlers
+  const handleSaveInvestment = (investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditingExisting: boolean) => {
+    const nowISO = new Date().toISOString();
+    if (isEditingExisting && editingInvestment) {
+        const updatedInvestment: FinancialInvestment = {
+            ...editingInvestment,
+            ...investmentData,
+            lastPriceUpdateDate: nowISO, // Always update price update date on edit
+        };
+        setInvestments(prevInvestments => prevInvestments.map(i => i.id === editingInvestment.id ? updatedInvestment : i));
+        toast({ title: "سرمایه‌گذاری ویرایش شد", description: `سرمایه‌گذاری "${investmentData.name}" ویرایش شد.` });
+        setEditingInvestment(null); 
+    } else {
+        const newInvestment: FinancialInvestment = {
+            ...investmentData,
+            id: crypto.randomUUID(),
+            createdAt: nowISO,
+            lastPriceUpdateDate: nowISO,
+        };
+        setInvestments(prevInvestments => [newInvestment, ...prevInvestments]);
+        toast({ title: "سرمایه‌گذاری اضافه شد", description: `سرمایه‌گذاری "${investmentData.name}" اضافه شد.` });
+    }
+  };
+
+  const handleDeleteInvestment = (id: string) => {
+    const investmentToDelete = investments.find(i => i.id === id);
+    setInvestments(prevInvestments => prevInvestments.filter(i => i.id !== id));
+    if (investmentToDelete) {
+      toast({ title: "سرمایه‌گذاری حذف شد", description: `سرمایه‌گذاری "${investmentToDelete.name}" حذف شد.`, variant: "destructive" });
+    }
+    if (editingInvestment?.id === id) {
+        setEditingInvestment(null);
     }
   };
 
@@ -363,7 +403,7 @@ export default function FinancialManagementPage() {
                   </CardHeader>
                   <CardContent>
                     <CreateAssetForm onSaveAsset={handleSaveAsset} existingAsset={editingAsset} />
-                    <AssetList assets={assets} onDeleteAsset={handleDeleteAsset} onEditAsset={handleSaveAsset} onSetEditingAsset={setEditingAsset} />
+                    <AssetList assets={assets} onDeleteAsset={handleDeleteAsset} onEditAsset={setEditingAsset} onSetEditingAsset={setEditingAsset} />
                     
                     <div className="mt-8 p-4 border rounded-md bg-secondary/30">
                         <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
@@ -394,17 +434,18 @@ export default function FinancialManagementPage() {
                        <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       پیگیری سرمایه‌گذاری‌ها
                     </CardTitle>
-                    <CardDescription>سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید. این بخش می‌تواند با بخش دارایی‌ها همپوشانی داشته باشد.</CardDescription>
+                    <CardDescription>سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">قابلیت پیگیری تخصصی سرمایه‌گذاری‌ها به زودی اضافه خواهد شد. در حال حاضر می‌توانید سرمایه‌گذاری‌های خود را به عنوان یک نوع "دارایی" ثبت کنید.</p>
-                     <div className="mt-4 p-4 border rounded-md bg-secondary/30">
+                    <CreateInvestmentForm onSaveInvestment={handleSaveInvestment} existingInvestment={editingInvestment} />
+                    <InvestmentList investments={investments} onDeleteInvestment={handleDeleteInvestment} onEditInvestment={setEditingInvestment} />
+                    
+                     <div className="mt-8 p-4 border rounded-md bg-secondary/30">
                         <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                         <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                          <li>ثبت جزئیات دقیق‌تر سرمایه‌گذاری (تعداد واحد، قیمت هر واحد، کارمزد و ...)</li>
-                          <li>امکان به‌روزرسانی قیمت فعلی و محاسبه خودکار سود/زیان هر سرمایه‌گذاری و کل پورتفوی</li>
-                          <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها</li>
-                          <li>اتصال به API برای دریافت قیمت‌های لحظه‌ای (در صورت امکان)</li>
+                          <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها.</li>
+                          <li>اتصال به API برای دریافت قیمت‌های لحظه‌ای (در صورت امکان).</li>
+                          <li>محاسبه مجموع سود/زیان کل پورتفوی سرمایه‌گذاری.</li>
                         </ul>
                       </div>
                   </CardContent>
