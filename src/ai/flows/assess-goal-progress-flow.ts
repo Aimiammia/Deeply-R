@@ -18,7 +18,7 @@ const TaskSchema = z.object({
   id: z.string(),
   title: z.string(),
   completed: z.boolean(),
-  createdAt: z.string().datetime().describe("ISO date string of task creation"), // Corrected to .datetime()
+  createdAt: z.string().datetime().describe("ISO date string of task creation"),
   dueDate: z.string().datetime().nullable().describe("Optional ISO date string for task due date"),
   priority: z.enum(['low', 'medium', 'high']).nullable().describe("Optional task priority"),
   category: z.string().nullable().describe("Optional task category"),
@@ -45,14 +45,14 @@ const DailyActivityLogEntrySchema = z.object({
 }).describe("Represents a single daily activity log entry.");
 
 
-export const AssessGoalProgressInputSchema = z.object({
+const AssessGoalProgressInputSchema = z.object({
   longTermGoals: z.array(LongTermGoalSchema).describe("List of the user's long-term goals."),
   tasks: z.array(TaskSchema).describe("List of the user's tasks (daily/short-term)."),
   activityLogs: z.array(DailyActivityLogEntrySchema).describe("List of the user's daily activity logs."),
 });
 export type AssessGoalProgressInput = z.infer<typeof AssessGoalProgressInputSchema>;
 
-export const AssessGoalProgressOutputSchema = z.object({
+const AssessGoalProgressOutputSchema = z.object({
   assessment: z.string().describe("A comprehensive assessment in Persian of the user's progress towards their long-term goals, considering their tasks and daily activities. This should include positive aspects, areas for improvement, and actionable insights."),
 });
 export type AssessGoalProgressOutput = z.infer<typeof AssessGoalProgressOutputSchema>;
