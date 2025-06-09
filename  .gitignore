@@ -1,0 +1,55 @@
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+.pnp.loader.mjs
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+*.log
+logs
+*.log.*.[0-9]
+
+# Local Environment Variables
+.env
+.env*.local
+.env.*.local
+
+# Firebase (if you use emulators or store sensitive data locally)
+# firebase-debug.log
+# firebase-export-*
+# *.firebase.*
+
+# Editor directories and files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+
+# System files
+.AppleDouble
+.LSOverride
+
+# Next.js specific
+next-env.d.ts
+
+# Turbopack
+.turbo
