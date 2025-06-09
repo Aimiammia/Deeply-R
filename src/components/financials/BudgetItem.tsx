@@ -4,7 +4,7 @@
 import type { Budget, FinancialTransaction } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Trash2, Edit3, AlertTriangle } from 'lucide-react';
+import { Trash2, Edit3, AlertTriangle, TrendingUp, TrendingDown, Info } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,8 +22,8 @@ import { cn } from '@/lib/utils';
 interface BudgetItemProps {
   budget: Budget;
   transactions: FinancialTransaction[];
-  onDeleteBudget: (categoryId: string) => void;
-  onEditBudget: (budget: Budget) => void; // Function to signal parent to show edit form
+  onDeleteBudget: (categoryId: string) => void; // Changed from categoryId: string to id: string
+  onEditBudget: (budget: Budget) => void; 
 }
 
 export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) {
@@ -36,7 +36,7 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
     .filter(t => 
       t.type === 'expense' && 
       t.category === budget.category &&
-      isSameMonth(parseISO(t.date), now) && // Ensure transactions are from the current month and year
+      isSameMonth(parseISO(t.date), now) &&
       getYear(parseISO(t.date)) === getYear(now)
     )
     .reduce((sum, t) => sum + t.amount, 0);
@@ -68,7 +68,7 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>لغو</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDeleteBudget(budget.category)} variant="destructive">
+                <AlertDialogAction onClick={() => onDeleteBudget(budget.id)} variant="destructive"> {/* Changed budget.category to budget.id */}
                   حذف بودجه
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -80,19 +80,54 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
       <div className="text-sm space-y-1 mb-3">
         <p>بودجه: <span className="font-medium">{formatCurrency(budget.amount)}</span></p>
         <p>هزینه شده (این ماه): <span className={cn("font-medium", isOverBudget ? "text-destructive" : "text-green-600")}>{formatCurrency(currentMonthExpenses)}</span></p>
+        
         {isOverBudget ? (
           <p className="text-destructive font-medium flex items-center">
-            <AlertTriangle className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0" />
+            <TrendingDown className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0" /> {/* Using TrendingDown for over budget */}
             {formatCurrency(Math.abs(remainingAmount))} بیش از بودجه
           </p>
         ) : (
-          <p>باقی‌مانده: <span className="font-medium text-foreground">{formatCurrency(remainingAmount)}</span></p>
+          <p className="text-foreground font-medium flex items-center">
+             <TrendingUp className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0 text-green-600" /> {/* Using TrendingUp for remaining */}
+            باقی‌مانده: {formatCurrency(remainingAmount)}
+          </p>
         )}
       </div>
       
-      <Progress value={progressPercentage} className={cn("w-full h-3", isOverBudget && "bg-destructive")} />
+      <Progress 
+        value={progressPercentage} 
+        className={cn(
+            "w-full h-3 rounded-full", 
+            progressPercentage > 100 ? "bg-destructive/20" : "bg-secondary",
+            "[&>div]:rounded-full" // Ensure indicator is also rounded
+        )}
+        style={{ 
+            // Custom styling for progress indicator when over budget
+            // This is a bit tricky with ShadCN's Progress component structure.
+            // The indicator's width is controlled by translateX.
+            // We will primarily rely on the color of the text and potentially the bar track for >100%.
+        }}
+      >
+        <div
+            className={cn(
+                "h-full transition-all",
+                isOverBudget ? "bg-destructive" : "bg-primary"
+            )}
+            style={{ width: `${Math.min(progressPercentage, 100)}%` }} // Cap width at 100% for visual
+        />
+      </Progress>
+
       {isOverBudget && (
-         <p className="text-xs text-destructive mt-1 text-right rtl:text-left">از بودجه عبور کرده‌اید!</p>
+         <p className="text-xs text-destructive mt-1 text-right rtl:text-left flex items-center justify-end">
+            <AlertTriangle className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0"/>
+            از بودجه عبور کرده‌اید!
+        </p>
+      )}
+      {!isOverBudget && progressPercentage > 80 && (
+        <p className="text-xs text-orange-500 mt-1 text-right rtl:text-left flex items-center justify-end">
+            <Info className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0"/>
+            نزدیک به سقف بودجه!
+        </p>
       )}
     </li>
   );

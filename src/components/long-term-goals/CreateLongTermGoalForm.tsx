@@ -1,51 +1,99 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Trash2, ListChecks } from 'lucide-react';
 import { format } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import type { LongTermGoal } from '@/types';
+import type { LongTermGoal, Milestone } from '@/types'; // Import Milestone
+import { useToast } from '@/hooks/use-toast';
 
 interface CreateLongTermGoalFormProps {
-  onAddGoal: (goalData: Omit<LongTermGoal, 'id' | 'createdAt' | 'status'>) => void;
-  existingGoal?: Omit<LongTermGoal, 'id' | 'createdAt' | 'status'> & { id?: string };
+  onSaveGoal: (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => void;
+  existingGoal?: LongTermGoal | null;
 }
 
-export function CreateLongTermGoalForm({ onAddGoal, existingGoal }: CreateLongTermGoalFormProps) {
-  const [title, setTitle] = useState(existingGoal?.title || '');
-  const [description, setDescription] = useState(existingGoal?.description || '');
-  const [targetDate, setTargetDate] = useState<Date | undefined>(
-    existingGoal?.targetDate ? new Date(existingGoal.targetDate) : undefined
-  );
+export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongTermGoalFormProps) {
+  const { toast } = useToast();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [targetDate, setTargetDate] = useState<Date | undefined>(undefined);
+  const [status, setStatus] = useState<LongTermGoal['status']>('not-started');
+  const [successCriteria, setSuccessCriteria] = useState('');
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [newMilestoneName, setNewMilestoneName] = useState('');
+
+  const isEditing = !!existingGoal;
+
+  useEffect(() => {
+    if (existingGoal) {
+      setTitle(existingGoal.title);
+      setDescription(existingGoal.description || '');
+      setTargetDate(existingGoal.targetDate ? new Date(existingGoal.targetDate) : undefined);
+      setStatus(existingGoal.status);
+      setSuccessCriteria(existingGoal.successCriteria || '');
+      setMilestones(existingGoal.milestones || []);
+    } else {
+      // Reset form for new entry
+      setTitle('');
+      setDescription('');
+      setTargetDate(undefined);
+      setStatus('not-started');
+      setSuccessCriteria('');
+      setMilestones([]);
+    }
+  }, [existingGoal]);
+
+  const handleAddMilestone = () => {
+    if (newMilestoneName.trim()) {
+      setMilestones([...milestones, { id: crypto.randomUUID(), name: newMilestoneName.trim(), completed: false }]);
+      setNewMilestoneName('');
+    }
+  };
+
+  const handleRemoveMilestone = (id: string) => {
+    setMilestones(milestones.filter(m => m.id !== id));
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAddGoal({
+      onSaveGoal({
         title: title.trim(),
         description: description.trim() || null,
         targetDate: targetDate ? targetDate.toISOString() : null,
-      });
-      if (!existingGoal) { // Reset form only if not editing
+        status,
+        successCriteria: successCriteria.trim() || null,
+        milestones: milestones.length > 0 ? milestones : null,
+      }, isEditing);
+
+      if (!isEditing) {
         setTitle('');
         setDescription('');
         setTargetDate(undefined);
+        setStatus('not-started');
+        setSuccessCriteria('');
+        setMilestones([]);
+        setNewMilestoneName('');
       }
+       toast({
+          title: isEditing ? "هدف ویرایش شد" : "هدف اضافه شد",
+          description: `هدف بلندمدت "${title.trim()}" با موفقیت ${isEditing ? 'ویرایش' : 'ذخیره'} شد.`,
+        });
     }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8">
       <h3 className="text-lg font-semibold text-primary mb-4">
-        {existingGoal?.id ? 'ویرایش هدف بلندمدت' : 'ایجاد هدف بلندمدت جدید'}
+        {isEditing ? 'ویرایش هدف بلندمدت' : 'ایجاد هدف بلندمدت جدید'}
       </h3>
       
       <div>
@@ -68,41 +116,93 @@ export function CreateLongTermGoalForm({ onAddGoal, existingGoal }: CreateLongTe
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="جزئیات بیشتر در مورد هدف خود را اینجا بنویسید..."
-          rows={4}
+          rows={3}
+          className="text-base"
+        />
+      </div>
+      
+      <div>
+        <Label htmlFor="goalSuccessCriteria" className="mb-1 block">معیارهای موفقیت (اختیاری)</Label>
+        <Textarea
+          id="goalSuccessCriteria"
+          value={successCriteria}
+          onChange={(e) => setSuccessCriteria(e.target.value)}
+          placeholder="چگونه متوجه می‌شوید که به این هدف دست یافته‌اید؟"
+          rows={3}
           className="text-base"
         />
       </div>
 
-      <div>
-        <Label className="mb-1 block">تاریخ هدف (اختیاری)</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !targetDate && "text-muted-foreground"
-              )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <Label className="mb-1 block">تاریخ هدف (اختیاری)</Label>
+            <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                variant={"outline"}
+                className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !targetDate && "text-muted-foreground"
+                )}
+                >
+                <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+                {targetDate ? format(targetDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ هدف</span>}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                mode="single"
+                selected={targetDate}
+                onSelect={setTargetDate}
+                initialFocus
+                dir="rtl"
+                />
+            </PopoverContent>
+            </Popover>
+        </div>
+        <div>
+            <Label htmlFor="goalStatus" className="mb-1 block">وضعیت</Label>
+            <select
+            id="goalStatus"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as LongTermGoal['status'])}
+            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
-              <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-              {targetDate ? format(targetDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ هدف</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={targetDate}
-              onSelect={setTargetDate}
-              initialFocus
-              dir="rtl"
-            />
-          </PopoverContent>
-        </Popover>
+            <option value="not-started">شروع نشده</option>
+            <option value="in-progress">در حال انجام</option>
+            <option value="completed">تکمیل شده</option>
+            <option value="on-hold">متوقف شده</option>
+            </select>
+        </div>
+      </div>
+
+      <div>
+        <Label className="mb-2 block flex items-center"><ListChecks className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/> نقاط عطف (اختیاری)</Label>
+        <div className="space-y-2">
+          {milestones.map((milestone, index) => (
+            <div key={milestone.id} className="flex items-center gap-2 p-2 border rounded-md bg-secondary/30">
+              <span className="flex-grow text-sm">{milestone.name}</span>
+              <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveMilestone(milestone.id)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <Input
+            type="text"
+            value={newMilestoneName}
+            onChange={(e) => setNewMilestoneName(e.target.value)}
+            placeholder="نام نقطه عطف جدید"
+            className="text-sm flex-grow"
+          />
+          <Button type="button" onClick={handleAddMilestone} variant="outline" size="sm">افزودن</Button>
+        </div>
       </div>
       
       <Button type="submit" disabled={!title.trim()} className="w-full">
         <PlusCircle className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-        {existingGoal?.id ? 'ذخیره تغییرات هدف' : 'افزودن هدف'}
+        {isEditing ? 'ذخیره تغییرات هدف' : 'افزودن هدف'}
       </Button>
     </form>
   );

@@ -38,6 +38,12 @@ export interface Budget {
   createdAt: string; // ISO date string
 }
 
+export interface Milestone {
+  id: string;
+  name: string;
+  completed: boolean;
+}
+
 export interface LongTermGoal {
   id: string;
   title: string;
@@ -45,6 +51,8 @@ export interface LongTermGoal {
   targetDate: string | null; // ISO date string
   status: 'not-started' | 'in-progress' | 'completed' | 'on-hold';
   createdAt: string; // ISO date string
+  successCriteria?: string | null;
+  milestones?: Milestone[] | null;
 }
 
 export interface BirthdayEntry {
@@ -73,6 +81,15 @@ export interface EducationalLevelStorage {
     isConfirmed: boolean;
     lastPromotionCheckDate: string; // ISO Date string
 }
+
+export interface SubjectProgress {
+    status: 'not-started' | 'in-progress' | 'completed';
+    notes?: string | null;
+}
+export interface EducationalSubjectUserProgress {
+    [subjectId: string]: SubjectProgress;
+}
+
 
 export interface DailyActivityLogEntry {
   id: string;
@@ -114,4 +131,13 @@ export interface SavingsGoal {
   targetDate?: string | null; // ISO date string, optional
   createdAt: string; // ISO date string
   status: 'active' | 'achieved' | 'cancelled';
+}
+
+export interface Habit {
+  id: string;
+  name: string;
+  // frequency: 'daily' | 'weekly'; // For simplicity, start with daily
+  // targetDays?: number; // For weekly habits, e.g., 3 times a week
+  createdAt: string; // ISO date string
+  completions: string[]; // Array of ISO date strings (YYYY-MM-DD) for when the habit was completed
 }

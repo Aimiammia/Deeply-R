@@ -3,15 +3,15 @@
 
 import type { LongTermGoal } from '@/types';
 import { LongTermGoalItem } from './LongTermGoalItem';
-import { Target } from 'lucide-react'; // Or use a more generic "empty state" icon
+import { Target } from 'lucide-react';
 
 interface LongTermGoalListProps {
   goals: LongTermGoal[];
   onDeleteGoal: (id: string) => void;
-  onEditGoal: (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => void;
+  onUpdateGoal: (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => void;
 }
 
-export function LongTermGoalList({ goals, onDeleteGoal, onEditGoal }: LongTermGoalListProps) {
+export function LongTermGoalList({ goals, onDeleteGoal, onUpdateGoal }: LongTermGoalListProps) {
   if (goals.length === 0) {
     return (
       <div className="text-center py-10 text-muted-foreground border rounded-lg shadow-sm bg-card mt-6">
@@ -33,7 +33,7 @@ export function LongTermGoalList({ goals, onDeleteGoal, onEditGoal }: LongTermGo
             key={goal.id}
             goal={goal}
             onDeleteGoal={onDeleteGoal}
-            onEditGoal={onEditGoal}
+            onUpdateGoal={onUpdateGoal} // Changed from onEditGoal to onUpdateGoal
           />
         ))}
       </ul>

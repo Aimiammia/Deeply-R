@@ -4,7 +4,7 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { ClientOnly } from '@/components/ClientOnly';
+
 
 import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
 import { BudgetList } from '@/components/financials/BudgetList';
@@ -35,30 +37,21 @@ export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
   const sectionPageDescription = "هزینه‌ها، درآمدها، بودجه، دارایی‌ها، سرمایه‌گذاری‌ها و اهداف پس‌انداز خود را در اینجا پیگیری و مدیریت کنید.";
 
-  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
   const [transactions, setTransactions] = useDebouncedLocalStorage<FinancialTransaction[]>('financialTransactions', []);
   
-  // Budgets
   const [budgets, setBudgets] = useDebouncedLocalStorage<Budget[]>('financialBudgets', []);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   
-  // Assets
   const [assets, setAssets] = useDebouncedLocalStorage<FinancialAsset[]>('financialAssets', []);
   const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
 
-  // Investments
   const [investments, setInvestments] = useDebouncedLocalStorage<FinancialInvestment[]>('financialInvestments', []);
   const [editingInvestment, setEditingInvestment] = useState<FinancialInvestment | null>(null);
 
-  // Savings Goals
   const [savingsGoals, setSavingsGoals] = useDebouncedLocalStorage<SavingsGoal[]>('financialSavingsGoals', []);
   const [editingSavingsGoal, setEditingSavingsGoal] = useState<SavingsGoal | null>(null);
 
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleAddTransaction = (transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
     const newTransaction: FinancialTransaction = {
@@ -89,11 +82,11 @@ export default function FinancialManagementPage() {
   const handleSetBudget = (category: string, amount: number) => {
     setBudgets(prevBudgets => {
       const existingBudgetIndex = prevBudgets.findIndex(b => b.category === category);
-      if (existingBudgetIndex > -1) {
+      if (existingBudgetIndex > -1 && editingBudget && prevBudgets[existingBudgetIndex].id === editingBudget.id) {
         const updatedBudgets = [...prevBudgets];
-        updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() }; // Keep ID, update amount and timestamp
+        updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() };
         return updatedBudgets;
-      } else {
+      } else if (existingBudgetIndex === -1 && !editingBudget) { // Adding new budget
         const newBudget: Budget = {
           id: crypto.randomUUID(), 
           category,
@@ -102,6 +95,12 @@ export default function FinancialManagementPage() {
         };
         return [newBudget, ...prevBudgets];
       }
+      // If trying to add a budget for a category that already exists (but not editing that specific one)
+      // or some other edge case, don't change for now, or show a specific toast.
+      // For simplicity, this implementation prioritizes editing or adding new distinct categories.
+      // If an existingBudget is set but its category doesn't match, it implies user changed category in a non-existent edit UI for category itself.
+      // The current form disables category change on edit, so this scenario should be less likely.
+      return prevBudgets;
     });
     toast({
       title: editingBudget ? "بودجه ویرایش شد" : "بودجه تنظیم شد",
@@ -110,9 +109,9 @@ export default function FinancialManagementPage() {
     setEditingBudget(null); 
   };
 
-  const handleDeleteBudget = (categoryId: string) => { 
-    const budgetToDelete = budgets.find(b => b.id === categoryId);
-    setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== categoryId));
+  const handleDeleteBudget = (budgetId: string) => { 
+    const budgetToDelete = budgets.find(b => b.id === budgetId);
+    setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== budgetId));
      if (budgetToDelete) {
         toast({
         title: "بودجه حذف شد",
@@ -120,7 +119,7 @@ export default function FinancialManagementPage() {
         variant: "destructive",
         });
     }
-     if (editingBudget?.id === categoryId) {
+     if (editingBudget?.id === budgetId) {
       setEditingBudget(null);
     }
   };
@@ -129,7 +128,6 @@ export default function FinancialManagementPage() {
     setEditingBudget(budgetToEdit);
   };
 
-  // Asset Management Handlers
   const handleSaveAsset = (assetData: Omit<FinancialAsset, 'id' | 'createdAt' | 'lastValueUpdate'>, isEditingExisting: boolean) => {
     if (isEditingExisting && editingAsset) {
       const updatedAsset: FinancialAsset = {
@@ -163,7 +161,6 @@ export default function FinancialManagementPage() {
     }
   };
 
-  // Investment Management Handlers
   const handleSaveInvestment = (investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditingExisting: boolean) => {
     const nowISO = new Date().toISOString();
     if (isEditingExisting && editingInvestment) {
@@ -198,7 +195,6 @@ export default function FinancialManagementPage() {
     }
   };
 
-  // Savings Goal Handlers
   const handleSaveSavingsGoal = (goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => {
     if (isEditing && editingSavingsGoal) {
       const updatedGoal: SavingsGoal = {
@@ -242,7 +238,7 @@ export default function FinancialManagementPage() {
           return { 
             ...goal, 
             currentAmount: newCurrentAmount,
-            status: newCurrentAmount >= goal.targetAmount ? 'achieved' : goal.status
+            status: newCurrentAmount >= goal.targetAmount && goal.status === 'active' ? 'achieved' : goal.status // Only auto-achieve if active
           };
         }
         return goal;
@@ -261,50 +257,35 @@ export default function FinancialManagementPage() {
 
 
   const chartData = useMemo(() => {
-    if (!isClient || transactions.length === 0) { 
-      return [];
-    }
-
     const monthlyData: { [key: string]: { year: number; monthIndex: number; name: string; درآمد: number; هزینه: number } } = {};
-
     transactions.forEach(transaction => {
       const date = parseISO(transaction.date);
       const year = getYear(date);
       const monthIndex = getMonth(date);
       const key = `${year}-${monthIndex}`;
-
       if (!monthlyData[key]) {
-        monthlyData[key] = {
-          year,
-          monthIndex,
-          name: `${persianMonthNames[monthIndex]} - ${year}`,
-          درآمد: 0,
-          هزینه: 0,
-        };
+        monthlyData[key] = { year, monthIndex, name: `${persianMonthNames[monthIndex]} - ${year}`, درآمد: 0, هزینه: 0 };
       }
-
-      if (transaction.type === 'income') {
-        monthlyData[key].درآمد += transaction.amount;
-      } else {
-        monthlyData[key].هزینه += transaction.amount;
-      }
+      if (transaction.type === 'income') monthlyData[key].درآمد += transaction.amount;
+      else monthlyData[key].هزینه += transaction.amount;
     });
+    return Object.values(monthlyData).sort((a, b) => a.year !== b.year ? a.year - b.year : a.monthIndex - b.monthIndex);
+  }, [transactions]);
 
-    return Object.values(monthlyData)
-      .sort((a, b) => {
-        if (a.year !== b.year) {
-          return a.year - b.year;
-        }
-        return a.monthIndex - b.monthIndex;
-      });
-  }, [transactions, isClient]);
-
+  const totalInvestmentProfitLoss = useMemo(() => {
+    return investments.reduce((sum, investment) => {
+      const purchaseCost = (investment.quantity * investment.purchasePricePerUnit) + investment.fees;
+      const currentValue = investment.quantity * investment.currentPricePerUnit;
+      return sum + (currentValue - purchaseCost);
+    }, 0);
+  }, [investments]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value);
   };
 
   return (
+    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -328,35 +309,20 @@ export default function FinancialManagementPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <Tabs defaultValue="transactions" className="w-full">
-              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5 mb-6 rounded-full bg-primary/10 p-1">
-                <TabsTrigger
-                  value="transactions"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
+              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-5 mb-6 rounded-full bg-primary/10 p-1 h-auto">
+                <TabsTrigger value="transactions" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <Wallet className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> تراکنش‌ها
                 </TabsTrigger>
-                <TabsTrigger
-                  value="budgeting"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
+                <TabsTrigger value="budgeting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <Landmark className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> بودجه‌بندی
                 </TabsTrigger>
-                <TabsTrigger
-                  value="assets"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
+                <TabsTrigger value="assets" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <Building className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> دارایی‌ها
                 </TabsTrigger>
-                <TabsTrigger
-                  value="investments"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
+                <TabsTrigger value="investments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <TrendingUp className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> سرمایه‌گذاری
                 </TabsTrigger>
-                <TabsTrigger
-                  value="savings"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
+                <TabsTrigger value="savings" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <PiggyBank className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف پس‌انداز
                 </TabsTrigger>
               </TabsList>
@@ -366,48 +332,15 @@ export default function FinancialManagementPage() {
                 <TransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
                 <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
                   <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (به تومان)</h4>
-                  {isClient ? (
-                    chartData.length > 0 ? (
+                  {chartData.length > 0 ? (
                       <div style={{ width: '100%', height: 350 }}>
                         <ResponsiveContainer>
-                          <BarChart
-                            data={chartData}
-                            margin={{
-                              top: 5,
-                              right: 5,
-                              left: 30, 
-                              bottom: 70, 
-                            }}
-                            dir="rtl"
-                          >
+                          <BarChart data={chartData} margin={{ top: 5, right: 5, left: 30, bottom: 70 }} dir="rtl">
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                            <XAxis 
-                              dataKey="name" 
-                              angle={-45} 
-                              textAnchor="end" 
-                              height={50} 
-                              interval={0} 
-                              tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
-                              stroke="hsl(var(--foreground))"
-                            />
-                            <YAxis 
-                              tickFormatter={value => formatCurrency(value)} 
-                              tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
-                              stroke="hsl(var(--foreground))"
-                            />
-                            <Tooltip
-                              formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name === 'درآمد' ? 'درآمد' : 'هزینه']}
-                              wrapperClassName="rounded-md shadow-lg !bg-popover !border-border"
-                              contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}}
-                              itemStyle={{color: 'hsl(var(--popover-foreground))'}}
-                              labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}}
-                              cursor={{fill: 'hsl(var(--muted))'}}
-                            />
-                            <Legend 
-                              formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} 
-                              wrapperStyle={{direction: 'rtl', paddingTop: '10px'}}
-                              payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}
-                            />
+                            <XAxis dataKey="name" angle={-45} textAnchor="end" height={50} interval={0} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
+                            <YAxis tickFormatter={value => formatCurrency(value)} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
+                            <Tooltip formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
+                            <Legend formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} wrapperStyle={{direction: 'rtl', paddingTop: '10px'}} payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}/>
                             <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
                             <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
                           </BarChart>
@@ -418,14 +351,8 @@ export default function FinancialManagementPage() {
                         <p>داده‌ای برای نمایش در نمودار وجود ندارد. لطفاً ابتدا تراکنش‌های خود را ثبت کنید.</p>
                       </div>
                     )
-                  ) : (
-                    <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
-                      در حال بارگذاری نمودار...
-                    </div>
-                  )}
-                  <p className="text-muted-foreground text-sm mt-4 text-center">
-                    این نمودار، درآمدها و هزینه‌های ثبت شده شما را به تفکیک ماه نمایش می‌دهد.
-                  </p>
+                  }
+                  <p className="text-muted-foreground text-sm mt-4 text-center">این نمودار، درآمدها و هزینه‌های ثبت شده شما را به تفکیک ماه نمایش می‌دهد.</p>
                 </div>
               </TabsContent>
 
@@ -510,6 +437,23 @@ export default function FinancialManagementPage() {
                   </CardHeader>
                   <CardContent>
                     <CreateInvestmentForm onSaveInvestment={handleSaveInvestment} existingInvestment={editingInvestment} />
+                    {investments.length > 0 && (
+                        <Card className="mt-6 bg-primary/10 p-4">
+                            <CardHeader className="p-2 pb-1">
+                                <CardTitle className="text-md text-primary flex items-center">
+                                    <Sigma className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/>
+                                    خلاصه پورتفوی سرمایه‌گذاری
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-2 text-sm">
+                                <p>مجموع سود/زیان کل: 
+                                    <span className={cn("font-semibold", totalInvestmentProfitLoss >= 0 ? "text-green-600" : "text-red-600")}>
+                                        {formatCurrency(totalInvestmentProfitLoss)}
+                                    </span>
+                                </p>
+                            </CardContent>
+                        </Card>
+                    )}
                     <InvestmentList investments={investments} onDeleteInvestment={handleDeleteInvestment} onEditInvestment={setEditingInvestment} />
                     
                      <div className="mt-8 p-4 border rounded-md bg-secondary/30">
@@ -517,7 +461,6 @@ export default function FinancialManagementPage() {
                         <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
                           <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها.</li>
                           <li>اتصال به API برای دریافت قیمت‌های لحظه‌ای (در صورت امکان).</li>
-                          <li>محاسبه مجموع سود/زیان کل پورتفوی سرمایه‌گذاری.</li>
                         </ul>
                       </div>
                   </CardContent>
@@ -561,5 +504,6 @@ export default function FinancialManagementPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
+    </ClientOnly>
   );
 }

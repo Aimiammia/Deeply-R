@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSign, Edit3 } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSign, Edit3, TrendingUp } from 'lucide-react'; // Added TrendingUp
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -26,7 +26,7 @@ import {
 interface SavingsGoalItemProps {
   goal: SavingsGoal;
   onDeleteGoal: (id: string) => void;
-  onEditGoal: (goal: SavingsGoal) => void; // To open form with existing data
+  onEditGoal: (goal: SavingsGoal) => void; 
   onAddFunds: (id: string, amount: number) => void;
   onSetStatus: (id: string, status: SavingsGoal['status']) => void;
 }
@@ -41,6 +41,7 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
 
   const progressPercentage = goal.targetAmount > 0 ? Math.min((goal.currentAmount / goal.targetAmount) * 100, 100) : 0;
   const isAchieved = goal.status === 'achieved' || goal.currentAmount >= goal.targetAmount;
+  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
 
   const handleAddFundsSubmit = () => {
     if (fundsToAdd !== '' && Number(fundsToAdd) > 0) {
@@ -52,24 +53,24 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
   
   const getStatusTextAndColor = () => {
     switch(goal.status) {
-      case 'active': return { text: 'فعال', color: 'bg-blue-500' };
-      case 'achieved': return { text: 'رسیده شده', color: 'bg-green-500' };
-      case 'cancelled': return { text: 'لغو شده', color: 'bg-red-500' };
-      default: return { text: 'نامشخص', color: 'bg-gray-500' };
+      case 'active': return { text: 'فعال', color: 'bg-blue-500 hover:bg-blue-600' };
+      case 'achieved': return { text: 'رسیده شده', color: 'bg-green-500 hover:bg-green-600' };
+      case 'cancelled': return { text: 'لغو شده', color: 'bg-red-500 hover:bg-red-600' };
+      default: return { text: 'نامشخص', color: 'bg-gray-500 hover:bg-gray-600' };
     }
   };
   const statusInfo = getStatusTextAndColor();
 
 
   return (
-    <li className={cn("p-4 border rounded-lg shadow-sm bg-card mb-4", isAchieved && "border-green-500 bg-green-500/10")}>
+    <li className={cn("p-4 border rounded-lg shadow-sm bg-card mb-4", isAchieved && "border-green-500 bg-green-500/5")}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-grow">
-          <h4 className={cn("text-lg font-semibold flex items-center", isAchieved ? "text-green-700" : "text-primary")}>
+          <h4 className={cn("text-lg font-semibold flex items-center", isAchieved ? "text-green-700 dark:text-green-400" : "text-primary")}>
             <PiggyBank className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0 flex-shrink-0" />
             {goal.name}
           </h4>
-          <Badge variant="outline" className={cn("text-xs mt-1", statusInfo.color, "text-white")}>{statusInfo.text}</Badge>
+          <Badge variant="default" className={cn("text-xs mt-1 text-white", statusInfo.color)}>{statusInfo.text}</Badge>
         </div>
         <div className="flex items-center space-x-1 rtl:space-x-reverse flex-shrink-0">
           <Button variant="ghost" size="icon" onClick={() => onEditGoal(goal)} aria-label="ویرایش هدف" disabled={goal.status === 'achieved' || goal.status === 'cancelled'}>
@@ -108,6 +109,15 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
           <p className="text-muted-foreground">پس‌انداز شده:</p>
           <p className="font-medium">{formatCurrency(goal.currentAmount)}</p>
         </div>
+        {remainingAmount > 0 && !isAchieved && (
+             <div>
+                <p className="text-muted-foreground">مبلغ باقیمانده:</p>
+                <p className="font-medium text-orange-600 dark:text-orange-400 flex items-center">
+                     <TrendingUp className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0"/>
+                    {formatCurrency(remainingAmount)}
+                </p>
+            </div>
+        )}
         {goal.targetDate && (
           <div>
             <p className="text-muted-foreground">تاریخ هدف:</p>
@@ -120,9 +130,9 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
       </div>
       
       <div className="mb-3">
-        <Progress value={progressPercentage} className={cn("w-full h-3", isAchieved && "bg-green-500")} />
+        <Progress value={progressPercentage} className={cn("w-full h-3 rounded-full [&>div]:rounded-full", isAchieved && "bg-green-500/30 [&>div]:bg-green-500")} />
         <p className="text-xs text-muted-foreground mt-1 text-right rtl:text-left">
-          {progressPercentage.toFixed(0)}٪ تکمیل شده
+          {progressPercentage.toFixed(0).toLocaleString('fa-IR')}٪ تکمیل شده
         </p>
       </div>
 
@@ -158,7 +168,7 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
       )}
       
       {isAchieved && goal.status !== 'achieved' && (
-        <Button variant="default" size="sm" onClick={() => onSetStatus(goal.id, 'achieved')} className="w-full sm:w-auto mt-2 bg-green-600 hover:bg-green-700">
+        <Button variant="default" size="sm" onClick={() => onSetStatus(goal.id, 'achieved')} className="w-full sm:w-auto mt-2 bg-green-600 hover:bg-green-700 text-white">
             <CheckCircle className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0" /> علامت‌گذاری به عنوان رسیده شده
         </Button>
       )}
@@ -168,8 +178,7 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
         </Button>
        )}
 
-
-      <p className="text-xs text-muted-foreground mt-3 text-right">
+      <p className="text-xs text-muted-foreground mt-3 text-right rtl:text-left">
         ایجاد شده در: {format(parseISO(goal.createdAt), "PPP", { locale: faIR })}
       </p>
     </li>

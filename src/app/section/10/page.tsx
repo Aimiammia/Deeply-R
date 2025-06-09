@@ -5,26 +5,37 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PieChart, ClipboardList, Target, FileText, Sparkles, Brain, Loader2, AlertCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import type { Task, LongTermGoal, DailyActivityLogEntry } from '@/types';
-import { format, parseISO } from 'date-fns';
+import { ArrowLeft, PieChart, ClipboardList, Target, FileText, Sparkles, Brain, Loader2, AlertCircle, Activity, CalendarRange } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import type { Task, LongTermGoal, DailyActivityLogEntry, ReflectionEntry, FinancialTransaction } from '@/types'; // Added ReflectionEntry, FinancialTransaction
+import { format, parseISO, subDays, isWithinInterval } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from "@/hooks/use-toast";
 import { assessGoalProgress, type AssessGoalProgressInput, type AssessGoalProgressOutput } from '@/ai/flows/assess-goal-progress-flow';
+import { Separator } from '@/components/ui/separator';
+import { ClientOnly } from '@/components/ClientOnly';
 
 const MAX_PREVIEW_ITEMS = 3;
 
+interface ActivitySummary {
+  tasksCompleted: number;
+  reflectionsMade: number;
+  incomeTotal: number;
+  expenseTotal: number;
+}
+
 export default function IntelligentAnalysisPage() {
   const sectionTitle = "تحلیل هوشمند و گزارش جامع";
-  const sectionPageDescription = "مرکز تحلیل داده‌های برنامه شما با پیش‌نمایش از بخش‌های کلیدی و بینش‌های هوشمند.";
+  const sectionPageDescription = "مرکز تحلیل داده‌های برنامه شما با پیش‌نمایش از بخش‌های کلیدی، بینش‌های هوشمند و خلاصه‌های فعالیت.";
   const { toast } = useToast();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [longTermGoals, setLongTermGoals] = useState<LongTermGoal[]>([]);
   const [activityLogs, setActivityLogs] = useState<DailyActivityLogEntry[]>([]);
+  const [reflections, setReflections] = useState<ReflectionEntry[]>([]); // Added
+  const [transactions, setTransactions] = useState<FinancialTransaction[]>([]); // Added
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
   const [goalAssessment, setGoalAssessment] = useState<string | null>(null);
@@ -41,12 +52,19 @@ export default function IntelligentAnalysisPage() {
 
       const storedLogs = localStorage.getItem('dailyActivityLogsDeeply');
       if (storedLogs) setActivityLogs(JSON.parse(storedLogs));
+      
+      const storedReflections = localStorage.getItem('dailyReflections'); // Added
+      if (storedReflections) setReflections(JSON.parse(storedReflections));
+
+      const storedTransactions = localStorage.getItem('financialTransactions'); // Added
+      if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
 
     } catch (error) {
       console.error("Failed to parse data from localStorage for Section 10", error);
+      toast({ title: "خطا در بارگذاری داده", description: "برخی از داده‌ها از حافظه محلی به درستی بارگذاری نشدند.", variant: "destructive" });
     }
     setIsInitialLoadComplete(true);
-  }, []);
+  }, [toast]);
 
   const handleAssessGoalProgress = async () => {
     if (!isInitialLoadComplete) {
@@ -86,6 +104,33 @@ export default function IntelligentAnalysisPage() {
     }
   };
 
+  const calculateActivitySummary = (days: number): ActivitySummary => {
+    const endDate = new Date();
+    const startDate = subDays(endDate, days - 1); // -1 because we want 'days' inclusive, e.g. 7 days ago up to today
+    
+    const tasksCompleted = tasks.filter(task => 
+        task.completed && isWithinInterval(parseISO(task.createdAt), { start: startDate, end: endDate })
+    ).length;
+
+    const reflectionsMade = reflections.filter(reflection =>
+        isWithinInterval(parseISO(reflection.date), { start: startDate, end: endDate })
+    ).length;
+    
+    const periodTransactions = transactions.filter(transaction => 
+        isWithinInterval(parseISO(transaction.date), {start: startDate, end: endDate})
+    );
+    const incomeTotal = periodTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenseTotal = periodTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+    return { tasksCompleted, reflectionsMade, incomeTotal, expenseTotal };
+  };
+
+  const weeklySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(7) : null, [tasks, reflections, transactions, isInitialLoadComplete]);
+  const monthlySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(30) : null, [tasks, reflections, transactions, isInitialLoadComplete]);
+  
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
+  };
 
   const upcomingTasks = tasks
     .filter(task => !task.completed)
@@ -121,6 +166,7 @@ export default function IntelligentAnalysisPage() {
   };
 
   return (
+    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -143,7 +189,7 @@ export default function IntelligentAnalysisPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6 space-y-8">
-            {/* AI Goal Assessment Section */}
+            
             <Card className="bg-primary/10">
               <CardHeader>
                 <div className="flex items-center">
@@ -187,7 +233,55 @@ export default function IntelligentAnalysisPage() {
               </CardContent>
             </Card>
 
-            {/* Daily Planner Preview */}
+            <Separator />
+
+            <Card className="bg-secondary/30">
+                <CardHeader>
+                    <div className="flex items-center">
+                        <Activity className="mr-3 h-6 w-6 text-primary rtl:ml-3 rtl:mr-0" />
+                        <CardTitle className="text-xl text-primary">خلاصه فعالیت</CardTitle>
+                    </div>
+                    <CardDescription>نگاهی کلی به فعالیت‌های شما در بازه‌های زمانی اخیر.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {isInitialLoadComplete ? (
+                        <>
+                            {weeklySummary && (
+                                <div className="p-4 border rounded-md bg-card shadow-sm">
+                                    <h4 className="text-md font-semibold text-foreground mb-2 flex items-center"><CalendarRange className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-primary/80"/> هفته گذشته (۷ روز اخیر)</h4>
+                                    <ul className="space-y-1 text-sm">
+                                        <li>وظایف انجام شده: <span className="font-semibold">{weeklySummary.tasksCompleted.toLocaleString('fa-IR')}</span> مورد</li>
+                                        <li>تأملات ثبت شده: <span className="font-semibold">{weeklySummary.reflectionsMade.toLocaleString('fa-IR')}</span> مورد</li>
+                                        <li>مجموع درآمد: <span className="font-semibold text-green-600">{formatCurrency(weeklySummary.incomeTotal)}</span></li>
+                                        <li>مجموع هزینه: <span className="font-semibold text-red-600">{formatCurrency(weeklySummary.expenseTotal)}</span></li>
+                                    </ul>
+                                </div>
+                            )}
+                            {monthlySummary && (
+                                <div className="p-4 border rounded-md bg-card shadow-sm">
+                                    <h4 className="text-md font-semibold text-foreground mb-2 flex items-center"><CalendarRange className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-primary/80"/> ماه گذشته (۳۰ روز اخیر)</h4>
+                                    <ul className="space-y-1 text-sm">
+                                        <li>وظایف انجام شده: <span className="font-semibold">{monthlySummary.tasksCompleted.toLocaleString('fa-IR')}</span> مورد</li>
+                                        <li>تأملات ثبت شده: <span className="font-semibold">{monthlySummary.reflectionsMade.toLocaleString('fa-IR')}</span> مورد</li>
+                                        <li>مجموع درآمد: <span className="font-semibold text-green-600">{formatCurrency(monthlySummary.incomeTotal)}</span></li>
+                                        <li>مجموع هزینه: <span className="font-semibold text-red-600">{formatCurrency(monthlySummary.expenseTotal)}</span></li>
+                                    </ul>
+                                </div>
+                            )}
+                            {(tasks.length === 0 && reflections.length === 0 && transactions.length === 0) && (
+                                <p className="text-muted-foreground text-center py-4">داده‌ای برای نمایش خلاصه فعالیت وجود ندارد.</p>
+                            )}
+                        </>
+                    ) : (
+                         <div className="flex items-center justify-center p-6">
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> در حال بارگذاری خلاصه فعالیت...
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            <Separator />
+
             <Card className="bg-secondary/30">
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -220,7 +314,6 @@ export default function IntelligentAnalysisPage() {
               </CardContent>
             </Card>
 
-            {/* Long-Term Planning Preview */}
             <Card className="bg-secondary/30">
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -253,7 +346,6 @@ export default function IntelligentAnalysisPage() {
               </CardContent>
             </Card>
 
-            {/* Daily Activity Log Preview */}
             <Card className="bg-secondary/30">
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -290,7 +382,7 @@ export default function IntelligentAnalysisPage() {
             <div className="mt-12 p-6 border rounded-lg bg-primary/5 shadow-inner">
               <h3 className="text-xl font-semibold text-primary mb-3 text-center">سایر بینش‌های هوشمند (آینده)</h3>
               <p className="text-muted-foreground text-center mb-4">
-                در آینده، این بخش می‌تواند تحلیل‌های بیشتری ارائه دهد، مانند:
+                در آینده، این بخش می‌تواند تحلیل‌های هوش مصنوعی بیشتری ارائه دهد، مانند:
               </p>
               <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90 max-w-xl mx-auto">
                 <li>شناسایی الگوهای بهره‌وری بر اساس وظایف انجام شده و فعالیت‌های روزانه.</li>
@@ -306,5 +398,6 @@ export default function IntelligentAnalysisPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
+    </ClientOnly>
   );
 }

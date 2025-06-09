@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked } from 'lucide-react';
+import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,7 +24,8 @@ import {
 import { parseISO, format } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
-import type { EducationalLevelStorage } from '@/types';
+import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
+import { educationalSubjects, type Subject as EducationalSubjectType } from '@/lib/educational-data';
 
 
 const educationalLevels = [
@@ -61,12 +62,12 @@ function findNextLevelValue(currentValue: string): string | undefined {
 const initialEducationalSettings: EducationalLevelStorage = {
   levelValue: '',
   isConfirmed: false,
-  lastPromotionCheckDate: new Date(1970, 0, 1).toISOString(), // Default to a very old date
+  lastPromotionCheckDate: new Date(1970, 0, 1).toISOString(),
 };
 
 export default function EducationPage() {
   const sectionTitle = "تحصیل و یادگیری";
-  const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، برنامه‌های درسی ایجاد نمایید (از طریق بخش ۱ - برنامه‌ریز) و به زودی از سایر قابلیت‌ها بهره‌مند شوید.";
+  const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
   const { toast } = useToast();
 
   const [educationalSettings, setEducationalSettings] = useDebouncedLocalStorage<EducationalLevelStorage>(
@@ -74,10 +75,19 @@ export default function EducationPage() {
     initialEducationalSettings
   );
   
+  const [subjectProgress, setSubjectProgress] = useDebouncedLocalStorage<EducationalSubjectUserProgress>(
+    'educationalSubjectProgressDeeply',
+    {}
+  );
+
   const [isClient, setIsClient] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [levelToConfirm, setLevelToConfirm] = useState<string | undefined>(undefined);
   const [transientSelectedLevel, setTransientSelectedLevel] = useState<string | undefined>(educationalSettings.levelValue);
+
+  const currentSubjectsForLevel: EducationalSubjectType[] = educationalSettings.isConfirmed && educationalSettings.levelValue
+    ? educationalSubjects[educationalSettings.levelValue] || []
+    : [];
 
   useEffect(() => {
     setIsClient(true);
@@ -140,14 +150,13 @@ export default function EducationPage() {
           duration: 7000,
         });
       } else {
-        // If no promotion occurred, still update the last check date to today to prevent re-checking on every load if it's past Mehr 1st.
         const todayISO = new Date().toISOString();
         if (educationalSettings.lastPromotionCheckDate !== todayISO) {
              setEducationalSettings(prev => ({...prev, lastPromotionCheckDate: todayISO }));
         }
       }
     }
-  }, [isClient, educationalSettings.isConfirmed, calculateAutoPromotion, toast, setEducationalSettings]);
+  }, [isClient, educationalSettings, calculateAutoPromotion, toast, setEducationalSettings]);
 
 
   const handleLevelChange = (value: string) => {
@@ -175,7 +184,7 @@ export default function EducationPage() {
         isConfirmed: true,
         lastPromotionCheckDate: currentDateISO,
       });
-      
+      setSubjectProgress({}); // Reset subject progress for new level
       toast({
         title: "مقطع تحصیلی ذخیره شد",
         description: `مقطع تحصیلی شما به "${educationalLevels.find(l => l.value === levelToConfirm)?.label}" تایید و ذخیره شد.`,
@@ -183,6 +192,16 @@ export default function EducationPage() {
     }
     setShowConfirmationDialog(false);
     setLevelToConfirm(undefined);
+  };
+
+  const handleSubjectStatusChange = (subjectId: string, status: SubjectProgress['status']) => {
+    setSubjectProgress(prev => ({
+      ...prev,
+      [subjectId]: {
+        ...(prev[subjectId] || { notes: null }), // Keep existing notes if any
+        status,
+      }
+    }));
   };
   
   const currentLevelLabel = educationalLevels.find(l => l.value === educationalSettings.levelValue)?.label;
@@ -255,7 +274,11 @@ export default function EducationPage() {
                     <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
                     مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
                   </p>
-                   <Button variant="link" size="sm" onClick={() => setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''})} className="mt-2 text-xs">
+                   <Button variant="link" size="sm" onClick={() => {
+                     setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''});
+                     // Do NOT reset subjectProgress here, user might want to change level but keep old progress for reference
+                     // It will be naturally orphaned or they can clear it if they re-confirm a new level.
+                    }} className="mt-2 text-xs">
                      تغییر مقطع تحصیلی
                    </Button>
                 </div>
@@ -270,7 +293,7 @@ export default function EducationPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>تایید مقطع تحصیلی</AlertDialogTitle>
                     <AlertDialogDescription>
-                      آیا از انتخاب مقطع تحصیلی "{educationalLevels.find(l => l.value === levelToConfirm)?.label}" مطمئن هستید؟ پس از تایید، این مقطع به صورت سالانه (اول مهر) به طور خودکار ارتقا پیدا خواهد کرد.
+                      آیا از انتخاب مقطع تحصیلی "{educationalLevels.find(l => l.value === levelToConfirm)?.label}" مطمئن هستید؟ پس از تایید، این مقطع به صورت سالانه (اول مهر) به طور خودکار ارتقا پیدا خواهد کرد و پیشرفت دروس فعلی شما (در صورت وجود) پاک خواهد شد.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -281,6 +304,40 @@ export default function EducationPage() {
               </AlertDialog>
             </div>
 
+            {isClient && educationalSettings.isConfirmed && currentSubjectsForLevel.length > 0 && (
+                <div className="mt-8 pt-6 border-t">
+                    <h3 className="text-xl font-semibold text-primary mb-4">پیگیری پیشرفت دروس ({currentLevelLabel})</h3>
+                    <div className="space-y-4">
+                        {currentSubjectsForLevel.map(subject => (
+                            <Card key={subject.id} className="bg-card shadow-sm">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-md">{subject.name}</CardTitle>
+                                    <CardDescription>تعداد کل فصول: {subject.totalChapters.toLocaleString('fa-IR')}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Label htmlFor={`status-${subject.id}`} className="text-xs">وضعیت مطالعه:</Label>
+                                    <Select
+                                        value={subjectProgress[subject.id]?.status || 'not-started'}
+                                        onValueChange={(value) => handleSubjectStatusChange(subject.id, value as SubjectProgress['status'])}
+                                    >
+                                        <SelectTrigger id={`status-${subject.id}`} className="mt-1">
+                                            <SelectValue placeholder="انتخاب وضعیت..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="not-started">شروع نشده</SelectItem>
+                                            <SelectItem value="in-progress">در حال مطالعه</SelectItem>
+                                            <SelectItem value="completed">مطالعه شده</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {/* Basic notes can be added here later if needed */}
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+
             <div className="mt-10 p-6 border rounded-lg bg-primary/5 shadow-inner">
               <h3 className="text-xl font-semibold text-primary mb-4 text-center">امکانات بخش تحصیل</h3>
               <p className="text-muted-foreground text-center mb-6">
@@ -289,7 +346,7 @@ export default function EducationPage() {
               </p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
-                    <CheckCircle className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <CheckSquare className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
                     <div>
                         <span className="font-semibold text-foreground">انتخاب و ارتقای خودکار مقطع تحصیلی</span>
                         <p className="text-xs text-muted-foreground">مقطع خود را انتخاب کنید تا برنامه به طور خودکار آن را ارتقا دهد.</p>
@@ -304,6 +361,13 @@ export default function EducationPage() {
                         </p>
                     </div>
                 </li>
+                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
+                    <TargetIcon className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">پیگیری پیشرفت در دروس</span>
+                        <p className="text-xs text-muted-foreground">وضعیت مطالعه هر درس (شروع نشده، در حال مطالعه، مطالعه شده) را مشخص کنید.</p>
+                    </div>
+                </li>
                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
                     <FileText className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
                     <div>
@@ -316,13 +380,6 @@ export default function EducationPage() {
                     <div>
                         <span className="font-semibold text-foreground">مدیریت منابع آموزشی (آینده)</span>
                         <p className="text-xs text-muted-foreground">سازماندهی کتاب‌ها، مقالات و ویدیوهای آموزشی مرتبط با هر درس و مقطع.</p>
-                    </div>
-                </li>
-                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                    <TargetIcon className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">پیگیری پیشرفت در دروس و آزمون‌ها (آینده)</span>
-                        <p className="text-xs text-muted-foreground">ثبت نمرات، وضعیت مطالعه فصول و تحلیل پیشرفت تحصیلی.</p>
                     </div>
                 </li>
                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
@@ -344,6 +401,13 @@ export default function EducationPage() {
                     <div>
                         <span className="font-semibold text-foreground">پیشنهاد منابع هوشمند (آینده)</span>
                         <p className="text-xs text-muted-foreground">دریافت پیشنهاد منابع آموزشی مرتبط با مقطع و رشته تحصیلی شما (نیازمند تکمیل اطلاعات رشته).</p>
+                    </div>
+                </li>
+                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                    <Edit className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-semibold text-foreground">پیگیری دقیق‌تر پیشرفت و آزمون‌ها (آینده)</span>
+                        <p className="text-xs text-muted-foreground">ثبت نمرات، تحلیل عملکرد و ...</p>
                     </div>
                 </li>
               </ul>
@@ -372,5 +436,3 @@ export default function EducationPage() {
     </div>
   );
 }
-
-    

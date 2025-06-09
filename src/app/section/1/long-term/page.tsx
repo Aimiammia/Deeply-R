@@ -19,19 +19,30 @@ export default function LongTermPlannerPage() {
   const { toast } = useToast();
   const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
 
-  const handleAddGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt' | 'status'>) => {
-    const newGoal: LongTermGoal = {
-      ...goalData,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      status: 'not-started',
-    };
-    setGoals(prevGoals => [newGoal, ...prevGoals]);
-    toast({
-      title: "هدف بلندمدت اضافه شد",
-      description: `هدف "${goalData.title}" با موفقیت اضافه شد.`,
-    });
+  const handleSaveGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
+    if (isEditing && goalData.id) { // Assuming goalData will have id if editing
+        const existingGoalId = goalData.id;
+         setGoals(prevGoals =>
+            prevGoals.map(goal =>
+            goal.id === existingGoalId ? { ...goal, ...goalData, title: goalData.title.trim() } : goal
+            )
+        );
+        toast({
+            title: "هدف بلندمدت ویرایش شد",
+            description: `هدف "${goalData.title}" با موفقیت ویرایش شد.`,
+        });
+    } else {
+        const newGoal: LongTermGoal = {
+            ...goalData,
+            id: crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+            status: goalData.status || 'not-started', // Ensure status is set
+        };
+        setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        // Toast is handled by the form now
+    }
   };
+
 
   const handleDeleteGoal = (id: string) => {
     const goalToDelete = goals.find(g => g.id === id);
@@ -44,18 +55,25 @@ export default function LongTermPlannerPage() {
       });
     }
   };
-
-  const handleEditGoal = (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
+  
+  const handleUpdateGoal = (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
     setGoals(prevGoals =>
       prevGoals.map(goal =>
-        goal.id === id ? { ...goal, ...updatedGoalData, title: updatedGoalData.title.trim() } : goal
+        goal.id === id ? { 
+            ...goal, 
+            ...updatedGoalData, 
+            title: updatedGoalData.title.trim(),
+            milestones: updatedGoalData.milestones || goal.milestones, // Ensure milestones are preserved or updated
+            successCriteria: updatedGoalData.successCriteria || goal.successCriteria 
+        } : goal
       )
     );
     toast({
-      title: "هدف بلندمدت ویرایش شد",
-      description: `هدف "${updatedGoalData.title}" با موفقیت ویرایش شد.`,
+      title: "هدف بلندمدت به‌روز شد",
+      description: `هدف "${updatedGoalData.title}" با موفقیت به‌روزرسانی شد.`,
     });
   };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -80,19 +98,17 @@ export default function LongTermPlannerPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
-            <CreateLongTermGoalForm onAddGoal={handleAddGoal} />
-            <LongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onEditGoal={handleEditGoal} />
+            <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} />
+            <LongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
             
             <div className="mt-12 p-6 border rounded-lg bg-secondary/30 shadow-inner">
                 <h4 className="text-xl font-semibold text-primary mb-3">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
                   <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
-                  <li>تقسیم اهداف بزرگ به وظایف کوچکتر و قابل مدیریت (نقاط عطف و وظایف فرعی)</li>
                   <li>نمودار پیشرفت بصری و پیگیری نقاط عطف (Milestones)</li>
                   <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
                   <li>اتصال اهداف بلندمدت به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
-                  <li>امکان تعریف معیارهای موفقیت برای هر هدف</li>
-                  <li>بخش تحلیل و بازبینی اهداف</li>
+                  <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>
                 </ul>
                  <Image 
                     src="https://placehold.co/600x350.png" 
