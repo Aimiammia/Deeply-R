@@ -96,7 +96,7 @@ export default function SectionNineLongTermPlannerPage() {
                 </ul>
                  <Image 
                     src="https://placehold.co/600x350.png" 
-                    alt="Future planning illustration" 
+                    alt="تصویر مفهومی برنامه‌ریزی آینده و استراتژی" 
                     width={600} 
                     height={350}
                     className="rounded-md mx-auto shadow-md mt-6 opacity-70"

@@ -42,7 +42,7 @@ export default function SportsPage() {
             </p>
             <Image
               src="https://placehold.co/600x400.png"
-              alt="Sports and Exercise Placeholder"
+              alt="تصویر مفهومی ورزش، تمرین و تناسب اندام"
               width={600}
               height={400}
               className="rounded-md mx-auto shadow-md"

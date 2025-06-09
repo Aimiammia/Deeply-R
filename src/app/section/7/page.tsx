@@ -296,7 +296,7 @@ export default function EducationPage() {
                     </div>
                 </li>
                  <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
-                    <ListChecks className="ml-3 h-5 w-5 text-blue-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                    <ListChecks className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
                     <div>
                         <span className="font-semibold text-foreground">ایجاد برنامه مطالعاتی و زمان‌بندی</span>
                         <p className="text-xs text-muted-foreground">
@@ -356,7 +356,7 @@ export default function EducationPage() {
               </p>
               <Image
                 src="https://placehold.co/500x300.png"
-                alt="Education and Study Placeholder"
+                alt="تصویر مفهومی تحصیل، یادگیری و مطالعه"
                 width={500}
                 height={300}
                 className="rounded-md mx-auto shadow-md mt-6 opacity-80"

@@ -42,7 +42,7 @@ export default function GoalsAndHabitsPage() {
             </p>
             <Image
               src="https://placehold.co/600x400.png"
-              alt="Goals and Habits Placeholder"
+              alt="تصویر مفهومی اهداف و شکل‌گیری عادت‌ها"
               width={600}
               height={400}
               className="rounded-md mx-auto shadow-md"

@@ -42,7 +42,7 @@ export default function LanguageLearningPage() {
             </p>
             <Image
               src="https://placehold.co/600x350.png"
-              alt="Language Learning Placeholder"
+              alt="تصویر مفهومی یادگیری زبان با کتاب‌ها و ابزارها"
               width={600}
               height={350}
               className="rounded-md mx-auto shadow-md"

@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Vazirmatn', 'sans-serif'],
-        headline: ['Vazirmatn', 'sans-serif'],
+        body: ['var(--font-vazirmatn)', 'sans-serif'], // Use CSS variable from next/font
+        headline: ['var(--font-vazirmatn)', 'sans-serif'], // Use CSS variable from next/font
         code: ['monospace'],
       },
       colors: {
