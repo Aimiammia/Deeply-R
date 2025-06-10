@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 interface BudgetItemProps {
   budget: Budget;
   transactions: FinancialTransaction[];
-  onDeleteBudget: (categoryId: string) => void; // Changed from categoryId: string to id: string
+  onDeleteBudget: (budgetId: string) => void; 
   onEditBudget: (budget: Budget) => void; 
 }
 
@@ -68,7 +68,7 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>لغو</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDeleteBudget(budget.id)} variant="destructive"> {/* Changed budget.category to budget.id */}
+                <AlertDialogAction onClick={() => onDeleteBudget(budget.id)} variant="destructive"> 
                   حذف بودجه
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -83,12 +83,12 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
         
         {isOverBudget ? (
           <p className="text-destructive font-medium flex items-center">
-            <TrendingDown className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0" /> {/* Using TrendingDown for over budget */}
+            <TrendingDown className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0" /> 
             {formatCurrency(Math.abs(remainingAmount))} بیش از بودجه
           </p>
         ) : (
           <p className="text-foreground font-medium flex items-center">
-             <TrendingUp className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0 text-green-600" /> {/* Using TrendingUp for remaining */}
+             <TrendingUp className="mr-1 h-4 w-4 rtl:ml-1 rtl:mr-0 text-green-600" /> 
             باقی‌مانده: {formatCurrency(remainingAmount)}
           </p>
         )}
@@ -99,13 +99,10 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
         className={cn(
             "w-full h-3 rounded-full", 
             progressPercentage > 100 ? "bg-destructive/20" : "bg-secondary",
-            "[&>div]:rounded-full" // Ensure indicator is also rounded
+            "[&>div]:rounded-full" 
         )}
         style={{ 
-            // Custom styling for progress indicator when over budget
-            // This is a bit tricky with ShadCN's Progress component structure.
-            // The indicator's width is controlled by translateX.
-            // We will primarily rely on the color of the text and potentially the bar track for >100%.
+            
         }}
       >
         <div
@@ -113,7 +110,7 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
                 "h-full transition-all",
                 isOverBudget ? "bg-destructive" : "bg-primary"
             )}
-            style={{ width: `${Math.min(progressPercentage, 100)}%` }} // Cap width at 100% for visual
+            style={{ width: `${Math.min(progressPercentage, 100)}%` }} 
         />
       </Progress>
 
@@ -123,7 +120,7 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
             از بودجه عبور کرده‌اید!
         </p>
       )}
-      {!isOverBudget && progressPercentage > 80 && (
+      {!isOverBudget && progressPercentage > 80 && progressPercentage <= 100 && (
         <p className="text-xs text-orange-500 mt-1 text-right rtl:text-left flex items-center justify-end">
             <Info className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0"/>
             نزدیک به سقف بودجه!

@@ -31,9 +31,10 @@ export function CreateBudgetForm({ onSetBudget, existingBudget }: CreateBudgetFo
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (selectedCategory && budgetAmount && budgetAmount > 0) {
+    if (selectedCategory && budgetAmount && Number(budgetAmount) > 0) {
       onSetBudget(selectedCategory, Number(budgetAmount));
-      // Optionally reset form if not editing, or handled by parent
+      // Resetting is handled by useEffect when existingBudget prop changes to null via parent,
+      // or if it was never an existingBudget (i.e., adding new)
       if (!existingBudget) {
         setSelectedCategory('');
         setBudgetAmount('');
@@ -83,7 +84,7 @@ export function CreateBudgetForm({ onSetBudget, existingBudget }: CreateBudgetFo
         />
       </div>
       
-      <Button type="submit" disabled={!selectedCategory || !budgetAmount || budgetAmount <= 0} className="w-full">
+      <Button type="submit" disabled={!selectedCategory || !budgetAmount || Number(budgetAmount) <= 0} className="w-full">
         <Settings2 className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
         {existingBudget ? 'ذخیره تغییرات بودجه' : 'تنظیم بودجه'}
       </Button>
