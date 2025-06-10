@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 export default function SectionNineLongTermPlannerPage() {
-  const sectionTitle = "برنامه‌ریزی بلند مدت";
+  const sectionTitle = "اهداف بلندمدت"; // Title changed
   const sectionPageDescription = "اهداف بزرگتر و برنامه‌های طولانی‌مدت خود را در این بخش تعریف و پیگیری کنید.";
   const { toast } = useToast();
   const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
@@ -87,7 +87,7 @@ export default function SectionNineLongTermPlannerPage() {
             <div className="flex items-center space-x-3 rtl:space-x-reverse">
                 <Target className="h-7 w-7 text-primary" />
                 <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
+                {sectionTitle} {/* Title variable used here */}
                 </CardTitle>
             </div>
             <CardDescription className="text-muted-foreground">
@@ -102,7 +102,7 @@ export default function SectionNineLongTermPlannerPage() {
                 <h4 className="text-xl font-semibold text-primary mb-3">قابلیت‌های آینده:</h4>
                 <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
                   <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
-                  <li>نمودار پیشرفت بصری و پیگیری نقاط عطف (Milestones)</li>
+                  <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
                   <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
                   <li>اتصال اهداف بلندمدت به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
                   <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>

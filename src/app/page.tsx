@@ -74,9 +74,9 @@ export default function HomePage() {
               sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
               sectionContent = "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید.";
             } else if (sectionNumber === 5) {
-              sectionTitle = "ردیاب عادت‌ها"; // Changed Title
-              sectionDescription = "عادت‌های مثبت خود را ایجاد و پیگیری کنید"; // Changed Description
-              sectionContent = "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."; // Changed Content
+              sectionTitle = "ردیاب عادت‌ها"; 
+              sectionDescription = "عادت‌های مثبت خود را ایجاد و پیگیری کنید"; 
+              sectionContent = "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."; 
             } else if (sectionNumber === 6) {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
@@ -90,9 +90,10 @@ export default function HomePage() {
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
               sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "برنامه‌ریزی بلند مدت"; 
+              sectionTitle = "اهداف بلندمدت"; 
               sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
               sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
+              sectionLink = `/section/9`;
             } else if (sectionNumber === 10) {
               sectionTitle = "تحلیل هوشمند و گزارش جامع";
               sectionDescription = "مرکز تحلیل داده‌های برنامه با استفاده از هوش مصنوعی.";

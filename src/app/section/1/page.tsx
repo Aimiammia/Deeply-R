@@ -143,7 +143,7 @@ export default function PlannerLandingPage() {
                   value="long-term"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
-                  <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> برنامه‌ریزی بلند مدت
+                  <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف بلندمدت
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="short-term" className="space-y-6">
@@ -162,21 +162,20 @@ export default function PlannerLandingPage() {
                 <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">مدیریت اهداف بلندمدت</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  اهداف بزرگ و برنامه‌های طولانی‌مدت خود را در صفحه اختصاصی برنامه‌ریز بلندمدت تعریف، پیگیری و مدیریت کنید.
+                  اهداف بزرگ و برنامه‌های طولانی‌مدت خود را در صفحه اختصاصی اهداف بلندمدت تعریف، پیگیری و مدیریت کنید.
                 </p>
                 <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-                  <Link href="/section/1/long-term">
+                  <Link href="/section/9"> {/* Link changed to /section/9 */}
                      <ChevronLeftSquare className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                    رفتن به برنامه‌ریز بلندمدت
+                    رفتن به صفحه اهداف بلندمدت
                   </Link>
                 </Button>
                  <div className="mt-10 p-4 border rounded-md bg-secondary/30 max-w-lg mx-auto">
-                    <h4 className="text-lg font-semibold text-primary mb-2">در صفحه برنامه‌ریز بلندمدت شما می‌توانید:</h4>
+                    <h4 className="text-lg font-semibold text-primary mb-2">در صفحه اهداف بلندمدت شما می‌توانید:</h4>
                     <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                      <li>اهداف بلندمدت خود را با عنوان، توضیحات و تاریخ هدف تعریف کنید.</li>
+                      <li>اهداف بلندمدت خود را با عنوان، توضیحات، تاریخ هدف، معیار موفقیت و نقاط عطف تعریف کنید.</li>
                       <li>لیست اهداف خود را مشاهده، ویرایش و حذف نمایید.</li>
-                      <li>وضعیت هر هدف را مشخص کنید (شروع نشده، در حال انجام، تکمیل شده، متوقف شده).</li>
-                      <li>و به زودی قابلیت‌های پیشرفته‌تری مانند اهداف SMART و تقسیم وظایف اضافه خواهد شد.</li>
+                      <li>وضعیت هر هدف و نقاط عطف آن را مشخص کنید.</li>
                     </ul>
                   </div>
               </TabsContent>
