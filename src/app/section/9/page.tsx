@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Target } from 'lucide-react';
+import { ArrowLeft, Target, BookOpen } from 'lucide-react'; // Added BookOpen
 import Image from 'next/image';
 import type { LongTermGoal } from '@/types';
 import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm';
@@ -13,7 +13,7 @@ import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList'
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
-export default function SectionNineGoalsPage() { // Renamed component function
+export default function SectionNineGoalsPage() { 
   const sectionTitle = "اهداف"; 
   const sectionPageDescription = "اهداف بزرگ و برنامه‌های خود را در این بخش تعریف و پیگیری کنید.";
   const { toast } = useToast();
@@ -97,9 +97,34 @@ export default function SectionNineGoalsPage() { // Renamed component function
           <CardContent className="pt-6">
             <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} />
             <LongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
+
+            <div className="mt-10 p-6 border rounded-lg bg-secondary/30 shadow-inner">
+                <div className="flex items-center mb-3">
+                    <BookOpen className="h-6 w-6 text-primary mr-2 rtl:ml-2 rtl:mr-0" />
+                    <h4 className="text-xl font-semibold text-primary">اهداف مرتبط با کتاب و مطالعه</h4>
+                </div>
+                <p className="text-sm text-foreground/90 mb-4">
+                  می‌توانید اهداف مرتبط با مطالعه کتاب، مانند "خواندن ۱۲ کتاب در سال جاری" یا "تمام کردن کتاب 'تاریخ بیهقی' تا سه ماه آینده" را به عنوان یک هدف بلندمدت در فرم بالا تعریف کنید.
+                </p>
+                <p className="text-sm text-foreground/90 mb-4">
+                  همچنین، برای برنامه‌ریزی مطالعه فصول خاصی از کتب درسی، می‌توانید از بخش <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه</Link> استفاده کرده و وظایف با دسته‌بندی "درس" ایجاد نمایید. مقطع تحصیلی شما از بخش <Link href="/section/7" className="text-primary hover:underline">تحصیل</Link> برای انتخاب دروس در دسترس خواهد بود.
+                </p>
+                 <Image 
+                    src="https://placehold.co/600x300.png" 
+                    alt="تصویر مفهومی کتاب‌ها و اهداف مطالعه" 
+                    width={600} 
+                    height={300}
+                    className="rounded-md mx-auto shadow-md mt-4 opacity-70"
+                    data-ai-hint="books reading goals"
+                  />
+                <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80 mt-4">
+                    <li>قابلیت آینده: ایجاد لیست کتاب‌های خوانده شده / در حال خواندن / برای خواندن.</li>
+                    <li>قابلیت آینده: پیگیری پیشرفت مطالعه هر کتاب (مثلا بر اساس صفحه یا فصل).</li>
+                </ul>
+            </div>
             
             <div className="mt-12 p-6 border rounded-lg bg-secondary/30 shadow-inner">
-                <h4 className="text-xl font-semibold text-primary mb-3">قابلیت‌های آینده:</h4>
+                <h4 className="text-xl font-semibold text-primary mb-3">قابلیت‌های آینده برای اهداف:</h4>
                 <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
                   <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
                   <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
