@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Target, Construction, ListChecks } from 'lucide-react';
+import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags } from 'lucide-react'; // Updated icons
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import type { Habit } from '@/types';
@@ -14,9 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 import { CreateHabitForm } from '@/components/habits/CreateHabitForm';
 import { HabitList } from '@/components/habits/HabitList';
 
-export default function GoalsAndHabitsPage() {
-  const sectionTitle = "اهداف و عادت‌ها";
-  const sectionPageDescription = "در این بخش اهداف خود را تعیین کرده و عادت‌های مثبت برای رسیدن به آن‌ها ایجاد و پیگیری کنید.";
+export default function HabitsPage() { // Changed function name for clarity
+  const sectionTitle = "ردیاب عادت‌ها"; // Changed Title
+  const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید."; // Updated Description
   const { toast } = useToast();
 
   const [habits, setHabits] = useDebouncedLocalStorage<Habit[]>('userHabitsDeeply', []);
@@ -42,17 +42,14 @@ export default function GoalsAndHabitsPage() {
           const completions = habit.completions || [];
           const completionIndex = completions.indexOf(date);
           if (completionIndex > -1) {
-            // Already completed, remove (uncheck)
             return { ...habit, completions: completions.filter(c => c !== date) };
           } else {
-            // Not completed, add (check)
             return { ...habit, completions: [...completions, date] };
           }
         }
         return habit;
       })
     );
-    // Toast can be added here if desired, e.g., "Habit marked as done/undone"
   };
 
   const handleDeleteHabit = (habitId: string) => {
@@ -80,7 +77,7 @@ export default function GoalsAndHabitsPage() {
         <Card className="shadow-lg bg-card">
           <CardHeader>
             <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
-              <Target className="h-8 w-8 text-primary" />
+              <ListChecks className="h-8 w-8 text-primary" /> {/* Changed icon */}
               <CardTitle className="text-2xl font-headline text-primary">
                 {sectionTitle}
               </CardTitle>
@@ -94,7 +91,7 @@ export default function GoalsAndHabitsPage() {
             <div className="p-4 border rounded-lg bg-primary/5 shadow-inner">
                 <h3 className="text-xl font-semibold text-primary mb-3 flex items-center">
                     <ListChecks className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/>
-                    ردیاب عادت‌های روزانه
+                    عادت‌های روزانه من
                 </h3>
                 <CreateHabitForm onAddHabit={handleAddHabit} />
                 <HabitList 
@@ -104,31 +101,26 @@ export default function GoalsAndHabitsPage() {
                 />
             </div>
             
-            <div className="text-center opacity-70">
-                <Construction className="mx-auto h-12 w-12 text-primary/70 mb-3" />
-                <h3 className="text-lg font-semibold text-foreground mb-1">بخش اهداف در دست توسعه است!</h3>
-                <p className="text-sm text-muted-foreground">
-                    بخش مدیریت اهداف (کوتاه مدت و بلند مدت) و اتصال آن‌ها به عادت‌ها و وظایف به زودی تکمیل خواهد شد.
-                </p>
-            </div>
+            {/* Removed the "Goals under construction" part */}
 
             <Image
               src="https://placehold.co/600x350.png"
-              alt="تصویر مفهومی اهداف و شکل‌گیری عادت‌ها"
+              alt="تصویر مفهومی پیگیری عادت‌ها و پیشرفت" // Updated alt text
               width={600}
               height={350}
               className="rounded-md mx-auto shadow-md"
-              data-ai-hint="goals habits progress"
+              data-ai-hint="habit tracking progress" // Updated AI hint
             />
             <div className="mt-8 p-6 border rounded-lg bg-secondary/30 shadow-inner max-w-2xl mx-auto">
-                <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های برنامه‌ریزی شده برای آینده اهداف و عادت‌ها:</h4>
+                <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های برنامه‌ریزی شده برای ردیاب عادت‌ها:</h4>
                 <ul className="list-disc list-inside space-y-2 text-sm text-left rtl:text-right text-foreground/90">
-                  <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده) برای اهداف کوتاه/میان مدت.</li>
-                  <li>امکان تنظیم تکرار (روزانه، هفتگی با روزهای مشخص) و یادآور برای عادت‌ها.</li>
-                  <li>اتصال اهداف (کوتاه‌مدت و بلندمدت از بخش مربوطه) به عادت‌ها و وظایف روزانه در بخش برنامه‌ریز.</li>
-                  <li>نمایش نمودارهای پیشرفت بصری برای اهداف و زنجیره پیشرفت در عادت‌ها (streaks).</li>
-                  <li>سیستم پاداش و انگیزش برای دستیابی به اهداف و پایبندی به عادت‌ها (اختیاری).</li>
-                  <li>امکان دسته‌بندی اهداف و عادت‌ها برای سازماندهی بهتر.</li>
+                  <li className="flex items-start"><Repeat className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>امکان تنظیم تکرار عادت‌ها (روزانه، هفتگی با روزهای مشخص، چند بار در روز).</li>
+                  <li className="flex items-start"><CalendarClock className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>تنظیم یادآور برای انجام عادت‌ها.</li>
+                  <li className="flex items-start"><BarChart2 className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>نمایش نمودارهای پیشرفت و زنجیره موفقیت در انجام عادت‌ها (streaks).</li>
+                  <li className="flex items-start"><Award className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>سیستم پاداش و انگیزش (اختیاری) برای پایبندی به عادت‌ها.</li>
+                  <li className="flex items-start"><Tags className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>امکان دسته‌بندی عادت‌ها برای سازماندهی بهتر.</li>
+                  {/* Removed: اتصال اهداف به عادت‌ها و وظایف روزانه (as it's now habit-focused) */}
+                  {/* Removed: تعریف اهداف SMART */}
                 </ul>
               </div>
           </CardContent>

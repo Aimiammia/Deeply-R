@@ -9,13 +9,14 @@ import {
   BookHeart,
   CircleDollarSign,
   CalendarDays,
-  Target, // Used for Section 5 (Goals/Habits) AND now for Section 9 (Long-Term Planning)
+  Target, // Used for Section 9 (Long-Term Planning/Goals)
   Dumbbell,
   BookOpen,
-  PieChart, // Icon for Section 10
+  PieChart,
   FileText,
-  Languages, // Icon for new Section 11
-  Settings // Generic "Future" icon or similar
+  Languages,
+  Settings, // Generic "Future" icon or similar
+  ListChecks // New icon for Habits (Section 5)
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -25,17 +26,16 @@ const sectionIcons: LucideIcon[] = [
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
   CalendarDays,     // Section 4 (Calendar)
-  Target,           // Section 5 (Goals and Habits)
+  ListChecks,       // Section 5 (Habits) - Changed from Target
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
   FileText,         // Section 8 (Daily Activity Log)
-  Target,           // Section 9 (Long-Term Planning)
+  Target,           // Section 9 (Long-Term Planning/Goals)
   PieChart,         // Section 10 (Data Analysis and Reports)
   Languages         // Section 11 (Language Learning)
 ];
 
 export default function HomePage() {
-  // Reverted to original order, added new section 11
   const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
 
   return (
@@ -74,9 +74,9 @@ export default function HomePage() {
               sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
               sectionContent = "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید.";
             } else if (sectionNumber === 5) {
-              sectionTitle = "اهداف و عادت‌ها";
-              sectionDescription = "اهداف خود را تعیین و عادت‌های مثبت بسازید";
-              sectionContent = "پیشرفت خود را در جهت اهداف و ساختن عادت‌های پایدار دنبال کنید. (بخش آینده)";
+              sectionTitle = "ردیاب عادت‌ها"; // Changed Title
+              sectionDescription = "عادت‌های مثبت خود را ایجاد و پیگیری کنید"; // Changed Description
+              sectionContent = "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."; // Changed Content
             } else if (sectionNumber === 6) {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
