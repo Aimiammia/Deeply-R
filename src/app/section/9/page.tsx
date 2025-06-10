@@ -27,10 +27,7 @@ export default function SectionNineGoalsPage() {
             goal.id === existingGoalId ? { ...goal, ...goalData, title: goalData.title.trim() } : goal
             )
         );
-        toast({
-            title: "هدف ویرایش شد",
-            description: `هدف "${goalData.title}" با موفقیت ویرایش شد.`,
-        });
+        // Toast is handled by the form now for editing
     } else {
         const newGoal: LongTermGoal = {
             ...goalData,
@@ -39,6 +36,7 @@ export default function SectionNineGoalsPage() {
             status: goalData.status || 'not-started',
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        // Toast is handled by the form now for adding
     }
   };
 
@@ -66,7 +64,7 @@ export default function SectionNineGoalsPage() {
         } : goal
       )
     );
-    toast({
+    toast({ // Toast for update is good here
       title: "هدف به‌روز شد",
       description: `هدف "${updatedGoalData.title}" با موفقیت به‌روزرسانی شد.`,
     });
@@ -150,3 +148,4 @@ export default function SectionNineGoalsPage() {
     </div>
   );
 }
+
