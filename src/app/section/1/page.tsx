@@ -21,7 +21,7 @@ import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
 export default function PlannerLandingPage() {
   const sectionTitle = "برنامه‌ریز";
-  const sectionPageDescription = "برنامه‌های کوتاه مدت و اهداف بلند مدت خود را مدیریت کنید.";
+  const sectionPageDescription = "برنامه‌های کوتاه مدت و اهداف خود را مدیریت کنید.";
 
   // State and logic for Short-Term Planner
   const { toast } = useToast();
@@ -143,7 +143,7 @@ export default function PlannerLandingPage() {
                   value="long-term"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
-                  <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف بلندمدت
+                  <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="short-term" className="space-y-6">
@@ -160,20 +160,20 @@ export default function PlannerLandingPage() {
               </TabsContent>
               <TabsContent value="long-term" className="space-y-6 text-center py-8">
                 <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">مدیریت اهداف بلندمدت</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">مدیریت اهداف</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  اهداف بزرگ و برنامه‌های طولانی‌مدت خود را در صفحه اختصاصی اهداف بلندمدت تعریف، پیگیری و مدیریت کنید.
+                  اهداف بزرگ و برنامه‌های خود را در صفحه اختصاصی اهداف تعریف، پیگیری و مدیریت کنید.
                 </p>
                 <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-                  <Link href="/section/9"> {/* Link changed to /section/9 */}
+                  <Link href="/section/9"> 
                      <ChevronLeftSquare className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                    رفتن به صفحه اهداف بلندمدت
+                    رفتن به صفحه اهداف
                   </Link>
                 </Button>
                  <div className="mt-10 p-4 border rounded-md bg-secondary/30 max-w-lg mx-auto">
-                    <h4 className="text-lg font-semibold text-primary mb-2">در صفحه اهداف بلندمدت شما می‌توانید:</h4>
+                    <h4 className="text-lg font-semibold text-primary mb-2">در صفحه اهداف شما می‌توانید:</h4>
                     <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                      <li>اهداف بلندمدت خود را با عنوان، توضیحات، تاریخ هدف، معیار موفقیت و نقاط عطف تعریف کنید.</li>
+                      <li>اهداف خود را با عنوان، توضیحات، تاریخ هدف، معیار موفقیت و نقاط عطف تعریف کنید.</li>
                       <li>لیست اهداف خود را مشاهده، ویرایش و حذف نمایید.</li>
                       <li>وضعیت هر هدف و نقاط عطف آن را مشخص کنید.</li>
                     </ul>

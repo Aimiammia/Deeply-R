@@ -9,14 +9,14 @@ import {
   BookHeart,
   CircleDollarSign,
   CalendarDays,
-  Target, // Used for Section 9 (Long-Term Planning/Goals)
+  Target, 
   Dumbbell,
   BookOpen,
   PieChart,
   FileText,
   Languages,
-  Settings, // Generic "Future" icon or similar
-  ListChecks // New icon for Habits (Section 5)
+  Settings, 
+  ListChecks 
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -26,11 +26,11 @@ const sectionIcons: LucideIcon[] = [
   BookHeart,        // Section 2 (Daily Reflections)
   CircleDollarSign, // Section 3 (Financial Management)
   CalendarDays,     // Section 4 (Calendar)
-  ListChecks,       // Section 5 (Habits) - Changed from Target
+  ListChecks,       // Section 5 (Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
   FileText,         // Section 8 (Daily Activity Log)
-  Target,           // Section 9 (Long-Term Planning/Goals)
+  Target,           // Section 9 (Goals)
   PieChart,         // Section 10 (Data Analysis and Reports)
   Languages         // Section 11 (Language Learning)
 ];
@@ -90,8 +90,8 @@ export default function HomePage() {
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
               sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "اهداف بلندمدت"; 
-              sectionDescription = "اهداف بزرگ و برنامه‌های طولانی‌مدت خود را تعریف و پیگیری کنید.";
+              sectionTitle = "اهداف"; 
+              sectionDescription = "اهداف بزرگ و برنامه‌های خود را تعریف و پیگیری کنید.";
               sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
               sectionLink = `/section/9`;
             } else if (sectionNumber === 10) {

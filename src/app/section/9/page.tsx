@@ -13,9 +13,9 @@ import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList'
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 
-export default function SectionNineLongTermPlannerPage() {
-  const sectionTitle = "اهداف بلندمدت"; // Title changed
-  const sectionPageDescription = "اهداف بزرگتر و برنامه‌های طولانی‌مدت خود را در این بخش تعریف و پیگیری کنید.";
+export default function SectionNineGoalsPage() { // Renamed component function
+  const sectionTitle = "اهداف"; 
+  const sectionPageDescription = "اهداف بزرگ و برنامه‌های خود را در این بخش تعریف و پیگیری کنید.";
   const { toast } = useToast();
   const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
 
@@ -28,7 +28,7 @@ export default function SectionNineLongTermPlannerPage() {
             )
         );
         toast({
-            title: "هدف بلندمدت ویرایش شد",
+            title: "هدف ویرایش شد",
             description: `هدف "${goalData.title}" با موفقیت ویرایش شد.`,
         });
     } else {
@@ -47,7 +47,7 @@ export default function SectionNineLongTermPlannerPage() {
     setGoals(prevGoals => prevGoals.filter(g => g.id !== id));
     if (goalToDelete) {
       toast({
-        title: "هدف بلندمدت حذف شد",
+        title: "هدف حذف شد",
         description: `هدف "${goalToDelete.title}" حذف شد.`,
         variant: "destructive",
       });
@@ -67,7 +67,7 @@ export default function SectionNineLongTermPlannerPage() {
       )
     );
     toast({
-      title: "هدف بلندمدت به‌روز شد",
+      title: "هدف به‌روز شد",
       description: `هدف "${updatedGoalData.title}" با موفقیت به‌روزرسانی شد.`,
     });
   };
@@ -77,7 +77,7 @@ export default function SectionNineLongTermPlannerPage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <Button asChild variant="outline" className="mb-6">
-          <Link href="/"> {/* Back button now goes to homepage */}
+          <Link href="/"> 
             <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
             بازگشت به خانه
           </Link>
@@ -87,7 +87,7 @@ export default function SectionNineLongTermPlannerPage() {
             <div className="flex items-center space-x-3 rtl:space-x-reverse">
                 <Target className="h-7 w-7 text-primary" />
                 <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle} {/* Title variable used here */}
+                {sectionTitle} 
                 </CardTitle>
             </div>
             <CardDescription className="text-muted-foreground">
@@ -104,7 +104,7 @@ export default function SectionNineLongTermPlannerPage() {
                   <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
                   <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
                   <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
-                  <li>اتصال اهداف بلندمدت به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
+                  <li>اتصال اهداف به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
                   <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>
                 </ul>
                  <Image 
