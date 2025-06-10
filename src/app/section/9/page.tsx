@@ -115,9 +115,12 @@ export default function SectionNineGoalsPage() {
                     className="rounded-md mx-auto shadow-md mt-4 opacity-70"
                     data-ai-hint="books reading goals"
                   />
-                <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80 mt-4">
-                    <li>قابلیت آینده: ایجاد لیست کتاب‌های خوانده شده / در حال خواندن / برای خواندن.</li>
-                    <li>قابلیت آینده: پیگیری پیشرفت مطالعه هر کتاب (مثلا بر اساس صفحه یا فصل).</li>
+                <h5 className="text-md font-semibold text-primary mt-6 mb-2">قابلیت‌های آینده برای بخش کتاب:</h5>
+                <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80">
+                    <li>ایجاد لیست کتاب‌های خوانده شده / در حال خواندن / برای خواندن.</li>
+                    <li>پیگیری پیشرفت مطالعه هر کتاب (مثلا بر اساس صفحه یا فصل).</li>
+                    <li>امکان یادداشت‌برداری و ثبت نظرات برای هر کتاب.</li>
+                    <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف.</li>
                 </ul>
             </div>
             
