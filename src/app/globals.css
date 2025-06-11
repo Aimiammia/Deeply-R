@@ -4,87 +4,87 @@
 
 @layer base {
   :root {
-    /*
-        User-provided Hex:
-        Light Blue/Cyan: #52B2CF -> hsl(194, 59%, 56%)
-        Dark Blue: #344CB7       -> hsl(230, 57%, 46%)
-        Light Pink/Peach: #FAE1DF -> hsl(5, 73%, 93%) - Will be used sparingly or as a very light accent
-    */
+    /* Green Theme Palette */
+    --background: 120 60% 97%; /* Very light, almost minty white */
+    --foreground: 120 25% 15%; /* Dark, desaturated green-gray for text */
 
-    /* Light Theme - More Professional/Calm Palette */
-    --background: 220 20% 97%; /* Very light cool gray, almost off-white */
-    --foreground: 220 15% 25%; /* Dark cool gray for text */
-
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 220 15% 25%; /* Dark cool gray on white cards */
+    --card: 0 0% 100%; /* White for good contrast */
+    --card-foreground: 120 25% 15%; /* Same as main foreground */
 
     --popover: 0 0% 100%; /* White */
-    --popover-foreground: 220 15% 25%;
+    --popover-foreground: 120 25% 15%;
 
-    --primary: 194 59% 50%; /* #52B2CF - Light Blue/Cyan (slightly adjusted for better contrast if needed) */
-    --primary-foreground: 210 40% 98%; /* Very light, almost white, for text on primary elements */
+    --primary: 145 55% 42%; /* A nice, balanced green (e.g., #38A169) */
+    --primary-foreground: 145 30% 96%; /* Very light, almost white for text on primary */
 
-    --secondary: 220 15% 92%; /* Lighter version of background for subtle differentiation */
-    --secondary-foreground: 220 15% 35%; /* Slightly lighter than main foreground */
+    --secondary: 130 40% 92%; /* A lighter, soft green for secondary elements */
+    --secondary-foreground: 130 30% 30%; /* Darker green for text on secondary */
 
-    --muted: 220 15% 94%; /* Slightly darker than background, for muted elements */
-    --muted-foreground: 220 10% 45%; /* Muted text color */
+    --muted: 120 30% 94%; /* A muted, very light green-gray */
+    --muted-foreground: 120 15% 45%; /* Muted text color */
 
-    --accent: 230 57% 46%; /* #344CB7 - Dark Blue */
-    --accent-foreground: 0 0% 100%; /* White text for contrast on Dark Blue */
+    --accent: 160 60% 35%; /* A slightly bluer, darker green for accent (e.g., #278C68) */
+    --accent-foreground: 160 20% 97%; /* Very light for text on accent */
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 75% 50%; /* A clear red */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 88%; /* Subtle border color */
-    --input: 0 0% 98%; /* Very light gray for inputs, almost white but distinct from card */
-    --ring: 194 59% 45%; /* Primary color (Light Blue), slightly darker for focus rings */
+    --border: 120 20% 88%; /* Subtle green-ish border */
+    --input: 120 30% 98%; /* Very light, almost white but distinct green tint */
+    --ring: 145 55% 38%; /* Primary green, slightly darker for focus rings */
 
     --radius: 0.5rem;
 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Chart colors adjusted for green theme */
+    --chart-1: 145 70% 45%; /* Primary green for charts */
+    --chart-2: 160 50% 55%; /* A lighter, tealish green */
+    --chart-3: 90 40% 50%;  /* A more yellowish green */
+    --chart-4: 140 30% 65%; /* A muted, lighter green */
+    --chart-5: 170 45% 40%; /* A darker teal/cyan green */
 
-    /* Sidebar specific colors - can be adjusted based on new theme if sidebar is used */
-    --sidebar-background: 220 15% 18%; /* Darker cool gray from new palette */
-    --sidebar-foreground: 220 10% 85%;   /* Light gray from new palette */
-    --sidebar-primary: 194 59% 55%;    /* Light blue from new palette */
-    --sidebar-primary-foreground: 220 15% 10%;
-    --sidebar-accent: 230 57% 50%;     /* Dark blue from new palette */
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 15% 30%;
-    --sidebar-ring: 194 65% 60%;
+    /* Sidebar specific colors for green theme */
+    --sidebar-background: 140 15% 18%; /* Dark green-gray */
+    --sidebar-foreground: 140 10% 85%;   /* Light gray/green */
+    --sidebar-primary: 145 55% 50%;    /* Slightly lighter primary for sidebar */
+    --sidebar-primary-foreground: 145 20% 10%; /* Dark for on sidebar primary */
+    --sidebar-accent: 160 60% 40%;     /* Slightly lighter accent for sidebar */
+    --sidebar-accent-foreground: 160 15% 95%; /* Light for on sidebar accent */
+    --sidebar-border: 140 15% 30%;
+    --sidebar-ring: 145 60% 55%;
   }
 
   .dark {
-    /* Dark Theme */
-    --background: 220 20% 12%; /* Very dark cool gray */
-    --foreground: 220 15% 88%; /* Light cool gray for text */
+    /* Dark Green Theme Palette */
+    --background: 140 20% 10%; /* Very dark, desaturated green */
+    --foreground: 130 25% 88%; /* Light, slightly muted green-gray for text */
 
-    --card: 220 20% 16%; /* Slightly lighter dark gray for cards */
-    --card-foreground: 220 15% 88%;
+    --card: 140 18% 14%; /* Slightly lighter dark green-gray for cards */
+    --card-foreground: 130 25% 88%;
 
-    --popover: 220 20% 16%;
-    --popover-foreground: 220 15% 88%;
+    --popover: 140 18% 14%;
+    --popover-foreground: 130 25% 88%;
 
-    --primary: 194 59% 55%; /* Light Blue #52B2CF, slightly adjusted for dark mode */
-    --primary-foreground: 220 15% 10%; /* Very dark text on light blue primary */
+    --primary: 145 50% 50%; /* Primary green, slightly brighter for dark mode */
+    --primary-foreground: 145 25% 10%; /* Very dark green/black for text on primary */
 
-    --secondary: 220 15% 25%; /* Darker gray for secondary elements */
-    --secondary-foreground: 220 15% 90%; /* Lighter text on secondary */
+    --secondary: 140 15% 22%; /* Darker green-gray for secondary elements */
+    --secondary-foreground: 130 20% 90%; /* Lighter text on secondary */
 
-    --muted: 220 15% 20%; /* Muted dark gray */
-    --muted-foreground: 220 10% 65%; /* Muted light gray text */
+    --muted: 140 15% 18%; /* Muted dark green-gray */
+    --muted-foreground: 130 15% 65%; /* Muted light green-gray text */
 
-    --accent: 230 57% 55%; /* Dark Blue #344CB7, slightly brighter */
-    --accent-foreground: 0 0% 98%; /* Off-white text for dark blue accent */
+    --accent: 160 55% 45%; /* Accent green, slightly brighter for dark mode */
+    --accent-foreground: 160 20% 98%; /* Very light text on accent */
+    
+    --destructive: 0 65% 55%; /* Slightly brighter red for dark mode */
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 30%;
-    --input: 220 15% 22%;
-    --ring: 194 59% 50%; /* Brighter Light Blue for rings */
+    --border: 140 10% 25%; /* Darker green-ish border */
+    --input: 140 15% 19%; /* Dark green-gray for inputs */
+    --ring: 145 50% 45%; /* Primary green for rings */
+
+    /* Chart colors adjusted for dark green theme */
+    /* These can be the same as light or adjusted if needed, for now keeping them same as light theme's definition point */
   }
 }
 
