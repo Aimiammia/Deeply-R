@@ -14,7 +14,6 @@ import {
   BookOpen,
   PieChart,
   FileText,
-  Languages,
   Settings, 
   ListChecks 
 } from 'lucide-react';
@@ -32,11 +31,10 @@ const sectionIcons: LucideIcon[] = [
   FileText,         // Section 8 (Daily Activity Log)
   Target,           // Section 9 (Goals)
   PieChart,         // Section 10 (Data Analysis and Reports)
-  Languages         // Section 11 (Language Learning)
 ];
 
 export default function HomePage() {
-  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; 
+  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -98,11 +96,6 @@ export default function HomePage() {
               sectionTitle = "تحلیل هوشمند و گزارش جامع";
               sectionDescription = "مرکز تحلیل داده‌های برنامه با استفاده از هوش مصنوعی.";
               sectionContent = "در این بخش، گزارشات تحلیلی، نمودارها و بینش‌های هوشمند از تمام داده‌های شما ارائه می‌شود.";
-            } else if (sectionNumber === 11) {
-              sectionTitle = "یادگیری زبان";
-              sectionDescription = "ابزارهایی برای کمک به یادگیری زبان‌های جدید.";
-              sectionContent = "لغات جدید یاد بگیرید، گرامر تمرین کنید و پیشرفت خود را در زبان‌های مختلف پیگیری نمایید. (بخش آینده)";
-              sectionLink = `/section/11`;
             }
 
             return (
