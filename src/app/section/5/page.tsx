@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags } from 'lucide-react'; // Updated icons
+import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import type { Habit } from '@/types';
@@ -14,9 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 import { CreateHabitForm } from '@/components/habits/CreateHabitForm';
 import { HabitList } from '@/components/habits/HabitList';
 
-export default function HabitsPage() { // Changed function name for clarity
-  const sectionTitle = "ردیاب عادت‌ها"; // Changed Title
-  const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید."; // Updated Description
+export default function HabitsPage() {
+  const sectionTitle = "ردیاب عادت‌ها";
+  const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید.";
   const { toast } = useToast();
 
   const [habits, setHabits] = useDebouncedLocalStorage<Habit[]>('userHabitsDeeply', []);
@@ -74,57 +74,61 @@ export default function HabitsPage() { // Changed function name for clarity
             بازگشت به خانه
           </Link>
         </Button>
-        <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
-              <ListChecks className="h-8 w-8 text-primary" /> {/* Changed icon */}
-              <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            
-            <div className="p-4 border rounded-lg bg-primary/5 shadow-inner">
-                <h3 className="text-xl font-semibold text-primary mb-3 flex items-center">
+
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <ListChecks className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+
+        <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center text-foreground">
                     <ListChecks className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/>
                     عادت‌های روزانه من
-                </h3>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
                 <CreateHabitForm onAddHabit={handleAddHabit} />
                 <HabitList 
                     habits={habits} 
                     onToggleCompletion={handleToggleHabitCompletion}
                     onDeleteHabit={handleDeleteHabit} 
                 />
-            </div>
+              </CardContent>
+            </Card>
             
-            {/* Removed the "Goals under construction" part */}
+            <div className="text-center my-8">
+                <Image
+                src="https://placehold.co/600x350.png"
+                alt="تصویر مفهومی پیگیری عادت‌ها و پیشرفت"
+                width={600}
+                height={350}
+                className="rounded-md mx-auto shadow-md"
+                data-ai-hint="habit tracking progress"
+                />
+            </div>
 
-            <Image
-              src="https://placehold.co/600x350.png"
-              alt="تصویر مفهومی پیگیری عادت‌ها و پیشرفت" // Updated alt text
-              width={600}
-              height={350}
-              className="rounded-md mx-auto shadow-md"
-              data-ai-hint="habit tracking progress" // Updated AI hint
-            />
-            <div className="mt-8 p-6 border rounded-lg bg-secondary/30 shadow-inner max-w-2xl mx-auto">
-                <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های برنامه‌ریزی شده برای ردیاب عادت‌ها:</h4>
-                <ul className="list-disc list-inside space-y-2 text-sm text-left rtl:text-right text-foreground/90">
+            <Card className="bg-secondary/50">
+              <CardHeader>
+                <CardTitle className="text-xl text-primary">قابلیت‌های برنامه‌ریزی شده برای ردیاب عادت‌ها</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
                   <li className="flex items-start"><Repeat className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>امکان تنظیم تکرار عادت‌ها (روزانه، هفتگی با روزهای مشخص، چند بار در روز).</li>
                   <li className="flex items-start"><CalendarClock className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>تنظیم یادآور برای انجام عادت‌ها.</li>
                   <li className="flex items-start"><BarChart2 className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>نمایش نمودارهای پیشرفت و زنجیره موفقیت در انجام عادت‌ها (streaks).</li>
                   <li className="flex items-start"><Award className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>سیستم پاداش و انگیزش (اختیاری) برای پایبندی به عادت‌ها.</li>
                   <li className="flex items-start"><Tags className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>امکان دسته‌بندی عادت‌ها برای سازماندهی بهتر.</li>
-                  {/* Removed: اتصال اهداف به عادت‌ها و وظایف روزانه (as it's now habit-focused) */}
-                  {/* Removed: تعریف اهداف SMART */}
                 </ul>
-              </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+        </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>

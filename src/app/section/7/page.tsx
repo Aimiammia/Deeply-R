@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare } from 'lucide-react';
+import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare, Settings } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -184,7 +184,7 @@ export default function EducationPage() {
         isConfirmed: true,
         lastPromotionCheckDate: currentDateISO,
       });
-      setSubjectProgress({}); // Reset subject progress for new level
+      setSubjectProgress({}); 
       toast({
         title: "مقطع تحصیلی ذخیره شد",
         description: `مقطع تحصیلی شما به "${educationalLevels.find(l => l.value === levelToConfirm)?.label}" تایید و ذخیره شد.`,
@@ -198,7 +198,7 @@ export default function EducationPage() {
     setSubjectProgress(prev => ({
       ...prev,
       [subjectId]: {
-        ...(prev[subjectId] || { notes: null }), // Keep existing notes if any
+        ...(prev[subjectId] || { notes: null }), 
         status,
       }
     }));
@@ -216,98 +216,108 @@ export default function EducationPage() {
             بازگشت به خانه
           </Link>
         </Button>
-        <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
-              <BookOpen className="h-8 w-8 text-primary" />
-              <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="max-w-md mx-auto">
-              {!educationalSettings.isConfirmed && isClient && (
-                <>
-                  <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
-                    مقطع تحصیلی فعلی خود را انتخاب کنید:
-                  </Label>
-                  <Select
-                    value={transientSelectedLevel}
-                    onValueChange={handleLevelChange}
-                    dir="rtl"
-                  >
-                    <SelectTrigger id="educationalLevelSelect" className="w-full text-base py-3">
-                      <SelectValue placeholder="انتخاب کنید..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {educationalLevels.map(level => (
-                        <SelectItem key={level.value} value={level.value} className="text-base">
-                          {level.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={handleOpenConfirmationDialog} className="w-full mt-4" disabled={!transientSelectedLevel}>
-                    ذخیره و تایید مقطع
-                  </Button>
-                </>
-              )}
 
-              {isClient && educationalSettings.isConfirmed && currentLevelLabel && (
-                <div className="p-4 border rounded-lg bg-secondary/30 text-center">
-                  <p className="text-lg font-semibold text-foreground mb-1">
-                    مقطع تحصیلی فعلی شما:
-                  </p>
-                  <p className="text-2xl text-primary font-bold">
-                    {currentLevelLabel}
-                  </p>
-                  {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
-                     <p className="text-xs text-muted-foreground mt-2">
-                      آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
-                    </p>
-                  )}
-                   <p className="text-sm text-muted-foreground mt-3">
-                    <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
-                    مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
-                  </p>
-                   <Button variant="link" size="sm" onClick={() => {
-                     setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''});
-                     // Do NOT reset subjectProgress here, user might want to change level but keep old progress for reference
-                     // It will be naturally orphaned or they can clear it if they re-confirm a new level.
-                    }} className="mt-2 text-xs">
-                     تغییر مقطع تحصیلی
-                   </Button>
-                </div>
-              )}
-               {!isClient && (
-                 <p className="text-muted-foreground text-center py-4">در حال بارگذاری اطلاعات مقطع تحصیلی...</p>
-               )}
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <BookOpen className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+        
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                        <Settings className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                        تنظیمات مقطع تحصیلی
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="max-w-md mx-auto">
+                    {!educationalSettings.isConfirmed && isClient && (
+                        <>
+                        <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
+                            مقطع تحصیلی فعلی خود را انتخاب کنید:
+                        </Label>
+                        <Select
+                            value={transientSelectedLevel}
+                            onValueChange={handleLevelChange}
+                            dir="rtl"
+                        >
+                            <SelectTrigger id="educationalLevelSelect" className="w-full text-base py-3">
+                            <SelectValue placeholder="انتخاب کنید..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {educationalLevels.map(level => (
+                                <SelectItem key={level.value} value={level.value} className="text-base">
+                                {level.label}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <Button onClick={handleOpenConfirmationDialog} className="w-full mt-4" disabled={!transientSelectedLevel}>
+                            ذخیره و تایید مقطع
+                        </Button>
+                        </>
+                    )}
+
+                    {isClient && educationalSettings.isConfirmed && currentLevelLabel && (
+                        <div className="p-4 border rounded-lg bg-secondary/30 text-center">
+                        <p className="text-lg font-semibold text-foreground mb-1">
+                            مقطع تحصیلی فعلی شما:
+                        </p>
+                        <p className="text-2xl text-primary font-bold">
+                            {currentLevelLabel}
+                        </p>
+                        {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                            آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
+                            </p>
+                        )}
+                        <p className="text-sm text-muted-foreground mt-3">
+                            <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
+                            مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
+                        </p>
+                        <Button variant="link" size="sm" onClick={() => {
+                            setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''});
+                            }} className="mt-2 text-xs">
+                            تغییر مقطع تحصیلی
+                        </Button>
+                        </div>
+                    )}
+                    {!isClient && (
+                        <p className="text-muted-foreground text-center py-4">در حال بارگذاری اطلاعات مقطع تحصیلی...</p>
+                    )}
 
 
-              <AlertDialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog} dir="rtl">
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>تایید مقطع تحصیلی</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      آیا از انتخاب مقطع تحصیلی "{educationalLevels.find(l => l.value === levelToConfirm)?.label}" مطمئن هستید؟ پس از تایید، این مقطع به صورت سالانه (اول مهر) به طور خودکار ارتقا پیدا خواهد کرد و پیشرفت دروس فعلی شما (در صورت وجود) پاک خواهد شد.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => {setShowConfirmationDialog(false); setLevelToConfirm(undefined);}}>لغو</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleConfirmLevel}>تایید و ذخیره</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+                    <AlertDialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog} dir="rtl">
+                        <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>تایید مقطع تحصیلی</AlertDialogTitle>
+                            <AlertDialogDescription>
+                            آیا از انتخاب مقطع تحصیلی "{educationalLevels.find(l => l.value === levelToConfirm)?.label}" مطمئن هستید؟ پس از تایید، این مقطع به صورت سالانه (اول مهر) به طور خودکار ارتقا پیدا خواهد کرد و پیشرفت دروس فعلی شما (در صورت وجود) پاک خواهد شد.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => {setShowConfirmationDialog(false); setLevelToConfirm(undefined);}}>لغو</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleConfirmLevel}>تایید و ذخیره</AlertDialogAction>
+                        </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardContent>
+            </Card>
 
             {isClient && educationalSettings.isConfirmed && currentSubjectsForLevel.length > 0 && (
-                <div className="mt-8 pt-6 border-t">
-                    <h3 className="text-xl font-semibold text-primary mb-4">پیگیری پیشرفت دروس ({currentLevelLabel})</h3>
-                    <div className="space-y-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                             <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                             پیگیری پیشرفت دروس ({currentLevelLabel})
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                         {currentSubjectsForLevel.map(subject => (
                             <Card key={subject.id} className="bg-card shadow-sm">
                                 <CardHeader className="pb-3">
@@ -329,106 +339,108 @@ export default function EducationPage() {
                                             <SelectItem value="completed">مطالعه شده</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {/* Basic notes can be added here later if needed */}
                                 </CardContent>
                             </Card>
                         ))}
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             )}
+            
+            <Card className="bg-secondary/50">
+                <CardHeader>
+                    <CardTitle className="text-xl text-primary">امکانات بخش تحصیل</CardTitle>
+                    <CardDescription>
+                        پس از تنظیم مقطع تحصیلی، می‌توانید از قابلیت‌های زیر برای برنامه‌ریزی و مدیریت امور آموزشی خود استفاده کنید.
+                        برخی از این قابلیت‌ها در حال حاضر به صورت پایه موجود هستند و برخی دیگر در آینده تکمیل خواهند شد.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
+                            <CheckSquare className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">انتخاب و ارتقای خودکار مقطع تحصیلی</span>
+                                <p className="text-xs text-muted-foreground">مقطع خود را انتخاب کنید تا برنامه به طور خودکار آن را ارتقا دهد.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
+                            <ListChecks className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">ایجاد برنامه مطالعاتی و زمان‌بندی</span>
+                                <p className="text-xs text-muted-foreground">
+                                    وظایف درسی خود را در <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه (بخش ۱)</Link> با انتخاب دسته‌بندی "درس" و مشخص کردن درس و فصول مربوط به مقطع خود، ثبت و مدیریت کنید.
+                                </p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
+                            <TargetIcon className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">پیگیری پیشرفت در دروس</span>
+                                <p className="text-xs text-muted-foreground">وضعیت مطالعه هر درس (شروع نشده، در حال مطالعه، مطالعه شده) را مشخص کنید.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                            <FileText className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">یادداشت‌برداری پیشرفته (آینده)</span>
+                                <p className="text-xs text-muted-foreground">امکان یادداشت‌برداری با قابلیت ضمیمه فایل و قالب‌بندی‌های متنوع.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                            <BookMarked className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">مدیریت منابع آموزشی (آینده)</span>
+                                <p className="text-xs text-muted-foreground">سازماندهی کتاب‌ها، مقالات و ویدیوهای آموزشی مرتبط با هر درس و مقطع.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                            <Layers className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">سیستم فلش کارت (آینده)</span>
+                                <p className="text-xs text-muted-foreground">ابزاری برای یادگیری و مرور لغات، فرمول‌ها و مفاهیم کلیدی.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                            <CalendarClock className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">اتصال به تقویم (آینده)</span>
+                                <p className="text-xs text-muted-foreground">یادآوری خودکار کلاس‌ها، امتحانات و مهلت‌های تحصیلی در تقویم برنامه.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                            <Brain className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">پیشنهاد منابع هوشمند (آینده)</span>
+                                <p className="text-xs text-muted-foreground">دریافت پیشنهاد منابع آموزشی مرتبط با مقطع و رشته تحصیلی شما (نیازمند تکمیل اطلاعات رشته).</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
+                            <Edit className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <span className="font-semibold text-foreground">پیگیری دقیق‌تر پیشرفت و آزمون‌ها (آینده)</span>
+                                <p className="text-xs text-muted-foreground">ثبت نمرات، تحلیل عملکرد و ...</p>
+                            </div>
+                        </li>
+                    </ul>
+                </CardContent>
+            </Card>
 
-
-            <div className="mt-10 p-6 border rounded-lg bg-primary/5 shadow-inner">
-              <h3 className="text-xl font-semibold text-primary mb-4 text-center">امکانات بخش تحصیل</h3>
-              <p className="text-muted-foreground text-center mb-6">
-                پس از تنظیم مقطع تحصیلی، می‌توانید از قابلیت‌های زیر برای برنامه‌ریزی و مدیریت امور آموزشی خود استفاده کنید.
-                 برخی از این قابلیت‌ها در حال حاضر به صورت پایه موجود هستند و برخی دیگر در آینده تکمیل خواهند شد.
-              </p>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
-                    <CheckSquare className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">انتخاب و ارتقای خودکار مقطع تحصیلی</span>
-                        <p className="text-xs text-muted-foreground">مقطع خود را انتخاب کنید تا برنامه به طور خودکار آن را ارتقا دهد.</p>
-                    </div>
-                </li>
-                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
-                    <ListChecks className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">ایجاد برنامه مطالعاتی و زمان‌بندی</span>
-                        <p className="text-xs text-muted-foreground">
-                            وظایف درسی خود را در <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه (بخش ۱)</Link> با انتخاب دسته‌بندی "درس" و مشخص کردن درس و فصول مربوط به مقطع خود، ثبت و مدیریت کنید.
-                        </p>
-                    </div>
-                </li>
-                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm">
-                    <TargetIcon className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">پیگیری پیشرفت در دروس</span>
-                        <p className="text-xs text-muted-foreground">وضعیت مطالعه هر درس (شروع نشده، در حال مطالعه، مطالعه شده) را مشخص کنید.</p>
-                    </div>
-                </li>
-                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                    <FileText className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">یادداشت‌برداری پیشرفته (آینده)</span>
-                        <p className="text-xs text-muted-foreground">امکان یادداشت‌برداری با قابلیت ضمیمه فایل و قالب‌بندی‌های متنوع.</p>
-                    </div>
-                </li>
-                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                    <BookMarked className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">مدیریت منابع آموزشی (آینده)</span>
-                        <p className="text-xs text-muted-foreground">سازماندهی کتاب‌ها، مقالات و ویدیوهای آموزشی مرتبط با هر درس و مقطع.</p>
-                    </div>
-                </li>
-                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                    <Layers className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">سیستم فلش کارت (آینده)</span>
-                        <p className="text-xs text-muted-foreground">ابزاری برای یادگیری و مرور لغات، فرمول‌ها و مفاهیم کلیدی.</p>
-                    </div>
-                </li>
-                <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                     <CalendarClock className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">اتصال به تقویم (آینده)</span>
-                        <p className="text-xs text-muted-foreground">یادآوری خودکار کلاس‌ها، امتحانات و مهلت‌های تحصیلی در تقویم برنامه.</p>
-                    </div>
-                </li>
-                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                    <Brain className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">پیشنهاد منابع هوشمند (آینده)</span>
-                        <p className="text-xs text-muted-foreground">دریافت پیشنهاد منابع آموزشی مرتبط با مقطع و رشته تحصیلی شما (نیازمند تکمیل اطلاعات رشته).</p>
-                    </div>
-                </li>
-                 <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
-                    <Edit className="ml-3 h-5 w-5 text-yellow-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <span className="font-semibold text-foreground">پیگیری دقیق‌تر پیشرفت و آزمون‌ها (آینده)</span>
-                        <p className="text-xs text-muted-foreground">ثبت نمرات، تحلیل عملکرد و ...</p>
-                    </div>
-                </li>
-              </ul>
-            </div>
-             <div className="mt-12 text-center">
-              <Construction className="mx-auto h-12 w-12 text-primary/50 mb-3" />
-              <h4 className="text-lg font-semibold text-foreground">بخش تحصیل در حال توسعه است!</h4>
-              <p className="text-muted-foreground text-sm">
+            <div className="text-center mt-8 py-4">
+                <Construction className="mx-auto h-12 w-12 text-primary/50 mb-3" />
+                <h4 className="text-lg font-semibold text-foreground">بخش تحصیل در حال توسعه است!</h4>
+                <p className="text-muted-foreground text-sm">
                 ما به طور مداوم در حال کار بر روی افزودن و بهبود قابلیت‌های این بخش هستیم تا تجربه یادگیری شما را غنی‌تر کنیم.
-              </p>
-              <Image
+                </p>
+                <Image
                 src="https://placehold.co/500x300.png"
                 alt="تصویر مفهومی تحصیل، یادگیری و مطالعه"
                 width={500}
                 height={300}
                 className="rounded-md mx-auto shadow-md mt-6 opacity-80"
                 data-ai-hint="education learning study"
-              />
+                />
             </div>
-          </CardContent>
-        </Card>
+        </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
