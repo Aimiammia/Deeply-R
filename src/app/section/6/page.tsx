@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Header } from '@/components/Header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Dumbbell, Construction } from 'lucide-react';
 import Image from 'next/image';
@@ -22,19 +22,19 @@ export default function SportsPage() {
             بازگشت به خانه
           </Link>
         </Button>
+
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <Dumbbell className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+
         <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
-              <Dumbbell className="h-8 w-8 text-primary" />
-              <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8 text-center">
+          <CardContent className="p-6 space-y-8 text-center">
             <Construction className="mx-auto h-16 w-16 text-primary/70 mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">بخش ورزشی در دست ساخت است!</h3>
             <p className="text-muted-foreground mb-6">

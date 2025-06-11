@@ -3,9 +3,9 @@
 
 import Link from 'next/link';
 import { Header } from '@/components/Header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardList, Target, ChevronLeftSquare } from 'lucide-react'; // Changed ChevronLeftSquare
+import { ArrowLeft, ClipboardList, Target, ChevronLeftSquare } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
@@ -121,16 +121,19 @@ export default function PlannerLandingPage() {
             بازگشت به خانه
           </Link>
         </Button>
+
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <ClipboardList className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+
         <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline text-primary">
-              {sectionTitle}
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="p-6">
             <Tabs defaultValue="short-term" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1">
                 <TabsTrigger
@@ -189,3 +192,4 @@ export default function PlannerLandingPage() {
     </div>
   );
 }
+

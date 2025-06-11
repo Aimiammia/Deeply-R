@@ -34,8 +34,8 @@ export default function IntelligentAnalysisPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [longTermGoals, setLongTermGoals] = useState<LongTermGoal[]>([]);
   const [activityLogs, setActivityLogs] = useState<DailyActivityLogEntry[]>([]);
-  const [reflections, setReflections] = useState<ReflectionEntry[]>([]); // Added
-  const [transactions, setTransactions] = useState<FinancialTransaction[]>([]); // Added
+  const [reflections, setReflections] = useState<ReflectionEntry[]>([]); 
+  const [transactions, setTransactions] = useState<FinancialTransaction[]>([]); 
   const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
 
   const [goalAssessment, setGoalAssessment] = useState<string | null>(null);
@@ -53,10 +53,10 @@ export default function IntelligentAnalysisPage() {
       const storedLogs = localStorage.getItem('dailyActivityLogsDeeply');
       if (storedLogs) setActivityLogs(JSON.parse(storedLogs));
       
-      const storedReflections = localStorage.getItem('dailyReflections'); // Added
+      const storedReflections = localStorage.getItem('dailyReflections'); 
       if (storedReflections) setReflections(JSON.parse(storedReflections));
 
-      const storedTransactions = localStorage.getItem('financialTransactions'); // Added
+      const storedTransactions = localStorage.getItem('financialTransactions'); 
       if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
 
     } catch (error) {
@@ -106,7 +106,7 @@ export default function IntelligentAnalysisPage() {
 
   const calculateActivitySummary = (days: number): ActivitySummary => {
     const endDate = new Date();
-    const startDate = subDays(endDate, days - 1); // -1 because we want 'days' inclusive, e.g. 7 days ago up to today
+    const startDate = subDays(endDate, days - 1); 
     
     const tasksCompleted = tasks.filter(task => 
         task.completed && isWithinInterval(parseISO(task.createdAt), { start: startDate, end: endDate })
@@ -176,19 +176,19 @@ export default function IntelligentAnalysisPage() {
             بازگشت به خانه
           </Link>
         </Button>
+
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <PieChart className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+
         <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <div className="flex items-center space-x-3 rtl:space-x-reverse">
-              <PieChart className="h-8 w-8 text-primary" />
-              <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-8">
+          <CardContent className="p-6 space-y-8">
             
             <Card className="bg-primary/10">
               <CardHeader>
@@ -196,7 +196,7 @@ export default function IntelligentAnalysisPage() {
                     <Brain className="mr-3 h-6 w-6 text-primary rtl:ml-3 rtl:mr-0" />
                     <CardTitle className="text-xl text-primary">تحلیل هوشمند پیشرفت اهداف</CardTitle>
                 </div>
-                <CardDescription>با استفاده از هوش مصنوعی، میزان همسویی و پیشرفت خود به سمت اهداف بلندمدت را ارزیابی کنید.</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground pt-1">با استفاده از هوش مصنوعی، میزان همسویی و پیشرفت خود به سمت اهداف بلندمدت را ارزیابی کنید.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button onClick={handleAssessGoalProgress} disabled={isAssessingGoals || !isInitialLoadComplete} className="w-full sm:w-auto">
@@ -241,7 +241,7 @@ export default function IntelligentAnalysisPage() {
                         <Activity className="mr-3 h-6 w-6 text-primary rtl:ml-3 rtl:mr-0" />
                         <CardTitle className="text-xl text-primary">خلاصه فعالیت</CardTitle>
                     </div>
-                    <CardDescription>نگاهی کلی به فعالیت‌های شما در بازه‌های زمانی اخیر.</CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">نگاهی کلی به فعالیت‌های شما در بازه‌های زمانی اخیر.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {isInitialLoadComplete ? (
@@ -293,7 +293,7 @@ export default function IntelligentAnalysisPage() {
                         <Link href="/section/1">مشاهده کامل <ArrowLeft className="mr-1 h-3 w-3 rtl:ml-1 rtl:mr-0"/></Link>
                     </Button>
                 </div>
-                <CardDescription>چند وظیفه مهم یا آتی شما.</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground pt-1">چند وظیفه مهم یا آتی شما.</CardDescription>
               </CardHeader>
               <CardContent>
                 {isInitialLoadComplete && upcomingTasks.length > 0 ? (
@@ -319,13 +319,13 @@ export default function IntelligentAnalysisPage() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
                         <Target className="mr-3 h-6 w-6 text-primary rtl:ml-3 rtl:mr-0" />
-                        <CardTitle className="text-xl text-primary">پیش‌نمایش برنامه‌ریزی بلند مدت</CardTitle>
+                        <CardTitle className="text-xl text-primary">پیش‌نمایش اهداف</CardTitle>
                     </div>
                     <Button asChild variant="link" size="sm">
                         <Link href="/section/9">مشاهده کامل <ArrowLeft className="mr-1 h-3 w-3 rtl:ml-1 rtl:mr-0"/></Link>
                     </Button>
                 </div>
-                <CardDescription>چند هدف بلندمدت فعال شما.</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground pt-1">چند هدف فعال شما.</CardDescription>
               </CardHeader>
               <CardContent>
                 {isInitialLoadComplete && activeGoals.length > 0 ? (
@@ -339,7 +339,7 @@ export default function IntelligentAnalysisPage() {
                     ))}
                   </ul>
                 ) : isInitialLoadComplete ? (
-                  <p className="text-muted-foreground text-center py-4">هدف بلندمدت فعالی برای نمایش وجود ندارد.</p>
+                  <p className="text-muted-foreground text-center py-4">هدف فعالی برای نمایش وجود ندارد.</p>
                 ) : (
                   <p className="text-muted-foreground text-center py-4">در حال بارگذاری پیش‌نمایش اهداف...</p>
                 )}
@@ -357,7 +357,7 @@ export default function IntelligentAnalysisPage() {
                         <Link href="/section/8">مشاهده کامل <ArrowLeft className="mr-1 h-3 w-3 rtl:ml-1 rtl:mr-0"/></Link>
                     </Button>
                 </div>
-                <CardDescription>آخرین فعالیت‌های ثبت شده شما.</CardDescription>
+                <CardDescription className="text-sm text-muted-foreground pt-1">آخرین فعالیت‌های ثبت شده شما.</CardDescription>
               </CardHeader>
               <CardContent>
                 {isInitialLoadComplete && recentLogs.length > 0 ? (

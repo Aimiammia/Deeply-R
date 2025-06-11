@@ -2,9 +2,9 @@
 'use client';
 
 import { Header } from '@/components/Header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma } from 'lucide-react';
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma, Loader2 } from 'lucide-react'; // Added Loader2
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
@@ -16,6 +16,7 @@ import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { ClientOnly } from '@/components/ClientOnly';
+import { cn } from '@/lib/utils';
 
 
 import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
@@ -95,11 +96,6 @@ export default function FinancialManagementPage() {
         };
         return [newBudget, ...prevBudgets];
       }
-      // If trying to add a budget for a category that already exists (but not editing that specific one)
-      // or some other edge case, don't change for now, or show a specific toast.
-      // For simplicity, this implementation prioritizes editing or adding new distinct categories.
-      // If an existingBudget is set but its category doesn't match, it implies user changed category in a non-existent edit UI for category itself.
-      // The current form disables category change on edit, so this scenario should be less likely.
       return prevBudgets;
     });
     toast({
@@ -295,19 +291,19 @@ export default function FinancialManagementPage() {
             بازگشت به خانه
           </Link>
         </Button>
+        
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <CircleDollarSign className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+
         <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
-              <CircleDollarSign className="h-8 w-8 text-primary" />
-              <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="p-6">
             <Tabs defaultValue="transactions" className="w-full">
               <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-5 mb-6 rounded-full bg-primary/10 p-1 h-auto">
                 <TabsTrigger value="transactions" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
@@ -358,14 +354,14 @@ export default function FinancialManagementPage() {
 
               <TabsContent value="budgeting" className="space-y-6">
                  <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader>
+                  <CardHeader className="p-6">
                     <CardTitle className="text-xl flex items-center text-foreground">
                       <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       بودجه‌بندی ماهانه
                     </CardTitle>
-                    <CardDescription>بودجه ماهانه خود را برای دسته‌بندی‌های مختلف هزینه تنظیم و پیگیری کنید.</CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">بودجه ماهانه خود را برای دسته‌بندی‌های مختلف هزینه تنظیم و پیگیری کنید.</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6 pt-0">
                      <CreateBudgetForm onSetBudget={handleSetBudget} existingBudget={editingBudget} />
                      <BudgetList budgets={budgets} transactions={transactions} onDeleteBudget={handleDeleteBudget} onEditBudget={handleEditBudget} />
                      
@@ -393,14 +389,14 @@ export default function FinancialManagementPage() {
 
               <TabsContent value="assets" className="space-y-6">
                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader>
+                  <CardHeader className="p-6">
                     <CardTitle className="text-xl flex items-center text-foreground">
                        <PackageSearch className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       مدیریت دارایی‌ها
                     </CardTitle>
-                    <CardDescription>لیست دارایی‌های خود (مانند ملک، خودرو، حساب بانکی، سهام و ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">لیست دارایی‌های خود (مانند ملک، خودرو، حساب بانکی، سهام و ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6 pt-0">
                     <CreateAssetForm onSaveAsset={handleSaveAsset} existingAsset={editingAsset} />
                     <AssetList assets={assets} onDeleteAsset={handleDeleteAsset} onEditAsset={setEditingAsset} onSetEditingAsset={setEditingAsset} />
                     
@@ -428,14 +424,14 @@ export default function FinancialManagementPage() {
 
               <TabsContent value="investments" className="space-y-6">
                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader>
+                  <CardHeader className="p-6">
                     <CardTitle className="text-xl flex items-center text-foreground">
                        <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       پیگیری سرمایه‌گذاری‌ها
                     </CardTitle>
-                    <CardDescription>سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید.</CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید.</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6 pt-0">
                     <CreateInvestmentForm onSaveInvestment={handleSaveInvestment} existingInvestment={editingInvestment} />
                     {investments.length > 0 && (
                         <Card className="mt-6 bg-primary/10 p-4">
@@ -469,14 +465,14 @@ export default function FinancialManagementPage() {
 
               <TabsContent value="savings" className="space-y-6">
                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader>
+                  <CardHeader className="p-6">
                     <CardTitle className="text-xl flex items-center text-foreground">
                        <PiggyBank className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       اهداف پس‌انداز
                     </CardTitle>
-                    <CardDescription>اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-6 pt-0">
                      <CreateSavingsGoalForm onSaveGoal={handleSaveSavingsGoal} existingGoal={editingSavingsGoal} />
                      <SavingsGoalList 
                         goals={savingsGoals} 

@@ -2,7 +2,7 @@
 'use client';
 
 import { Header } from '@/components/Header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
 import Link from 'next/link';
 import { ArrowLeft, CalendarDays, CheckSquare, Edit, ListChecks, GanttChartSquare, BellDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,20 +25,19 @@ export default function CalendarPage() {
             بازگشت به خانه
           </Link>
         </Button>
+
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <CalendarDays className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            {sectionPageDescription}
+          </p>
+        </div>
+        
         <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <div className="flex items-center space-x-3 rtl:space-x-reverse mb-2">
-              <CalendarDays className="h-8 w-8 text-primary" />
-              <CardTitle className="text-2xl font-headline text-primary">
-                {sectionTitle}
-              </CardTitle>
-            </div>
-            <CardDescription className="text-muted-foreground">
-              {sectionPageDescription}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            {/* Pass current Jalali year and month to the calendar */}
+          <CardContent className="p-6 space-y-8">
             <PersianCalendarView initialYear={todayJalali.year} initialMonth={todayJalali.month} /> 
             
             <div className="p-4 border rounded-lg bg-secondary/30">
