@@ -6,15 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-// import { Calendar } from '@/components/ui/calendar'; // Replaced with JalaliDatePicker
-import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; // Import new component
+import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale'; // Import Persian locale
 import { cn } from '@/lib/utils';
 import type { Task } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubject } from '@/lib/educational-data';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 
 interface CreateTaskFormProps {
   onAddTask: (
@@ -37,7 +35,7 @@ const predefinedCategories = [
   { value: 'مطالعه', label: 'مطالعه' },
   { value: 'ورزش', label: 'ورزش' },
   { value: 'پروژه', label: 'پروژه' },
-  { value: 'درس', label: 'درس' }, // Added "درس" category
+  { value: 'درس', label: 'درس' },
   { value: 'متفرقه', label: 'متفرقه' },
 ];
 
@@ -47,7 +45,6 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const [priority, setPriority] = useState<Task['priority'] | undefined>(undefined);
   const [category, setCategory] = useState<string | undefined>(undefined);
 
-  // State for educational task details
   const [userEducationalLevel, setUserEducationalLevel] = useState<string | null>(null);
   const [isLevelConfirmed, setIsLevelConfirmed] = useState<boolean>(false);
   const [availableSubjects, setAvailableSubjects] = useState<EducationalSubject[]>([]);
@@ -56,14 +53,15 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const [endChapter, setEndChapter] = useState<number | ''>('');
 
   useEffect(() => {
-    // Load educational level from localStorage
-    const storedLevel = localStorage.getItem('educationalLevel');
-    const storedConfirmed = localStorage.getItem('isEducationalLevelConfirmed');
-    if (storedLevel) {
-      setUserEducationalLevel(storedLevel);
-    }
-    if (storedConfirmed) {
-      setIsLevelConfirmed(storedConfirmed === 'true');
+    const storedLevelData = localStorage.getItem('educationalLevelSettingsDeeply');
+    if (storedLevelData) {
+        try {
+            const settings = JSON.parse(storedLevelData);
+            setUserEducationalLevel(settings.levelValue || null);
+            setIsLevelConfirmed(settings.isConfirmed || false);
+        } catch (e) {
+            console.error("Failed to parse educational settings from localStorage", e);
+        }
     }
   }, []);
 
@@ -81,7 +79,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const handleSubjectChange = (subjectId: string) => {
     const subject = availableSubjects.find(s => s.id === subjectId);
     setSelectedSubject(subject || null);
-    setStartChapter(''); // Reset chapters when subject changes
+    setStartChapter('');
     setEndChapter('');
   };
 
@@ -104,12 +102,10 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
         onAddTask(title.trim(), dueDate ?? null, priority ?? null, category || null);
       }
       
-      // Reset common fields
       setTitle('');
       setDueDate(undefined);
       setPriority(undefined);
       setCategory(undefined);
-      // Reset educational fields (will also be reset by useEffect if category changes)
       setSelectedSubject(null);
       setStartChapter('');
       setEndChapter('');
@@ -139,7 +135,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-              {dueDate ? format(dueDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ سررسید</span>}
+              {dueDate ? formatJalaliDateDisplay(dueDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ سررسید</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -183,8 +179,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
             <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
             جزئیات درس
           </h4>
-          {!userEducationalLevel && <p className="text-xs text-muted-foreground">ابتدا مقطع تحصیلی خود را در بخش "تحصیل" مشخص و تایید کنید.</p>}
-          {userEducationalLevel && availableSubjects.length === 0 && <p className="text-xs text-muted-foreground">درسی برای مقطع "{userEducationalLevel}" تعریف نشده است. (می‌توانید لیست دروس را در `src/lib/educational-data.ts` تکمیل کنید)</p>}
+          {!availableSubjects.length && <p className="text-xs text-muted-foreground">ابتدا مقطع تحصیلی خود را در بخش "تحصیل" مشخص و تایید کنید یا برای مقطع فعلی درسی تعریف نشده است.</p>}
           
           {availableSubjects.length > 0 && (
             <>

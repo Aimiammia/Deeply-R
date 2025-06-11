@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, PlusCircle, Edit3, PiggyBank } from 'lucide-react';
+import { Calendar as CalendarIcon, PlusCircle, Edit3, PiggyBank, Save } from 'lucide-react'; // Added Save
 import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
-import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { SavingsGoal } from '@/types';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
 
 interface CreateSavingsGoalFormProps {
   onSaveGoal: (goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => void;
@@ -100,7 +99,7 @@ export function CreateSavingsGoalForm({ onSaveGoal, existingGoal }: CreateSaving
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-              {targetDate ? format(targetDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ</span>}
+              {targetDate ? formatJalaliDateDisplay(targetDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">

@@ -7,13 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; // Changed
 import { PlusCircle, Calendar as CalendarIcon, Trash2, ListChecks } from 'lucide-react';
-import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import type { LongTermGoal, Milestone } from '@/types'; // Import Milestone
+import type { LongTermGoal, Milestone } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
 
 interface CreateLongTermGoalFormProps {
   onSaveGoal: (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => void;
@@ -41,7 +40,6 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
       setSuccessCriteria(existingGoal.successCriteria || '');
       setMilestones(existingGoal.milestones || []);
     } else {
-      // Reset form for new entry
       setTitle('');
       setDescription('');
       setTargetDate(undefined);
@@ -72,6 +70,7 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
         status,
         successCriteria: successCriteria.trim() || null,
         milestones: milestones.length > 0 ? milestones : null,
+        ...(isEditing && existingGoal ? { id: existingGoal.id } : {}), // Include ID if editing
       }, isEditing);
 
       if (!isEditing) {
@@ -146,16 +145,15 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
                 )}
                 >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {targetDate ? format(targetDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ هدف</span>}
+                {targetDate ? formatJalaliDateDisplay(targetDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ هدف</span>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                mode="single"
-                selected={targetDate}
-                onSelect={setTargetDate}
-                initialFocus
-                dir="rtl"
+                <JalaliDatePicker // Changed from Calendar to JalaliDatePicker
+                    value={targetDate}
+                    onChange={setTargetDate}
+                    initialYear={targetDate ? new Date(targetDate).getFullYear() : undefined}
+                    initialMonth={targetDate ? new Date(targetDate).getMonth() + 1 : undefined}
                 />
             </PopoverContent>
             </Popover>
@@ -179,7 +177,7 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
       <div>
         <Label className="mb-2 block flex items-center"><ListChecks className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/> نقاط عطف (اختیاری)</Label>
         <div className="space-y-2">
-          {milestones.map((milestone, index) => (
+          {milestones.map((milestone) => (
             <div key={milestone.id} className="flex items-center gap-2 p-2 border rounded-md bg-secondary/30">
               <span className="flex-grow text-sm">{milestone.name}</span>
               <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveMilestone(milestone.id)}>

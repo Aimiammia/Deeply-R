@@ -6,14 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; // Changed import
+import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { FinancialTransaction } from '@/types';
 import { predefinedCategories, expenseCategories, incomeCategories } from '@/lib/financial-categories';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
 
 interface AddTransactionFormProps {
   onAddTransaction: (transaction: Omit<FinancialTransaction, 'id' | 'createdAt'>) => void;
@@ -85,7 +84,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
             variant={type === 'income' ? 'default' : 'outline'}
             onClick={() => {
               setType('income');
-              setCategory(undefined); // Reset category when type changes
+              setCategory(undefined);
             }}
             className="flex-1"
           >
@@ -96,7 +95,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
             variant={type === 'expense' ? 'default' : 'outline'}
             onClick={() => {
               setType('expense');
-              setCategory(undefined); // Reset category when type changes
+              setCategory(undefined);
             }}
             className="flex-1"
           >
@@ -118,14 +117,14 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
                 )}
               >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {date ? format(date, "PPP", { locale: faIR }) : <span>انتخاب تاریخ</span>}
+                {date ? formatJalaliDateDisplay(date, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <JalaliDatePicker // Replaced Calendar with JalaliDatePicker
+              <JalaliDatePicker
                 value={date}
                 onChange={setDate}
-                initialYear={date ? new Date(date).getFullYear() : undefined} // Pass initial year and month
+                initialYear={date ? new Date(date).getFullYear() : undefined}
                 initialMonth={date ? new Date(date).getMonth() + 1 : undefined}
               />
             </PopoverContent>

@@ -10,10 +10,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarIcon, PlusCircle, Edit3, Building } from 'lucide-react';
 import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { FinancialAsset } from '@/types';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
 
 interface CreateAssetFormProps {
   onSaveAsset: (assetData: Omit<FinancialAsset, 'id' | 'createdAt' | 'lastValueUpdate'>, isEditing: boolean) => void;
@@ -49,7 +48,6 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
       setCurrentValue(existingAsset.currentValue);
       setNotes(existingAsset.notes || '');
     } else {
-      // Reset form for new entry
       setName('');
       setType(undefined);
       setInitialValue('');
@@ -72,7 +70,6 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
       }, isEditing);
 
       if (!isEditing) {
-        // Reset form only if adding new, not editing
         setName('');
         setType(undefined);
         setInitialValue('');
@@ -144,7 +141,7 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
                     )}
                 >
                     <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                    {purchaseDate ? format(purchaseDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ</span>}
+                    {purchaseDate ? formatJalaliDateDisplay(purchaseDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
                 </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">

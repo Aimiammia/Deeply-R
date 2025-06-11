@@ -10,11 +10,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarIcon, PlusCircle, Edit3, TrendingUp, DollarSign } from 'lucide-react';
 import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format } from 'date-fns';
-import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { FinancialInvestment } from '@/types';
 import { investmentTypes } from '@/lib/investment-types';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
 
 interface CreateInvestmentFormProps {
   onSaveInvestment: (investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditing: boolean) => void;
@@ -27,7 +26,7 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(new Date());
   const [quantity, setQuantity] = useState<number | ''>('');
   const [purchasePricePerUnit, setPurchasePricePerUnit] = useState<number | ''>('');
-  const [fees, setFees] = useState<number | ''>(0); // Default fees to 0
+  const [fees, setFees] = useState<number | ''>(0);
   const [currentPricePerUnit, setCurrentPricePerUnit] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
 
@@ -44,7 +43,6 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
       setCurrentPricePerUnit(existingInvestment.currentPricePerUnit);
       setNotes(existingInvestment.notes || '');
     } else {
-      // Reset form for new entry
       setName('');
       setType(undefined);
       setPurchaseDate(new Date());
@@ -71,7 +69,6 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
       }, isEditing);
 
       if (!isEditing) {
-        // Reset form only if adding new
         setName('');
         setType(undefined);
         setPurchaseDate(new Date());
@@ -144,7 +141,7 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
                 className={cn("w-full justify-start text-left font-normal", !purchaseDate && "text-muted-foreground")}
               >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {purchaseDate ? format(purchaseDate, "PPP", { locale: faIR }) : <span>انتخاب تاریخ</span>}
+                {purchaseDate ? formatJalaliDateDisplay(purchaseDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
