@@ -10,7 +10,6 @@ import { ArrowLeft, Brain, History, Edit3, BookHeart } from 'lucide-react';
 import { ReflectionForm } from '@/components/ReflectionForm';
 import { ReflectionHistoryList } from '@/components/ReflectionHistoryList';
 import { ReflectionInsightsDisplay } from '@/components/ReflectionInsightsDisplay';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { analyzeUserReflections, type AnalyzeUserReflectionsInput, type AnalyzeUserReflectionsOutput } from '@/ai/flows/analyze-user-reflections';
@@ -85,55 +84,62 @@ export default function ReflectionsPage() {
           </Link>
         </Button>
 
-        <Card className="shadow-lg bg-card">
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline text-primary flex items-center">
-              <BookHeart className="mr-3 h-7 w-7 rtl:ml-3 rtl:mr-0" />
-              تأملات روزانه
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              افکار و احساسات خود را ثبت کنید و با کمک هوش مصنوعی به بینش‌های جدیدی دست یابید.
-              نقل قول امروز برای تأمل: <span className="italic text-accent">{currentPrompt}</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-3 flex items-center text-foreground">
-                <Edit3 className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                تأمل جدید بنویسید
-              </h2>
-              <ReflectionForm onSaveReflection={handleSaveReflection} isLoading={isSavingReflection} />
-            </div>
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+            <BookHeart className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">تأملات روزانه</h1>
+          </div>
+          <p className="text-lg text-muted-foreground">
+            افکار و احساسات خود را ثبت کنید و با کمک هوش مصنوعی به بینش‌های جدیدی دست یابید.
+            نقل قول امروز برای تأمل: <span className="italic text-accent">{currentPrompt}</span>
+          </p>
+        </div>
 
-            <Separator />
+        <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center text-foreground">
+                  <Edit3 className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                  تأمل جدید بنویسید
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReflectionForm onSaveReflection={handleSaveReflection} isLoading={isSavingReflection} />
+              </CardContent>
+            </Card>
 
-            <div>
-              <h2 className="text-xl font-semibold mb-3 flex items-center text-foreground">
-                <Brain className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                بینش‌های تأمل انتخاب شده
-              </h2>
-              {selectedReflection ? (
-                <ReflectionInsightsDisplay insights={insights} isLoading={isLoadingInsights} error={insightsError} />
-              ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center text-foreground">
+                  <Brain className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                  بینش‌های تأمل انتخاب شده
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {selectedReflection ? (
+                  <ReflectionInsightsDisplay insights={insights} isLoading={isLoadingInsights} error={insightsError} />
+                ) : (
                  <p className="text-muted-foreground text-center py-4">یک تأمل از تاریخچه انتخاب کنید یا یک تأمل جدید بنویسید تا تحلیل آن نمایش داده شود.</p>
-              )}
-            </div>
+                )}
+              </CardContent>
+            </Card>
             
-            <Separator />
-
-            <div>
-              <h2 className="text-xl font-semibold mb-3 flex items-center text-foreground">
-                <History className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                تاریخچه تأملات
-              </h2>
-              <ReflectionHistoryList 
-                reflections={sortedReflections} 
-                onSelectReflection={handleSelectReflection}
-                selectedReflectionId={selectedReflection?.id}
-              />
-            </div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center text-foreground">
+                  <History className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                  تاریخچه تأملات
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReflectionHistoryList 
+                    reflections={sortedReflections} 
+                    onSelectReflection={handleSelectReflection}
+                    selectedReflectionId={selectedReflection?.id}
+                />
+              </CardContent>
+            </Card>
+        </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>

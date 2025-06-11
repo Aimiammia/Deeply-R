@@ -9,13 +9,13 @@ import {
   BookHeart,
   CircleDollarSign,
   CalendarDays,
-  Target, 
+  Target,
   Dumbbell,
   BookOpen,
   PieChart,
   FileText,
-  Settings, 
-  ListChecks 
+  Settings,
+  ListChecks
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -34,7 +34,7 @@ const sectionIcons: LucideIcon[] = [
 ];
 
 export default function HomePage() {
-  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
+  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,9 +42,9 @@ export default function HomePage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
-            const iconIndex = sectionNumber -1; 
+            const iconIndex = sectionNumber -1;
             let IconComponent = Settings; // Fallback icon
-            
+
             if (iconIndex >= 0 && iconIndex < sectionIcons.length) {
               IconComponent = sectionIcons[iconIndex];
             }
@@ -72,9 +72,9 @@ export default function HomePage() {
               sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
               sectionContent = "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید.";
             } else if (sectionNumber === 5) {
-              sectionTitle = "ردیاب عادت‌ها"; 
-              sectionDescription = "عادت‌های مثبت خود را ایجاد و پیگیری کنید"; 
-              sectionContent = "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."; 
+              sectionTitle = "ردیاب عادت‌ها";
+              sectionDescription = "عادت‌های مثبت خود را ایجاد و پیگیری کنید";
+              sectionContent = "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید.";
             } else if (sectionNumber === 6) {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
@@ -84,11 +84,11 @@ export default function HomePage() {
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             } else if (sectionNumber === 8) {
-              sectionTitle = "یادداشت فعالیت‌های روزانه"; 
+              sectionTitle = "یادداشت فعالیت‌های روزانه";
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
               sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "اهداف"; 
+              sectionTitle = "اهداف";
               sectionDescription = "اهداف بزرگ و برنامه‌های خود را تعریف و پیگیری کنید.";
               sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
               sectionLink = `/section/9`;
@@ -100,11 +100,11 @@ export default function HomePage() {
 
             return (
               <Link href={sectionLink} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
-                <Card className="shadow-lg hover:shadow-xl transform transition-all duration-300 ease-in-out hover:scale-[1.03] cursor-pointer h-full flex flex-col bg-card border border-transparent group-hover:border-primary/50">
-                  <CardHeader className="flex-shrink-0 pb-4">
+                <Card className="shadow-md hover:shadow-lg border border-border/60 hover:border-primary/70 transition-all duration-300 ease-in-out hover:scale-[1.02] cursor-pointer h-full flex flex-col bg-card">
+                  <CardHeader className="flex-shrink-0 p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
                       <IconComponent className="h-6 w-6 text-primary" />
-                      <CardTitle className="text-lg font-headline text-foreground">
+                      <CardTitle className="text-xl font-headline font-semibold text-foreground">
                         {sectionTitle}
                       </CardTitle>
                     </div>
@@ -112,7 +112,7 @@ export default function HomePage() {
                       {sectionDescription}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-grow pt-2 text-sm text-foreground/90">
+                  <CardContent className="flex-grow p-4 pt-0 text-sm text-foreground/90">
                     <p>
                       {sectionContent}
                     </p>
