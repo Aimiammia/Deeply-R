@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import type { FinancialInvestment } from '@/types';
 import { investmentTypes } from '@/lib/investment-types';
-import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
 
 interface CreateInvestmentFormProps {
   onSaveInvestment: (investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditing: boolean) => void;
@@ -141,7 +141,7 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
                 className={cn("w-full justify-start text-left font-normal", !purchaseDate && "text-muted-foreground")}
               >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {purchaseDate ? formatJalaliDateDisplay(purchaseDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
+                {purchaseDate ? formatJalaliDateDisplay(purchaseDate, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">

@@ -12,7 +12,7 @@ import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { FinancialAsset } from '@/types';
-import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
 
 interface CreateAssetFormProps {
   onSaveAsset: (assetData: Omit<FinancialAsset, 'id' | 'createdAt' | 'lastValueUpdate'>, isEditing: boolean) => void;
@@ -141,7 +141,7 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
                     )}
                 >
                     <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                    {purchaseDate ? formatJalaliDateDisplay(purchaseDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
+                    {purchaseDate ? formatJalaliDateDisplay(purchaseDate, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ</span>}
                 </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">

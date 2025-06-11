@@ -135,7 +135,7 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-              {dueDate ? formatJalaliDateDisplay(dueDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ سررسید</span>}
+              {dueDate ? formatJalaliDateDisplay(dueDate, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ سررسید</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">

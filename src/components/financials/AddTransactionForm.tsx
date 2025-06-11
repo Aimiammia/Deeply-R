@@ -12,7 +12,7 @@ import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucid
 import { cn } from '@/lib/utils';
 import type { FinancialTransaction } from '@/types';
 import { predefinedCategories, expenseCategories, incomeCategories } from '@/lib/financial-categories';
-import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
 
 interface AddTransactionFormProps {
   onAddTransaction: (transaction: Omit<FinancialTransaction, 'id' | 'createdAt'>) => void;
@@ -117,7 +117,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
                 )}
               >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {date ? formatJalaliDateDisplay(date, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ</span>}
+                {date ? formatJalaliDateDisplay(date, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">

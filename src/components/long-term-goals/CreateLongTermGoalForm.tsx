@@ -7,12 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; // Changed
+import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker'; 
 import { PlusCircle, Calendar as CalendarIcon, Trash2, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { LongTermGoal, Milestone } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; // Added
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
 
 interface CreateLongTermGoalFormProps {
   onSaveGoal: (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => void;
@@ -70,7 +70,7 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
         status,
         successCriteria: successCriteria.trim() || null,
         milestones: milestones.length > 0 ? milestones : null,
-        ...(isEditing && existingGoal ? { id: existingGoal.id } : {}), // Include ID if editing
+        ...(isEditing && existingGoal ? { id: existingGoal.id } : {}), 
       }, isEditing);
 
       if (!isEditing) {
@@ -145,11 +145,11 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
                 )}
                 >
                 <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                {targetDate ? formatJalaliDateDisplay(targetDate, 'jD jMMMM jYYYY') : <span>انتخاب تاریخ هدف</span>}
+                {targetDate ? formatJalaliDateDisplay(targetDate, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ هدف</span>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-                <JalaliDatePicker // Changed from Calendar to JalaliDatePicker
+                <JalaliDatePicker 
                     value={targetDate}
                     onChange={setTargetDate}
                     initialYear={targetDate ? new Date(targetDate).getFullYear() : undefined}
