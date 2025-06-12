@@ -84,7 +84,8 @@ export interface EducationalLevelStorage {
 
 export interface SubjectProgress {
     status: 'not-started' | 'in-progress' | 'completed';
-    notes?: string | null;
+    currentGrade?: string | null; // e.g., "18.5", "A+", "خوب"
+    detailedNotes?: string | null;
 }
 export interface EducationalSubjectUserProgress {
     [subjectId: string]: SubjectProgress;

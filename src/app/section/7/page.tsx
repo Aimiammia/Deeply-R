@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare, Settings } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
@@ -194,14 +196,43 @@ export default function EducationPage() {
     setLevelToConfirm(undefined);
   };
 
-  const handleSubjectStatusChange = (subjectId: string, status: SubjectProgress['status']) => {
-    setSubjectProgress(prev => ({
-      ...prev,
-      [subjectId]: {
-        ...(prev[subjectId] || { notes: null }), 
-        status,
-      }
-    }));
+  const handleSubjectStatusChange = (subjectId: string, newStatus: SubjectProgress['status']) => {
+    setSubjectProgress(prev => {
+      const currentProgress = prev[subjectId] || { status: 'not-started', currentGrade: null, detailedNotes: null };
+      return {
+        ...prev,
+        [subjectId]: {
+          ...currentProgress,
+          status: newStatus,
+        }
+      };
+    });
+  };
+  
+  const handleGradeChange = (subjectId: string, newGrade: string) => {
+    setSubjectProgress(prev => {
+      const currentProgress = prev[subjectId] || { status: 'not-started', currentGrade: null, detailedNotes: null };
+      return {
+        ...prev,
+        [subjectId]: {
+          ...currentProgress,
+          currentGrade: newGrade || null,
+        }
+      };
+    });
+  };
+
+  const handleDetailedNotesChange = (subjectId: string, newNotes: string) => {
+    setSubjectProgress(prev => {
+      const currentProgress = prev[subjectId] || { status: 'not-started', currentGrade: null, detailedNotes: null };
+      return {
+        ...prev,
+        [subjectId]: {
+          ...currentProgress,
+          detailedNotes: newNotes || null,
+        }
+      };
+    });
   };
   
   const currentLevelLabel = educationalLevels.find(l => l.value === educationalSettings.levelValue)?.label;
@@ -324,21 +355,44 @@ export default function EducationPage() {
                                     <CardTitle className="text-md">{subject.name}</CardTitle>
                                     <CardDescription>تعداد کل فصول: {subject.totalChapters.toLocaleString('fa-IR')}</CardDescription>
                                 </CardHeader>
-                                <CardContent>
-                                    <Label htmlFor={`status-${subject.id}`} className="text-xs">وضعیت مطالعه:</Label>
-                                    <Select
-                                        value={subjectProgress[subject.id]?.status || 'not-started'}
-                                        onValueChange={(value) => handleSubjectStatusChange(subject.id, value as SubjectProgress['status'])}
-                                    >
-                                        <SelectTrigger id={`status-${subject.id}`} className="mt-1">
-                                            <SelectValue placeholder="انتخاب وضعیت..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="not-started">شروع نشده</SelectItem>
-                                            <SelectItem value="in-progress">در حال مطالعه</SelectItem>
-                                            <SelectItem value="completed">مطالعه شده</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                <CardContent className="pt-0 space-y-3">
+                                    <div>
+                                        <Label htmlFor={`status-${subject.id}`} className="text-xs">وضعیت مطالعه:</Label>
+                                        <Select
+                                            value={subjectProgress[subject.id]?.status || 'not-started'}
+                                            onValueChange={(value) => handleSubjectStatusChange(subject.id, value as SubjectProgress['status'])}
+                                        >
+                                            <SelectTrigger id={`status-${subject.id}`} className="mt-1">
+                                                <SelectValue placeholder="انتخاب وضعیت..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="not-started">شروع نشده</SelectItem>
+                                                <SelectItem value="in-progress">در حال مطالعه</SelectItem>
+                                                <SelectItem value="completed">مطالعه شده</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div>
+                                        <Label htmlFor={`grade-${subject.id}`} className="text-xs">نمره فعلی/توصیفی (اختیاری):</Label>
+                                        <Input
+                                          id={`grade-${subject.id}`}
+                                          value={subjectProgress[subject.id]?.currentGrade || ''}
+                                          onChange={(e) => handleGradeChange(subject.id, e.target.value)}
+                                          placeholder="مثلا: ۱۸.۵، عالی، نیاز به تلاش بیشتر"
+                                          className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor={`detailedNotes-${subject.id}`} className="text-xs">یادداشت‌های بیشتر (اختیاری):</Label>
+                                        <Textarea
+                                          id={`detailedNotes-${subject.id}`}
+                                          value={subjectProgress[subject.id]?.detailedNotes || ''}
+                                          onChange={(e) => handleDetailedNotesChange(subject.id, e.target.value)}
+                                          placeholder="نکات مهم، مباحث نیازمند مرور، سوالات و..."
+                                          rows={2}
+                                          className="mt-1"
+                                        />
+                                    </div>
                                 </CardContent>
                             </Card>
                         ))}
@@ -376,7 +430,7 @@ export default function EducationPage() {
                             <TargetIcon className="ml-3 h-5 w-5 text-green-500 rtl:mr-3 rtl:ml-0 flex-shrink-0 mt-0.5" />
                             <div>
                                 <span className="font-semibold text-foreground">پیگیری پیشرفت در دروس</span>
-                                <p className="text-xs text-muted-foreground">وضعیت مطالعه هر درس (شروع نشده، در حال مطالعه، مطالعه شده) را مشخص کنید.</p>
+                                <p className="text-xs text-muted-foreground">وضعیت مطالعه، نمرات و یادداشت‌های هر درس را مشخص کنید.</p>
                             </div>
                         </li>
                         <li className="flex items-start p-3 rounded-md bg-background shadow-sm opacity-70">
@@ -448,3 +502,4 @@ export default function EducationPage() {
     </div>
   );
 }
+
