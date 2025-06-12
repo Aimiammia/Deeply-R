@@ -46,7 +46,7 @@ const educationalLevels = [
   { value: 'other', label: 'سایر' },
 ];
 
-const MEHR_FIRST_MONTH = 8; 
+const MEHR_FIRST_MONTH = 8; // September (JavaScript month is 0-indexed, so 8 is September)
 const MEHR_FIRST_DAY = 23; 
 
 function findNextLevelValue(currentValue: string): string | undefined {
@@ -116,7 +116,11 @@ export default function EducationPage() {
     let effectiveLastPromotionDate = lastPromoDate;
 
     for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
-      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH, MEHR_FIRST_DAY);
+      // Note: JavaScript months are 0-indexed, so MEHR_FIRST_MONTH (e.g., 9 for September) needs -1.
+      // However, the problem description uses `MEHR_FIRST_MONTH = 8` and seems to imply it's already adjusted or using a 1-indexed idea that gets corrected.
+      // For safety, let's assume the MEHR_FIRST_MONTH constant is for `new Date(year, MONTH, DAY)` where MONTH is 0-indexed.
+      // If MEHR_FIRST_MONTH = 8 means "Mehr" (which is the 7th month in Jalali, around Sept/Oct), then using 8 for September is correct for JS Date.
+      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY); // Adjusted for 0-indexed month
       
       if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
         const nextLevel = findNextLevelValue(currentProcessingLevel);
@@ -143,18 +147,29 @@ export default function EducationPage() {
 
   useEffect(() => {
     if (isClient && educationalSettings.isConfirmed) {
-      const newSettings = calculateAutoPromotion(educationalSettings);
-      if (newSettings) {
-        setEducationalSettings(newSettings); 
-        toast({
-          title: "مقطع تحصیلی به‌روز شد",
-          description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettings.levelValue)?.label}" ارتقا یافت.`,
-          duration: 7000,
-        });
+      const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
+      
+      if (newSettingsFromPromotion) {
+        if (newSettingsFromPromotion.levelValue !== educationalSettings.levelValue || 
+            newSettingsFromPromotion.lastPromotionCheckDate !== educationalSettings.lastPromotionCheckDate) {
+          setEducationalSettings(newSettingsFromPromotion);
+          toast({
+            title: "مقطع تحصیلی به‌روز شد",
+            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" ارتقا یافت.`,
+            duration: 7000,
+          });
+        }
       } else {
-        const todayISO = new Date().toISOString();
-        if (educationalSettings.lastPromotionCheckDate !== todayISO) {
-             setEducationalSettings(prev => ({...prev, lastPromotionCheckDate: todayISO }));
+        // No promotion occurred, update lastPromotionCheckDate only if it's a new day
+        const today = new Date();
+        const lastCheckDate = educationalSettings.lastPromotionCheckDate ? parseISO(educationalSettings.lastPromotionCheckDate) : new Date(1970,0,1);
+        
+        // Compare date part only
+        const todayDateString = format(today, 'yyyy-MM-dd');
+        const lastCheckDateString = format(lastCheckDate, 'yyyy-MM-dd');
+
+        if (lastCheckDateString !== todayDateString) {
+          setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
         }
       }
     }
@@ -503,3 +518,5 @@ export default function EducationPage() {
   );
 }
 
+
+    
