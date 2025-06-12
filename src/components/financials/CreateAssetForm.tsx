@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, PlusCircle, Edit3, Building } from 'lucide-react';
-import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { FinancialAsset } from '@/types';
@@ -145,7 +145,7 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
                 </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                <JalaliDatePicker
+                <DynamicJalaliDatePicker // Changed
                     value={purchaseDate}
                     onChange={setPurchaseDate}
                     initialYear={purchaseDate ? new Date(purchaseDate).getFullYear() : undefined}

@@ -2,20 +2,39 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic'; // Added
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks } from 'lucide-react';
+import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks, Loader2 } from 'lucide-react'; // Added Loader2
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useCallback } from 'react'; // Added useCallback
 import type { LongTermGoal, Book } from '@/types'; 
-import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm';
+// import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm'; // Commented
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
-import { CreateBookForm } from '@/components/books/CreateBookForm'; 
+// import { CreateBookForm } from '@/components/books/CreateBookForm'; // Commented
 import { BookList } from '@/components/books/BookList'; 
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from '@/components/ui/skeleton'; // Added
+
+const FormLoadingSkeleton = () => (
+  <div className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8 animate-pulse">
+    <Skeleton className="h-8 w-1/3 mb-4 rounded" />
+    <Skeleton className="h-10 w-full rounded" />
+    <Skeleton className="h-10 w-full rounded" />
+    <div className="flex gap-4">
+      <Skeleton className="h-10 flex-1 rounded" />
+      <Skeleton className="h-10 flex-1 rounded" />
+    </div>
+    <Skeleton className="h-10 w-full rounded" />
+  </div>
+);
+
+const DynamicCreateLongTermGoalForm = dynamic(() => import('@/components/long-term-goals/CreateLongTermGoalForm').then(mod => mod.CreateLongTermGoalForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
+const DynamicCreateBookForm = dynamic(() => import('@/components/books/CreateBookForm').then(mod => mod.CreateBookForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
+
 
 export default function SectionNineGoalsPage() { 
   const sectionTitle = "اهداف و کتاب‌ها"; 
@@ -29,7 +48,7 @@ export default function SectionNineGoalsPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
 
 
- const handleSaveGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
+ const handleSaveGoal = useCallback((goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
     if (isEditing && editingGoal) { 
         setGoals(prevGoals =>
             prevGoals.map(goal =>
@@ -46,9 +65,9 @@ export default function SectionNineGoalsPage() {
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-  };
+  }, [setGoals, editingGoal, toast]); // Added toast to dependencies if CreateLongTermGoalForm uses it internally for success
 
-  const handleDeleteGoal = (id: string) => {
+  const handleDeleteGoal = useCallback((id: string) => {
     const goalToDelete = goals.find(g => g.id === id);
     setGoals(prevGoals => prevGoals.filter(g => g.id !== id));
     if (goalToDelete) {
@@ -61,9 +80,9 @@ export default function SectionNineGoalsPage() {
      if (editingGoal?.id === id) {
       setEditingGoal(null);
     }
-  };
+  }, [goals, setGoals, toast, editingGoal]);
   
-  const handleUpdateGoal = (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
+  const handleUpdateGoal = useCallback((id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
      setGoals(prevGoals =>
       prevGoals.map(goal =>
         goal.id === id ? { 
@@ -75,10 +94,11 @@ export default function SectionNineGoalsPage() {
         } : goal
       )
     );
-  };
+    // Toast for update is usually handled by the item/form itself after successful edit
+  }, [setGoals]);
 
   // Book Handlers
-  const handleSaveBook = (bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
+  const handleSaveBook = useCallback((bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
     if (isEditingBook && editingBook) {
       const updatedBook: Book = {
         ...editingBook,
@@ -98,13 +118,15 @@ export default function SectionNineGoalsPage() {
       };
       setBooks(prevBooks => [newBook, ...prevBooks].sort((a,b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()));
     }
-  };
+     // Toast is usually handled by CreateBookForm itself
+  }, [setBooks, editingBook, toast]);
 
-  const handleUpdateBook = (updatedBook: Book) => {
+  const handleUpdateBook = useCallback((updatedBook: Book) => {
     setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
-  };
+    // Toast for update is usually handled by BookItem after successful interaction
+  }, [setBooks]);
 
-  const handleDeleteBook = (bookId: string) => {
+  const handleDeleteBook = useCallback((bookId: string) => {
     const bookToDelete = books.find(b => b.id === bookId);
     setBooks(prevBooks => prevBooks.filter(b => b.id !== bookId));
     if (bookToDelete) {
@@ -117,11 +139,11 @@ export default function SectionNineGoalsPage() {
     if (editingBook?.id === bookId) {
       setEditingBook(null);
     }
-  };
+  }, [books, setBooks, toast, editingBook]);
 
-  const handleTriggerEditBook = (book: Book) => {
+  const handleTriggerEditBook = useCallback((book: Book) => {
     setEditingBook(book);
-  };
+  }, []);
 
 
   return (
@@ -171,7 +193,7 @@ export default function SectionNineGoalsPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
+                        <DynamicCreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
                     </CardContent>
                 </Card>
                 
@@ -220,7 +242,7 @@ export default function SectionNineGoalsPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <CreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
+                        <DynamicCreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
                     </CardContent>
                 </Card>
                 <Card>

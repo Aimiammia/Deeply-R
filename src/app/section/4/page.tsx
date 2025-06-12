@@ -1,13 +1,48 @@
 
 'use client';
 
-import { Header } from '@/components/Header';
-import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
 import Link from 'next/link';
-import { ArrowLeft, CalendarDays, CheckSquare, Edit, ListChecks, GanttChartSquare, BellDot } from 'lucide-react';
+import dynamic from 'next/dynamic'; // Added
+import { Header } from '@/components/Header';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; 
+import { ArrowLeft, CalendarDays, CheckSquare, Edit, ListChecks, GanttChartSquare, BellDot, Loader2 } from 'lucide-react'; // Added Loader2
+// import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; // Commented out
 import { getJalaliToday } from '@/lib/calendar-helpers';
+import { Skeleton } from '@/components/ui/skeleton'; // Added for better loading
+
+const DynamicPersianCalendarView = dynamic(() => 
+  import('@/components/calendar/PersianCalendarView').then(mod => mod.PersianCalendarView),
+  {
+    ssr: false, // PersianCalendarView might use client-side logic (localStorage for events/birthdays)
+    loading: () => (
+      <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-lg shadow-lg animate-pulse">
+        <div className="flex items-center justify-between mb-4 p-2 bg-muted h-16 rounded-md">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-6 w-1/2 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <Skeleton className="h-10 rounded-md" />
+          <Skeleton className="h-10 rounded-md" />
+          <Skeleton className="h-10 rounded-md" />
+        </div>
+        <Skeleton className="h-10 rounded-md mb-4 w-3/4 mx-auto" />
+        <div className="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+          {Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="py-1 h-6 rounded w-3/4 mx-auto" />)}
+        </div>
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+          {Array.from({ length: 35 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-lg bg-muted/50" />)}
+        </div>
+        <Skeleton className="h-px w-full my-6 bg-muted" />
+        <Skeleton className="h-8 w-1/3 mb-3 rounded" />
+        <Skeleton className="h-20 w-full rounded" />
+
+      </div>
+    ),
+  }
+);
+
 
 export default function CalendarPage() {
   const sectionTitle = "تقویم و رویدادها";
@@ -38,7 +73,7 @@ export default function CalendarPage() {
         
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6 space-y-8">
-            <PersianCalendarView initialYear={todayJalali.year} initialMonth={todayJalali.month} /> 
+            <DynamicPersianCalendarView initialYear={todayJalali.year} initialMonth={todayJalali.month} /> 
             
             <div className="p-4 border rounded-lg bg-secondary/30">
                 <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های پیاده‌سازی شده و آینده:</h4>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, PlusCircle, Edit3, PiggyBank, Save } from 'lucide-react'; 
-import { JalaliDatePicker } from '@/components/calendar/JalaliDatePicker';
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
 import { cn } from '@/lib/utils';
 import type { SavingsGoal } from '@/types';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
@@ -103,7 +103,7 @@ export function CreateSavingsGoalForm({ onSaveGoal, existingGoal }: CreateSaving
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <JalaliDatePicker
+            <DynamicJalaliDatePicker // Changed
               value={targetDate}
               onChange={setTargetDate}
             />
