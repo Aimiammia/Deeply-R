@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Edit3, Trash2, Save, BookOpen, CalendarDays, Star, MessageSquare, ChevronDown, ChevronUp, GripVertical, Layers, Building, CalendarClockIcon } from 'lucide-react';
+import { Edit3, Trash2, Save, BookOpen, CalendarDays, Star, MessageSquare, ChevronDown, ChevronUp, GripVertical, Layers, Building } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -212,7 +212,7 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
 
         {isExpanded && (
             <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2"> {/* Changed to 2 cols */}
                     {book.genre && (
                         <div>
                             <Label className="text-xs flex items-center mb-1 text-muted-foreground"><Layers className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />ژانر</Label>
@@ -223,12 +223,6 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
                         <div>
                             <Label className="text-xs flex items-center mb-1 text-muted-foreground"><Building className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />ناشر</Label>
                             <p className="text-foreground bg-secondary/50 p-2 rounded-md text-xs">{book.publisher}</p>
-                        </div>
-                    )}
-                    {book.publicationYear && (
-                         <div>
-                            <Label className="text-xs flex items-center mb-1 text-muted-foreground"><CalendarClockIcon className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />سال انتشار</Label>
-                            <p className="text-foreground bg-secondary/50 p-2 rounded-md text-xs">{book.publicationYear.toLocaleString('fa-IR')}</p>
                         </div>
                     )}
                 </div>
@@ -262,4 +256,3 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
     </Card>
   );
 }
-

@@ -149,7 +149,6 @@ export interface Book {
   author?: string | null;
   genre?: string | null;
   publisher?: string | null;
-  publicationYear?: number | null;
   status: 'to-read' | 'reading' | 'read';
   currentPage?: number | null;
   totalPages?: number | null;
