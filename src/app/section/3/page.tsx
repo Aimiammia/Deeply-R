@@ -2,7 +2,7 @@
 'use client';
 
 import { Header } from '@/components/Header';
-import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma, Loader2 } from 'lucide-react'; // Added Loader2
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { ClientOnly } from '@/components/ClientOnly';
 import { cn } from '@/lib/utils';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 
 
 import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm';
@@ -100,7 +101,7 @@ export default function FinancialManagementPage() {
     });
     toast({
       title: editingBudget ? "بودجه ویرایش شد" : "بودجه تنظیم شد",
-      description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تنظیم شد.`,
+      description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تومان تنظیم شد.`,
     });
     setEditingBudget(null); 
   };
@@ -240,7 +241,7 @@ export default function FinancialManagementPage() {
         return goal;
       })
     );
-    toast({ title: "وجه اضافه شد", description: `مبلغ ${formatCurrency(amount)} به هدف اضافه شد.` });
+    toast({ title: "وجه اضافه شد", description: `مبلغ ${formatCurrency(amount)} تومان به هدف اضافه شد.` });
   };
   
   const handleSetSavingsGoalStatus = (id: string, status: SavingsGoal['status']) => {
@@ -444,7 +445,7 @@ export default function FinancialManagementPage() {
                             <CardContent className="p-2 text-sm">
                                 <p>مجموع سود/زیان کل: 
                                     <span className={cn("font-semibold", totalInvestmentProfitLoss >= 0 ? "text-green-600" : "text-red-600")}>
-                                        {formatCurrency(totalInvestmentProfitLoss)}
+                                        {formatCurrency(totalInvestmentProfitLoss)} تومان
                                     </span>
                                 </p>
                             </CardContent>
@@ -503,3 +504,4 @@ export default function FinancialManagementPage() {
     </ClientOnly>
   );
 }
+
