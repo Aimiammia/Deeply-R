@@ -1,19 +1,19 @@
 
-// import { Quote } from 'lucide-react'; // Icon import removed
+import type { ReactNode } from 'react';
+import { memo } from 'react';
 
 interface DailyPromptDisplayProps {
   prompt: string;
 }
 
-export function DailyPromptDisplay({ prompt }: DailyPromptDisplayProps) {
+const DailyPromptDisplayComponent = ({ prompt }: DailyPromptDisplayProps) => {
   return (
-    // The parent div (e.g., in section/1/page.tsx) usually provides overall padding and background.
-    // This component focuses on the text styling now.
-    <div className="flex items-center"> {/* space-x-3 rtl:space-x-reverse removed as icon is gone */}
-      {/* Quote icon removed */}
-      <p className="text-lg font-medium text-foreground italic leading-relaxed"> {/* Current text styling retained */}
+    <div className="flex items-center">
+      <p className="text-lg font-medium text-foreground italic leading-relaxed">
         {prompt}
       </p>
     </div>
   );
-}
+};
+
+export const DailyPromptDisplay = memo(DailyPromptDisplayComponent);

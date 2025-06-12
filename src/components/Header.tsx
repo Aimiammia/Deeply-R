@@ -1,7 +1,8 @@
 import { Brain } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { memo } from 'react';
 
-export function Header() {
+const HeaderComponent = () => {
   return (
     <header className="bg-background py-3 shadow-sm border-b border-border">
       <div className="container mx-auto px-4 flex items-center justify-between">
@@ -23,4 +24,6 @@ export function Header() {
       </div>
     </header>
   );
-}
+};
+
+export const Header = memo(HeaderComponent);
