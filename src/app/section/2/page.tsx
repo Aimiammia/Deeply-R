@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -27,7 +27,7 @@ export default function ReflectionsPage() {
   const [insightsError, setInsightsError] = useState<string | null>(null);
   const [isSavingReflection, setIsSavingReflection] = useState(false);
 
-  const fetchInsights = useCallback(async (reflectionText: string) => {
+  const fetchInsights = async (reflectionText: string) => {
     setIsLoadingInsights(true);
     setInsightsError(null);
     setInsights(undefined);
@@ -46,9 +46,9 @@ export default function ReflectionsPage() {
     } finally {
       setIsLoadingInsights(false);
     }
-  }, [toast]);
+  };
 
-  const handleSaveReflection = useCallback(async (reflectionText: string) => {
+  const handleSaveReflection = async (reflectionText: string) => {
     setIsSavingReflection(true);
     const newReflection: ReflectionEntry = {
       id: crypto.randomUUID(),
@@ -64,12 +64,12 @@ export default function ReflectionsPage() {
       title: "تأمل ذخیره شد",
       description: "تأمل شما با موفقیت ذخیره و تحلیل شد.",
     });
-  }, [setReflections, fetchInsights, toast, currentPrompt]);
+  };
 
-  const handleSelectReflection = useCallback((reflection: ReflectionEntry) => {
+  const handleSelectReflection = (reflection: ReflectionEntry) => {
     setSelectedReflection(reflection);
     fetchInsights(reflection.text);
-  }, [fetchInsights]);
+  };
   
   const sortedReflections = [...reflections].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -77,23 +77,24 @@ export default function ReflectionsPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <Button asChild variant="outline" className="mb-6">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-            بازگشت به خانه
-          </Link>
-        </Button>
-
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <BookHeart className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold text-primary">تأملات روزانه</h1>
           </div>
-          <p className="text-lg text-muted-foreground">
-            افکار و احساسات خود را ثبت کنید و با کمک هوش مصنوعی به بینش‌های جدیدی دست یابید.
-            نقل قول امروز برای تأمل: <span className="italic text-accent">{currentPrompt}</span>
-          </p>
+          <Button asChild variant="outline">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+              بازگشت به خانه
+            </Link>
+          </Button>
         </div>
+        <p className="text-lg text-muted-foreground mb-4">
+          افکار و احساسات خود را ثبت کنید و با کمک هوش مصنوعی به بینش‌های جدیدی دست یابید.
+        </p>
+        <p className="text-md text-accent italic mb-8">
+            نقل قول امروز برای تأمل: {currentPrompt}
+        </p>
 
         <div className="space-y-8">
             <Card>

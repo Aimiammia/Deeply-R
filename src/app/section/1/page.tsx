@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
 // Imports for Short-Term Planner
-import { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect } from 'react';
 import type { Task } from '@/types';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
@@ -33,7 +33,7 @@ export default function PlannerLandingPage() {
     setCurrentSuccessQuote(getDailySuccessQuote());
   }, []);
 
-  const handleAddTask = useCallback((
+  const handleAddTask = (
     title: string, 
     dueDate?: Date | null, 
     priority?: Task['priority'], 
@@ -64,9 +64,9 @@ export default function PlannerLandingPage() {
       description: `"${title}" با موفقیت به برنامه شما اضافه شد.`,
       variant: "default",
     });
-  }, [setTasks, toast]);
+  };
 
-  const handleToggleComplete = useCallback((id: string) => {
+  const handleToggleComplete = (id: string) => {
     let taskTitle = "";
     let isCompleted = false;
     setTasks(prevTasks =>
@@ -84,9 +84,9 @@ export default function PlannerLandingPage() {
       description: `"${taskTitle}" ${isCompleted ? 'با موفقیت انجام شد.' : 'مجدداً باز شد.'}`,
       variant: "default",
     });
-  }, [setTasks, toast]);
+  };
 
-  const handleDeleteTask = useCallback((id: string) => {
+  const handleDeleteTask = (id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     if (taskToDelete) {
@@ -96,9 +96,9 @@ export default function PlannerLandingPage() {
         variant: "destructive",
       });
     }
-  }, [tasks, setTasks, toast]);
+  };
 
-  const handleEditTask = useCallback((id: string, newTitle: string) => {
+  const handleEditTask = (id: string, newTitle: string) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task.id === id ? { ...task, title: newTitle } : task
@@ -108,29 +108,28 @@ export default function PlannerLandingPage() {
       title: "کار ویرایش شد",
       description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
     });
-  }, [setTasks, toast]);
+  };
 
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <Button asChild variant="outline" className="mb-6">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-            بازگشت به خانه
-          </Link>
-        </Button>
-
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <ClipboardList className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
           </div>
-          <p className="text-lg text-muted-foreground">
-            {sectionPageDescription}
-          </p>
+          <Button asChild variant="outline">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+              بازگشت به خانه
+            </Link>
+          </Button>
         </div>
+        <p className="text-lg text-muted-foreground mb-8">
+          {sectionPageDescription}
+        </p>
 
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6">

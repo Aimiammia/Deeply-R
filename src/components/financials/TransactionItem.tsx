@@ -2,7 +2,6 @@
 'use client';
 
 import type { FinancialTransaction } from '@/types';
-import { memo } from 'react'; // Added memo
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, ArrowUpCircle, ArrowDownCircle, CalendarDays, Tag } from 'lucide-react';
@@ -26,7 +25,7 @@ interface TransactionItemProps {
   onDeleteTransaction: (id: string) => void;
 }
 
-const TransactionItemComponent = ({ transaction, onDeleteTransaction }: TransactionItemProps) => {
+export function TransactionItem({ transaction, onDeleteTransaction }: TransactionItemProps) {
   const isIncome = transaction.type === 'income';
   const amountColor = isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
   const TypeIcon = isIncome ? ArrowUpCircle : ArrowDownCircle;
@@ -83,4 +82,3 @@ const TransactionItemComponent = ({ transaction, onDeleteTransaction }: Transact
     </li>
   );
 };
-export const TransactionItem = memo(TransactionItemComponent);

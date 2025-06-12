@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect } from 'react';
 import type { Habit } from '@/types';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +21,7 @@ export default function HabitsPage() {
 
   const [habits, setHabits] = useDebouncedLocalStorage<Habit[]>('userHabitsDeeply', []);
 
-  const handleAddHabit = useCallback((name: string) => {
+  const handleAddHabit = (name: string) => {
     const newHabit: Habit = {
       id: crypto.randomUUID(),
       name,
@@ -33,9 +33,9 @@ export default function HabitsPage() {
       title: "عادت جدید اضافه شد",
       description: `عادت "${name}" با موفقیت ایجاد شد.`,
     });
-  }, [setHabits, toast]);
+  };
 
-  const handleToggleHabitCompletion = useCallback((habitId: string, date: string) => {
+  const handleToggleHabitCompletion = (habitId: string, date: string) => {
     setHabits(prevHabits =>
       prevHabits.map(habit => {
         if (habit.id === habitId) {
@@ -50,9 +50,9 @@ export default function HabitsPage() {
         return habit;
       })
     );
-  }, [setHabits]);
+  };
 
-  const handleDeleteHabit = useCallback((habitId: string) => {
+  const handleDeleteHabit = (habitId: string) => {
     const habitToDelete = habits.find(h => h.id === habitId);
     setHabits(prevHabits => prevHabits.filter(h => h.id !== habitId));
     if (habitToDelete) {
@@ -62,28 +62,27 @@ export default function HabitsPage() {
         variant: "destructive",
       });
     }
-  }, [habits, setHabits, toast]);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <Button asChild variant="outline" className="mb-6">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-            بازگشت به خانه
-          </Link>
-        </Button>
-
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <ListChecks className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
           </div>
-          <p className="text-lg text-muted-foreground">
-            {sectionPageDescription}
-          </p>
+          <Button asChild variant="outline">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+              بازگشت به خانه
+            </Link>
+          </Button>
         </div>
+        <p className="text-lg text-muted-foreground mb-8">
+          {sectionPageDescription}
+        </p>
 
         <div className="space-y-8">
             <Card>

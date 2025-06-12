@@ -6,7 +6,7 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, PieChart, ClipboardList, Target, FileText, Sparkles, Brain, Loader2, AlertCircle, Activity, CalendarRange } from 'lucide-react';
-import { useState, useEffect, useMemo, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect, useMemo } from 'react';
 import type { Task, LongTermGoal, DailyActivityLogEntry, ReflectionEntry, FinancialTransaction } from '@/types'; 
 import { format, parseISO, subDays, isWithinInterval } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -66,7 +66,7 @@ export default function IntelligentAnalysisPage() {
     setIsInitialLoadComplete(true);
   }, [toast]);
 
-  const handleAssessGoalProgress = useCallback(async () => {
+  const handleAssessGoalProgress = async () => {
     if (!isInitialLoadComplete) {
       toast({ title: "خطا", description: "داده‌ها هنوز به طور کامل بارگذاری نشده‌اند.", variant: "destructive" });
       return;
@@ -102,9 +102,9 @@ export default function IntelligentAnalysisPage() {
     } finally {
       setIsAssessingGoals(false);
     }
-  }, [isInitialLoadComplete, longTermGoals, tasks, activityLogs, toast]);
+  };
 
-  const calculateActivitySummary = useCallback((days: number): ActivitySummary => {
+  const calculateActivitySummary = (days: number): ActivitySummary => {
     const endDate = new Date();
     const startDate = subDays(endDate, days - 1); 
     
@@ -123,10 +123,10 @@ export default function IntelligentAnalysisPage() {
     const expenseTotal = periodTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
     return { tasksCompleted, reflectionsMade, incomeTotal, expenseTotal };
-  }, [tasks, reflections, transactions]);
+  };
 
-  const weeklySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(7) : null, [isInitialLoadComplete, calculateActivitySummary]);
-  const monthlySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(30) : null, [isInitialLoadComplete, calculateActivitySummary]);
+  const weeklySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(7) : null, [isInitialLoadComplete, tasks, reflections, transactions]); // Added dependencies
+  const monthlySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(30) : null, [isInitialLoadComplete, tasks, reflections, transactions]); // Added dependencies
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
@@ -170,22 +170,21 @@ export default function IntelligentAnalysisPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <Button asChild variant="outline" className="mb-6">
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-            بازگشت به خانه
-          </Link>
-        </Button>
-
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
-            <PieChart className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
-          </div>
-          <p className="text-lg text-muted-foreground">
-            {sectionPageDescription}
-          </p>
+        <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <PieChart className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+            </div>
+            <Button asChild variant="outline">
+                <Link href="/">
+                    <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                    بازگشت به خانه
+                </Link>
+            </Button>
         </div>
+        <p className="text-lg text-muted-foreground mb-8">
+            {sectionPageDescription}
+        </p>
 
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6 space-y-8">

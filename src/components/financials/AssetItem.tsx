@@ -2,7 +2,7 @@
 'use client';
 
 import type { FinancialAsset } from '@/types';
-import { memo, useMemo } from 'react'; // Added memo, useMemo
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CalendarDays, Building, TrendingUp, Info, Edit3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +37,7 @@ const assetTypeLabels: Record<FinancialAsset['type'], string> = {
   other: 'سایر',
 };
 
-const AssetItemComponent = ({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) => {
+export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
@@ -130,4 +130,5 @@ const AssetItemComponent = ({ asset, onDeleteAsset, onEditAsset }: AssetItemProp
     </li>
   );
 };
-export const AssetItem = memo(AssetItemComponent);
+// Removed React.memo wrapper
+export { AssetItem };

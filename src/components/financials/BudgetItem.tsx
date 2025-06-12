@@ -2,7 +2,7 @@
 'use client';
 
 import type { Budget, FinancialTransaction } from '@/types';
-import { memo, useMemo } from 'react'; // Added memo, useMemo
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Trash2, Edit3, AlertTriangle, TrendingUp, TrendingDown, Info } from 'lucide-react';
@@ -27,7 +27,7 @@ interface BudgetItemProps {
   onEditBudget: (budget: Budget) => void; 
 }
 
-const BudgetItemComponent = ({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) => {
+export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
@@ -135,4 +135,5 @@ const BudgetItemComponent = ({ budget, transactions, onDeleteBudget, onEditBudge
     </li>
   );
 };
-export const BudgetItem = memo(BudgetItemComponent);
+// Removed React.memo wrapper
+export { BudgetItem };

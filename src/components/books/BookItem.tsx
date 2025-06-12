@@ -2,7 +2,7 @@
 'use client';
 
 import type { Book } from '@/types';
-import { useState, memo, useCallback } from 'react'; // Added memo, useCallback
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,13 +34,13 @@ interface BookItemProps {
   onTriggerEdit: (book: Book) => void; 
 }
 
-const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: BookItemProps) => {
+export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: BookItemProps) {
   const { toast } = useToast();
   const [currentBookPage, setCurrentBookPage] = useState<number | ''>(book.currentPage || '');
   const [bookNotes, setBookNotes] = useState(book.notes || '');
   const [isExpanded, setIsExpanded] = useState(false); 
 
-  const handleStatusChange = useCallback((newStatus: Book['status']) => {
+  const handleStatusChange = (newStatus: Book['status']) => {
     let updatedBook = { ...book, status: newStatus };
     if (newStatus === 'read') {
       updatedBook.finishedAt = new Date().toISOString();
@@ -53,14 +53,14 @@ const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: 
     }
     onUpdateBook(updatedBook);
     toast({ title: "وضعیت کتاب به‌روز شد", description: `وضعیت کتاب "${book.title}" به "${newStatus}" تغییر یافت.` });
-  }, [book, onUpdateBook, toast]);
+  };
 
   const handleCurrentPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setCurrentBookPage(val === '' ? '' : parseInt(val));
   };
   
-  const handleCurrentPageBlur = useCallback(() => {
+  const handleCurrentPageBlur = () => {
      if (currentBookPage !== '' && book.totalPages && Number(currentBookPage) > book.totalPages) {
         setCurrentBookPage(book.totalPages);
         toast({ title: "خطا", description: "صفحه فعلی نمی‌تواند بیشتر از کل صفحات باشد.", variant: "destructive"});
@@ -77,20 +77,20 @@ const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: 
         onUpdateBook({ ...book, currentPage: null });
         toast({ title: "پیشرفت پاک شد", description: `صفحه فعلی کتاب "${book.title}" پاک شد.` });
      }
-  }, [book, currentBookPage, onUpdateBook, toast]);
+  };
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBookNotes(e.target.value);
   };
 
-  const handleNotesBlur = useCallback(() => {
+  const handleNotesBlur = () => {
     if (book.notes !== bookNotes) {
       onUpdateBook({ ...book, notes: bookNotes || null });
       toast({ title: "یادداشت ذخیره شد", description: `یادداشت برای کتاب "${book.title}" به‌روز شد.` });
     }
-  }, [book, bookNotes, onUpdateBook, toast]);
+  };
   
-  const handleRatingChange = useCallback((newRatingStr: string) => {
+  const handleRatingChange = (newRatingStr: string) => {
     const newRating = newRatingStr === '' ? null : parseInt(newRatingStr);
     if (newRating === null || (newRating >= 1 && newRating <= 5)) {
       onUpdateBook({ ...book, rating: newRating });
@@ -98,7 +98,7 @@ const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: 
     } else {
       toast({ title: "خطا", description: "امتیاز باید بین ۱ تا ۵ باشد.", variant: "destructive" });
     }
-  }, [book, onUpdateBook, toast]);
+  };
 
   const progressPercentage = (book.totalPages && book.currentPage) ? (book.currentPage / book.totalPages) * 100 : 0;
 
@@ -252,4 +252,5 @@ const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: 
     </Card>
   );
 };
-export const BookItem = memo(BookItemComponent);
+// Removed React.memo wrapper
+export { BookItem };

@@ -2,7 +2,7 @@
 'use client';
 
 import type { FinancialInvestment } from '@/types';
-import { memo, useMemo } from 'react'; // Added memo, useMemo
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Edit3, Trash2, CalendarDays, TrendingUp, Info, TrendingDown, Minus, RefreshCw, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,7 @@ interface InvestmentItemProps {
   isUpdatingPrice: boolean;
 }
 
-const InvestmentItemComponent = ({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) => {
+export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
@@ -164,4 +164,5 @@ const InvestmentItemComponent = ({ investment, onDeleteInvestment, onEditInvestm
     </li>
   );
 };
-export const InvestmentItem = memo(InvestmentItemComponent);
+// Removed React.memo wrapper
+export { InvestmentItem };

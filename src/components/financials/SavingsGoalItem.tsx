@@ -2,7 +2,7 @@
 'use client';
 
 import type { SavingsGoal } from '@/types';
-import { useState, memo, useCallback, useMemo } from 'react'; // Added memo, useCallback, useMemo
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -31,7 +31,7 @@ interface SavingsGoalItemProps {
   onSetStatus: (id: string, status: SavingsGoal['status']) => void;
 }
 
-const SavingsGoalItemComponent = ({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) => {
+export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) {
   const [isAddingFunds, setIsAddingFunds] = useState(false);
   const [fundsToAdd, setFundsToAdd] = useState<number | ''>('');
 
@@ -47,22 +47,22 @@ const SavingsGoalItemComponent = ({ goal, onDeleteGoal, onEditGoal, onAddFunds, 
   }, [goal.targetAmount, goal.currentAmount, goal.status]);
 
 
-  const handleAddFundsSubmit = useCallback(() => {
+  const handleAddFundsSubmit = () => {
     if (fundsToAdd !== '' && Number(fundsToAdd) > 0) {
       onAddFunds(goal.id, Number(fundsToAdd));
       setFundsToAdd('');
       setIsAddingFunds(false);
     }
-  }, [fundsToAdd, goal.id, onAddFunds]);
+  };
   
-  const getStatusTextAndColor = useCallback(() => {
+  const getStatusTextAndColor = () => {
     switch(goal.status) {
       case 'active': return { text: 'فعال', color: 'bg-blue-500 hover:bg-blue-600' };
       case 'achieved': return { text: 'رسیده شده', color: 'bg-green-500 hover:bg-green-600' };
       case 'cancelled': return { text: 'لغو شده', color: 'bg-red-500 hover:bg-red-600' };
       default: return { text: 'نامشخص', color: 'bg-gray-500 hover:bg-gray-600' };
     }
-  }, [goal.status]);
+  };
 
   const statusInfo = getStatusTextAndColor();
 
@@ -189,4 +189,5 @@ const SavingsGoalItemComponent = ({ goal, onDeleteGoal, onEditGoal, onAddFunds, 
     </li>
   );
 };
-export const SavingsGoalItem = memo(SavingsGoalItemComponent);
+// Removed React.memo wrapper
+export { SavingsGoalItem };

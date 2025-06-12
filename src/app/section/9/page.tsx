@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useCallback } from 'react'; // Added useCallback
+import { useState } from 'react';
 import type { LongTermGoal, Book } from '@/types'; 
 import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm';
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
@@ -18,8 +18,8 @@ import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SectionNineGoalsPage() { 
-  const sectionTitle = "اهداف"; 
-  const sectionPageDescription = "اهداف بزرگ و برنامه‌های خود را در این بخش تعریف و پیگیری کنید و کتاب‌های خود را مدیریت نمایید.";
+  const sectionTitle = "اهداف و کتاب‌ها"; 
+  const sectionPageDescription = "اهداف بزرگ و کتاب‌های خود را در این بخش تعریف، پیگیری و مدیریت نمایید.";
   const { toast } = useToast();
   
   const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
@@ -29,7 +29,7 @@ export default function SectionNineGoalsPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
 
 
- const handleSaveGoal = useCallback((goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
+ const handleSaveGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
     if (isEditing && editingGoal) { 
         setGoals(prevGoals =>
             prevGoals.map(goal =>
@@ -46,9 +46,9 @@ export default function SectionNineGoalsPage() {
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-  }, [editingGoal, setGoals, toast]);
+  };
 
-  const handleDeleteGoal = useCallback((id: string) => {
+  const handleDeleteGoal = (id: string) => {
     const goalToDelete = goals.find(g => g.id === id);
     setGoals(prevGoals => prevGoals.filter(g => g.id !== id));
     if (goalToDelete) {
@@ -61,9 +61,9 @@ export default function SectionNineGoalsPage() {
      if (editingGoal?.id === id) {
       setEditingGoal(null);
     }
-  }, [goals, editingGoal, setGoals, toast]);
+  };
   
-  const handleUpdateGoal = useCallback((id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
+  const handleUpdateGoal = (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
      setGoals(prevGoals =>
       prevGoals.map(goal =>
         goal.id === id ? { 
@@ -75,10 +75,10 @@ export default function SectionNineGoalsPage() {
         } : goal
       )
     );
-  }, [setGoals, toast]);
+  };
 
   // Book Handlers
-  const handleSaveBook = useCallback((bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
+  const handleSaveBook = (bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
     if (isEditingBook && editingBook) {
       const updatedBook: Book = {
         ...editingBook,
@@ -98,13 +98,13 @@ export default function SectionNineGoalsPage() {
       };
       setBooks(prevBooks => [newBook, ...prevBooks].sort((a,b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()));
     }
-  }, [editingBook, setBooks, toast]);
+  };
 
-  const handleUpdateBook = useCallback((updatedBook: Book) => {
+  const handleUpdateBook = (updatedBook: Book) => {
     setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
-  }, [setBooks]);
+  };
 
-  const handleDeleteBook = useCallback((bookId: string) => {
+  const handleDeleteBook = (bookId: string) => {
     const bookToDelete = books.find(b => b.id === bookId);
     setBooks(prevBooks => prevBooks.filter(b => b.id !== bookId));
     if (bookToDelete) {
@@ -117,33 +117,32 @@ export default function SectionNineGoalsPage() {
     if (editingBook?.id === bookId) {
       setEditingBook(null);
     }
-  }, [books, editingBook, setBooks, toast]);
+  };
 
-  const handleTriggerEditBook = useCallback((book: Book) => {
+  const handleTriggerEditBook = (book: Book) => {
     setEditingBook(book);
-  }, []);
+  };
 
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <Button asChild variant="outline" className="mb-6">
-          <Link href="/"> 
-            <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-            بازگشت به خانه
-          </Link>
-        </Button>
-
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse mb-1">
-            <Target className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
-          </div>
-          <p className="text-lg text-muted-foreground">
-            {sectionPageDescription}
-          </p>
+        <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <Target className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+            </div>
+            <Button asChild variant="outline">
+                <Link href="/"> 
+                    <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                    بازگشت به خانه
+                </Link>
+            </Button>
         </div>
+         <p className="text-lg text-muted-foreground mb-8">
+            {sectionPageDescription}
+        </p>
 
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6">
@@ -159,13 +158,17 @@ export default function SectionNineGoalsPage() {
                   value="books"
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
-                  <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> کتاب
+                  <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> کتاب‌ها
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="goals" className="space-y-8">
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="pb-2"> 
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                            <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                            {editingGoal ? 'ویرایش هدف' : 'افزودن هدف جدید'}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
@@ -210,7 +213,11 @@ export default function SectionNineGoalsPage() {
 
               <TabsContent value="books" className="space-y-8">
                 <Card>
-                    <CardHeader>
+                     <CardHeader className="pb-2">
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                            <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                            {editingBook ? 'ویرایش کتاب' : 'افزودن کتاب جدید'}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <CreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
