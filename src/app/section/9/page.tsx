@@ -7,27 +7,36 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks } from 'lucide-react';
 import Image from 'next/image';
-import type { LongTermGoal } from '@/types';
+import { useState } from 'react'; // Added useState for editingBook
+import type { LongTermGoal, Book } from '@/types'; // Added Book type
 import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm';
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
+import { CreateBookForm } from '@/components/books/CreateBookForm'; // New import
+import { BookList } from '@/components/books/BookList'; // New import
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SectionNineGoalsPage() { 
   const sectionTitle = "اهداف"; 
-  const sectionPageDescription = "اهداف بزرگ و برنامه‌های خود را در این بخش تعریف و پیگیری کنید.";
+  const sectionPageDescription = "اهداف بزرگ و برنامه‌های خود را در این بخش تعریف و پیگیری کنید و کتاب‌های خود را مدیریت نمایید.";
   const { toast } = useToast();
+  
   const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
+  const [editingGoal, setEditingGoal] = useState<LongTermGoal | null>(null);
+
+  const [books, setBooks] = useDebouncedLocalStorage<Book[]>('userBooksDeeply', []);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+
 
  const handleSaveGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
-    if (isEditing && goalData.id) { 
-        const existingGoalId = goalData.id;
-         setGoals(prevGoals =>
+    if (isEditing && editingGoal) { 
+        setGoals(prevGoals =>
             prevGoals.map(goal =>
-            goal.id === existingGoalId ? { ...goal, ...goalData, title: goalData.title.trim() } : goal
+            goal.id === editingGoal.id ? { ...goal, ...goalData, title: goalData.title.trim(), id: editingGoal.id, createdAt: goal.createdAt } : goal
             )
         );
+        setEditingGoal(null); // Clear editing state
     } else {
         const newGoal: LongTermGoal = {
             ...goalData,
@@ -37,6 +46,7 @@ export default function SectionNineGoalsPage() {
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
+    // Toast is handled by the form itself
   };
 
   const handleDeleteGoal = (id: string) => {
@@ -48,6 +58,9 @@ export default function SectionNineGoalsPage() {
         description: `هدف "${goalToDelete.title}" حذف شد.`,
         variant: "destructive",
       });
+    }
+     if (editingGoal?.id === id) {
+      setEditingGoal(null);
     }
   };
   
@@ -63,11 +76,54 @@ export default function SectionNineGoalsPage() {
         } : goal
       )
     );
-    toast({ 
-      title: "هدف به‌روز شد",
-      description: `هدف "${updatedGoalData.title}" با موفقیت به‌روزرسانی شد.`,
-    });
+    // Toast is handled by the LongTermGoalItem or form
   };
+
+  // Book Handlers
+  const handleSaveBook = (bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
+    if (isEditingBook && editingBook) {
+      const updatedBook: Book = {
+        ...editingBook,
+        ...bookData,
+        title: bookData.title.trim(),
+        // Ensure finishedAt is updated correctly based on status
+        finishedAt: bookData.status === 'read' && !editingBook.finishedAt ? new Date().toISOString() : (bookData.status !== 'read' ? null : editingBook.finishedAt),
+      };
+      setBooks(prevBooks => prevBooks.map(b => b.id === editingBook.id ? updatedBook : b));
+      setEditingBook(null);
+    } else {
+      const newBook: Book = {
+        ...bookData,
+        id: crypto.randomUUID(),
+        addedAt: new Date().toISOString(),
+        finishedAt: bookData.status === 'read' ? new Date().toISOString() : null,
+        notes: bookData.notes || null,
+      };
+      setBooks(prevBooks => [newBook, ...prevBooks].sort((a,b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()));
+    }
+    // Toast is handled by CreateBookForm
+  };
+
+  const handleUpdateBook = (updatedBook: Book) => {
+    setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
+    // Toast can be handled in BookItem for specific actions like status change or notes update
+  };
+
+  const handleDeleteBook = (bookId: string) => {
+    const bookToDelete = books.find(b => b.id === bookId);
+    setBooks(prevBooks => prevBooks.filter(b => b.id !== bookId));
+    if (bookToDelete) {
+      toast({
+        title: "کتاب حذف شد",
+        description: `کتاب "${bookToDelete.title}" حذف شد.`,
+        variant: "destructive",
+      });
+    }
+    if (editingBook?.id === bookId) {
+      setEditingBook(null);
+    }
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -111,13 +167,10 @@ export default function SectionNineGoalsPage() {
               <TabsContent value="goals" className="space-y-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                            <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                            ایجاد یا ویرایش هدف
-                        </CardTitle>
+                        {/* CardTitle is now inside the CreateLongTermGoalForm */}
                     </CardHeader>
                     <CardContent>
-                        <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} />
+                        <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
                     </CardContent>
                 </Card>
                 
@@ -158,34 +211,56 @@ export default function SectionNineGoalsPage() {
               </TabsContent>
 
               <TabsContent value="books" className="space-y-8">
-                <Card className="bg-secondary/50">
+                <Card>
+                    <CardHeader>
+                        {/* CardTitle is now inside the CreateBookForm */}
+                    </CardHeader>
+                    <CardContent>
+                        <CreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
+                    </CardContent>
+                </Card>
+                <Card>
+                     <CardHeader>
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                            <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                            کتابخانه شما
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <BookList 
+                            books={books} 
+                            onUpdateBook={handleUpdateBook} 
+                            onDeleteBook={handleDeleteBook}
+                            onTriggerEdit={setEditingBook} 
+                        />
+                    </CardContent>
+                </Card>
+                 <Card className="bg-secondary/50">
                     <CardHeader>
                         <div className="flex items-center">
                             <BookOpen className="h-6 w-6 text-primary mr-2 rtl:ml-2 rtl:mr-0" />
-                            <CardTitle className="text-xl text-primary">اهداف مرتبط با کتاب و مطالعه</CardTitle>
+                            <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای بخش کتاب</CardTitle>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground/90 mb-4">
-                        میتوانید اهداف مرتبط با مطالعه کتاب، مانند "خواندن ۱۲ کتاب در سال جاری" یا "تمام کردن کتاب 'تاریخ بیهقی' تا سه ماه آینده" را به عنوان یک هدف بلندمدت در تب "اهداف" تعریف کنید.
-                        </p>
-                        <p className="text-sm text-foreground/90 mb-4">
-                        همچنین، برای برنامه‌ریزی مطالعه فصول خاصی از کتب درسی، می‌توانید از بخش <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه</Link> استفاده کرده و وظایف با دسته‌بندی "درس" ایجاد نمایید. مقطع تحصیلی شما از بخش <Link href="/section/7" className="text-primary hover:underline">تحصیل</Link> برای انتخاب دروس در دسترس خواهد بود.
+                        این بخش در حال توسعه است تا تجربه مطالعه شما را بهبود بخشد.
                         </p>
                         <Image 
                             src="https://placehold.co/600x300.png" 
-                            alt="تصویر مفهومی کتاب‌ها و اهداف مطالعه" 
+                            alt="تصویر مفهومی کتاب‌ها و مطالعه" 
                             width={600} 
                             height={300}
                             className="rounded-md mx-auto shadow-md mt-4 opacity-70"
-                            data-ai-hint="books reading goals"
+                            data-ai-hint="books reading library"
                         />
-                        <h5 className="text-md font-semibold text-primary mt-6 mb-2">قابلیت‌های آینده برای بخش کتاب:</h5>
+                        <h5 className="text-md font-semibold text-primary mt-6 mb-2">برخی از امکانات برنامه‌ریزی شده:</h5>
                         <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80">
-                            <li>ایجاد لیست کتاب‌های خوانده شده / در حال خواندن / برای خواندن.</li>
-                            <li>پیگیری پیشرفت مطالعه هر کتاب (مثلا بر اساس صفحه یا فصل).</li>
-                            <li>امکان یادداشت‌برداری و ثبت نظرات برای هر کتاب.</li>
-                            <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف.</li>
+                            <li>دسته‌بندی کتاب‌ها بر اساس ژانر یا تگ‌های سفارشی.</li>
+                            <li>امکان جستجو و فیلتر پیشرفته در کتابخانه.</li>
+                            <li>نمایش آمار مطالعه (مثلا تعداد کتاب‌های خوانده شده در ماه/سال).</li>
+                            <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف با کمک هوش مصنوعی.</li>
+                            <li>ادغام با اهداف بلندمدت (مثلا تعریف هدف "خواندن X کتاب" و پیگیری آن از طریق این بخش).</li>
                         </ul>
                     </CardContent>
                 </Card>

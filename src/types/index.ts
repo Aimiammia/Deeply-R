@@ -141,3 +141,17 @@ export interface Habit {
   createdAt: string; // ISO date string
   completions: string[]; // Array of ISO date strings (YYYY-MM-DD) for when the habit was completed
 }
+
+export interface Book {
+  id: string;
+  title: string;
+  author?: string | null;
+  status: 'to-read' | 'reading' | 'read';
+  currentPage?: number | null;
+  totalPages?: number | null;
+  notes?: string | null;
+  addedAt: string; // ISO date string
+  finishedAt?: string | null; // ISO date string
+  rating?: number | null; // Optional rating (e.g., 1-5 stars)
+}
+
