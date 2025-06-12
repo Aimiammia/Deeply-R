@@ -9,9 +9,11 @@ interface InvestmentListProps {
   investments: FinancialInvestment[];
   onDeleteInvestment: (id: string) => void;
   onEditInvestment: (investment: FinancialInvestment) => void;
+  onUpdatePrice: (investmentId: string) => void;
+  updatingPriceForId: string | null;
 }
 
-export function InvestmentList({ investments, onDeleteInvestment, onEditInvestment }: InvestmentListProps) {
+export function InvestmentList({ investments, onDeleteInvestment, onEditInvestment, onUpdatePrice, updatingPriceForId }: InvestmentListProps) {
   if (investments.length === 0) {
     return (
       <div className="text-center py-10 text-muted-foreground border rounded-lg shadow-sm bg-card mt-6">
@@ -33,7 +35,9 @@ export function InvestmentList({ investments, onDeleteInvestment, onEditInvestme
             key={investment.id}
             investment={investment}
             onDeleteInvestment={onDeleteInvestment}
-            onEditInvestment={onEditInvestment} // This will trigger the form to prefill
+            onEditInvestment={onEditInvestment}
+            onUpdatePrice={onUpdatePrice}
+            isUpdatingPrice={updatingPriceForId === investment.id}
           />
         ))}
       </ul>

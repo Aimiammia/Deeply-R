@@ -4,7 +4,7 @@
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma, Loader2 } from 'lucide-react'; // Added Loader2
+import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useState, useEffect, useMemo } from 'react';
@@ -35,6 +35,25 @@ const persianMonthNames = [
   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
 ];
 
+// Mock function to simulate fetching live price
+const fetchMockLivePrice = async (currentPrice: number, investmentType: FinancialInvestment['type']): Promise<number> => {
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+
+  // Simulate price change (e.g., +/- 5%)
+  // For crypto, allow larger swings, for others, smaller.
+  const volatilityFactor = investmentType === 'crypto' ? 0.15 : (investmentType === 'stocks' ? 0.05 : 0.02);
+  const priceChangePercentage = (Math.random() - 0.5) * 2 * volatilityFactor; // Random change between -volatilityFactor and +volatilityFactor
+  let newPrice = currentPrice * (1 + priceChangePercentage);
+  
+  // Ensure price doesn't go below zero (or a very small positive number)
+  newPrice = Math.max(0.01, newPrice); 
+  
+  // For simplicity, let's round to 2 decimal places for potential non-integer prices
+  return parseFloat(newPrice.toFixed(2));
+};
+
+
 export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
   const sectionPageDescription = "هزینه‌ها، درآمدها، بودجه، دارایی‌ها، سرمایه‌گذاری‌ها و اهداف پس‌انداز خود را در اینجا پیگیری و مدیریت کنید.";
@@ -50,6 +69,8 @@ export default function FinancialManagementPage() {
 
   const [investments, setInvestments] = useDebouncedLocalStorage<FinancialInvestment[]>('financialInvestments', []);
   const [editingInvestment, setEditingInvestment] = useState<FinancialInvestment | null>(null);
+  const [updatingPriceForId, setUpdatingPriceForId] = useState<string | null>(null);
+
 
   const [savingsGoals, setSavingsGoals] = useDebouncedLocalStorage<SavingsGoal[]>('financialSavingsGoals', []);
   const [editingSavingsGoal, setEditingSavingsGoal] = useState<SavingsGoal | null>(null);
@@ -191,6 +212,35 @@ export default function FinancialManagementPage() {
         setEditingInvestment(null);
     }
   };
+
+  const handleUpdateInvestmentPrice = async (investmentId: string) => {
+    const investmentToUpdate = investments.find(inv => inv.id === investmentId);
+    if (!investmentToUpdate) {
+      toast({ title: "خطا", description: "سرمایه‌گذاری مورد نظر یافت نشد.", variant: "destructive" });
+      return;
+    }
+
+    setUpdatingPriceForId(investmentId);
+    try {
+      toast({ title: "در حال دریافت قیمت...", description: `درحال شبیه‌سازی دریافت قیمت لحظه‌ای برای "${investmentToUpdate.name}"...` });
+      const newPrice = await fetchMockLivePrice(investmentToUpdate.currentPricePerUnit, investmentToUpdate.type);
+      
+      setInvestments(prevInvestments => 
+        prevInvestments.map(inv => 
+          inv.id === investmentId 
+            ? { ...inv, currentPricePerUnit: newPrice, lastPriceUpdateDate: new Date().toISOString() } 
+            : inv
+        )
+      );
+      toast({ title: "قیمت به‌روز شد (شبیه‌سازی شده)", description: `قیمت "${investmentToUpdate.name}" به ${formatCurrency(newPrice)} تومان تغییر یافت.` });
+    } catch (error) {
+      console.error("Error updating mock price:", error);
+      toast({ title: "خطا در به‌روزرسانی قیمت", description: "هنگام شبیه‌سازی دریافت قیمت مشکلی پیش آمد.", variant: "destructive" });
+    } finally {
+      setUpdatingPriceForId(null);
+    }
+  };
+
 
   const handleSaveSavingsGoal = (goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => {
     if (isEditing && editingSavingsGoal) {
@@ -430,7 +480,7 @@ export default function FinancialManagementPage() {
                        <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                       پیگیری سرمایه‌گذاری‌ها
                     </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground pt-1">سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید.</CardDescription>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید. قیمت‌ها می‌توانند به صورت دستی یا (در آینده) از طریق API به‌روز شوند.</CardDescription>
                   </CardHeader>
                   <CardContent className="p-6 pt-0">
                     <CreateInvestmentForm onSaveInvestment={handleSaveInvestment} existingInvestment={editingInvestment} />
@@ -451,13 +501,22 @@ export default function FinancialManagementPage() {
                             </CardContent>
                         </Card>
                     )}
-                    <InvestmentList investments={investments} onDeleteInvestment={handleDeleteInvestment} onEditInvestment={setEditingInvestment} />
+                    <InvestmentList 
+                        investments={investments} 
+                        onDeleteInvestment={handleDeleteInvestment} 
+                        onEditInvestment={setEditingInvestment}
+                        onUpdatePrice={handleUpdateInvestmentPrice}
+                        updatingPriceForId={updatingPriceForId}
+                    />
                     
                      <div className="mt-8 p-4 border rounded-md bg-secondary/30">
                         <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
                         <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
                           <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها.</li>
-                          <li>اتصال به API برای دریافت قیمت‌های لحظه‌ای (در صورت امکان).</li>
+                          <li className="flex items-start">
+                            <RefreshCw className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>
+                             اتصال به API واقعی برای دریافت قیمت‌های لحظه‌ای (نیاز به انتخاب و پیاده‌سازی API توسط شما).
+                          </li>
                         </ul>
                       </div>
                   </CardContent>
@@ -504,4 +563,3 @@ export default function FinancialManagementPage() {
     </ClientOnly>
   );
 }
-

@@ -3,7 +3,7 @@
 
 import type { FinancialInvestment } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Edit3, Trash2, CalendarDays, TrendingUp, Info, TrendingDown, Minus } from 'lucide-react';
+import { Edit3, Trash2, CalendarDays, TrendingUp, Info, TrendingDown, Minus, RefreshCw, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -25,9 +25,11 @@ interface InvestmentItemProps {
   investment: FinancialInvestment;
   onDeleteInvestment: (id: string) => void;
   onEditInvestment: (investment: FinancialInvestment) => void;
+  onUpdatePrice: (investmentId: string) => void;
+  isUpdatingPrice: boolean;
 }
 
-export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestment }: InvestmentItemProps) {
+export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
@@ -57,6 +59,16 @@ export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestmen
             <Badge variant="secondary" className="text-xs mt-1">{typeLabel}</Badge>
         </div>
         <div className="flex items-center space-x-1 rtl:space-x-reverse flex-shrink-0">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => onUpdatePrice(investment.id)} 
+            disabled={isUpdatingPrice}
+            aria-label="به‌روزرسانی قیمت"
+            title="به‌روزرسانی قیمت از API (شبیه‌سازی شده)"
+          >
+            {isUpdatingPrice ? <Loader2 className="h-5 w-5 animate-spin text-blue-600" /> : <RefreshCw className="h-5 w-5 text-blue-600" />}
+          </Button>
           <Button variant="ghost" size="icon" onClick={() => onEditInvestment(investment)} aria-label="ویرایش سرمایه‌گذاری">
             <Edit3 className="h-5 w-5 text-blue-600" />
           </Button>
@@ -136,7 +148,7 @@ export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestmen
           ثبت شده در: {format(parseISO(investment.createdAt), "PPP p", { locale: faIR })}
       </p>
       <p className="text-xs text-muted-foreground mt-1 text-right">
-          آخرین بروزرسانی قیمت: {format(parseISO(investment.lastPriceUpdateDate), "PPP p", { locale: faIR })}
+          آخرین بروزرسانی قیمت: {investment.lastPriceUpdateDate ? format(parseISO(investment.lastPriceUpdateDate), "PPP p", { locale: faIR }) : "نامشخص"}
       </p>
     </li>
   );
