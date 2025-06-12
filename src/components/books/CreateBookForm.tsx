@@ -19,6 +19,9 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [genre, setGenre] = useState('');
+  const [publisher, setPublisher] = useState('');
+  const [publicationYear, setPublicationYear] = useState<number | ''>('');
   const [totalPages, setTotalPages] = useState<number | ''>('');
   const [status, setStatus] = useState<Book['status']>('to-read');
   const [currentPage, setCurrentPage] = useState<number | ''>('');
@@ -31,6 +34,9 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
     if (existingBook) {
       setTitle(existingBook.title);
       setAuthor(existingBook.author || '');
+      setGenre(existingBook.genre || '');
+      setPublisher(existingBook.publisher || '');
+      setPublicationYear(existingBook.publicationYear || '');
       setTotalPages(existingBook.totalPages || '');
       setStatus(existingBook.status);
       setCurrentPage(existingBook.currentPage || '');
@@ -38,6 +44,9 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
     } else {
       setTitle('');
       setAuthor('');
+      setGenre('');
+      setPublisher('');
+      setPublicationYear('');
       setTotalPages('');
       setStatus('to-read');
       setCurrentPage('');
@@ -51,6 +60,9 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
       const bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'> = {
         title: title.trim(),
         author: author.trim() || null,
+        genre: genre.trim() || null,
+        publisher: publisher.trim() || null,
+        publicationYear: publicationYear !== '' ? Number(publicationYear) : null,
         totalPages: totalPages !== '' ? Number(totalPages) : null,
         status,
         currentPage: currentPage !== '' ? Number(currentPage) : null,
@@ -62,6 +74,9 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
       if (!isEditing) {
         setTitle('');
         setAuthor('');
+        setGenre('');
+        setPublisher('');
+        setPublicationYear('');
         setTotalPages('');
         setStatus('to-read');
         setCurrentPage('');
@@ -81,27 +96,62 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
         {isEditing ? 'ویرایش کتاب' : 'افزودن کتاب جدید'}
       </h3>
       
-      <div>
-        <Label htmlFor="bookTitle">عنوان کتاب</Label>
-        <Input
-          id="bookTitle"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="مثلا: کلیدر"
-          required
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="bookTitle">عنوان کتاب</Label>
+          <Input
+            id="bookTitle"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="مثلا: کلیدر"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="bookAuthor">نویسنده (اختیاری)</Label>
+          <Input
+            id="bookAuthor"
+            type="text"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            placeholder="مثلا: محمود دولت‌آبادی"
+          />
+        </div>
       </div>
-
-      <div>
-        <Label htmlFor="bookAuthor">نویسنده (اختیاری)</Label>
-        <Input
-          id="bookAuthor"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          placeholder="مثلا: محمود دولت‌آبادی"
-        />
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="bookGenre">ژانر (اختیاری)</Label>
+          <Input
+            id="bookGenre"
+            type="text"
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+            placeholder="مثلا: رمان، تاریخی"
+          />
+        </div>
+        <div>
+          <Label htmlFor="bookPublisher">ناشر (اختیاری)</Label>
+          <Input
+            id="bookPublisher"
+            type="text"
+            value={publisher}
+            onChange={(e) => setPublisher(e.target.value)}
+            placeholder="مثلا: نشر چشمه"
+          />
+        </div>
+        <div>
+          <Label htmlFor="bookPublicationYear">سال انتشار (اختیاری)</Label>
+          <Input
+            id="bookPublicationYear"
+            type="number"
+            value={publicationYear}
+            onChange={(e) => setPublicationYear(e.target.value === '' ? '' : parseInt(e.target.value))}
+            placeholder="مثلا: ۱۳۶۳"
+            min="0"
+          />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -168,3 +218,4 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
     </form>
   );
 }
+

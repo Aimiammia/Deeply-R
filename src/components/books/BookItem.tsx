@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Edit3, Trash2, Save, BookOpen, CalendarDays, Star, MessageSquare, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
+import { Edit3, Trash2, Save, BookOpen, CalendarDays, Star, MessageSquare, ChevronDown, ChevronUp, GripVertical, Layers, Building, CalendarClockIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -161,7 +161,7 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
                     </SelectContent>
                 </Select>
             </div>
-            {book.rating !== null && book.rating !== undefined && (
+            {book.rating !== null && book.rating !== undefined && book.status === 'read' && (
                 <div className="flex items-center gap-1">
                     {Array.from({ length: 5 }, (_, i) => (
                         <Star key={i} className={cn("h-5 w-5", i < book.rating! ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
@@ -211,20 +211,42 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
 
 
         {isExpanded && (
-            <div className="pt-2">
-            <Label htmlFor={`notes-${book.id}`} className="text-xs flex items-center mb-1">
-                <MessageSquare className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" /> یادداشت‌ها
-            </Label>
-            <Textarea
-                id={`notes-${book.id}`}
-                value={bookNotes}
-                onChange={handleNotesChange}
-                onBlur={handleNotesBlur}
-                placeholder="یادداشت‌های خود را درباره این کتاب بنویسید..."
-                rows={3}
-                className="text-sm"
-            />
-            </div>
+            <>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    {book.genre && (
+                        <div>
+                            <Label className="text-xs flex items-center mb-1 text-muted-foreground"><Layers className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />ژانر</Label>
+                            <p className="text-foreground bg-secondary/50 p-2 rounded-md text-xs">{book.genre}</p>
+                        </div>
+                    )}
+                    {book.publisher && (
+                        <div>
+                            <Label className="text-xs flex items-center mb-1 text-muted-foreground"><Building className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />ناشر</Label>
+                            <p className="text-foreground bg-secondary/50 p-2 rounded-md text-xs">{book.publisher}</p>
+                        </div>
+                    )}
+                    {book.publicationYear && (
+                         <div>
+                            <Label className="text-xs flex items-center mb-1 text-muted-foreground"><CalendarClockIcon className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />سال انتشار</Label>
+                            <p className="text-foreground bg-secondary/50 p-2 rounded-md text-xs">{book.publicationYear.toLocaleString('fa-IR')}</p>
+                        </div>
+                    )}
+                </div>
+                <div className="pt-2">
+                    <Label htmlFor={`notes-${book.id}`} className="text-xs flex items-center mb-1 text-muted-foreground">
+                        <MessageSquare className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" /> یادداشت‌ها
+                    </Label>
+                    <Textarea
+                        id={`notes-${book.id}`}
+                        value={bookNotes}
+                        onChange={handleNotesChange}
+                        onBlur={handleNotesBlur}
+                        placeholder="یادداشت‌های خود را درباره این کتاب بنویسید..."
+                        rows={3}
+                        className="text-sm"
+                    />
+                </div>
+            </>
         )}
       </CardContent>
       <CardFooter className="text-xs text-muted-foreground pt-3 border-t flex justify-between">
