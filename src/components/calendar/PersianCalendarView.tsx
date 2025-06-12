@@ -33,9 +33,9 @@ interface PersianCalendarViewProps {
 }
 
 export function PersianCalendarView({ initialYear, initialMonth }: PersianCalendarViewProps) {
-  const todayJalali = getJalaliToday();
-  const [currentJalaliYear, setCurrentJalaliYear] = useState(initialYear || todayJalali.year);
-  const [currentJalaliMonth, setCurrentJalaliMonth] = useState(initialMonth || todayJalali.month); // 1-indexed
+  const componentLoadToday = getJalaliToday(); // For initial state
+  const [currentJalaliYear, setCurrentJalaliYear] = useState(initialYear || componentLoadToday.year);
+  const [currentJalaliMonth, setCurrentJalaliMonth] = useState(initialMonth || componentLoadToday.month); // 1-indexed
 
   const [daysInMonthArray, setDaysInMonthArray] = useState<number[]>([]);
   const [firstDayOfWeekIndex, setFirstDayOfWeekIndex] = useState(0); // 0 for Saturday, 6 for Friday
@@ -68,7 +68,6 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     setDaysInMonthArray(Array.from({ length: numDays }, (_, i) => i + 1));
     setFirstDayOfWeekIndex(getJalaliMonthFirstDayOfWeek(currentJalaliYear, currentJalaliMonth));
     
-    // Reset selections when month changes if forms are open
     if (showAddBirthdayForm) setSelectedBirthdayDate(null);
     if (showAddEventForm || editingEvent) setSelectedEventDate(null);
 
@@ -134,8 +133,9 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   };
   
   const handleGoToToday = () => {
-    setCurrentJalaliYear(todayJalali.year);
-    setCurrentJalaliMonth(todayJalali.month);
+    const freshToday = getJalaliToday(); // Get the absolute latest "today"
+    setCurrentJalaliYear(freshToday.year);
+    setCurrentJalaliMonth(freshToday.month);
   };
 
   const handleDayClick = (day: number) => {
@@ -286,7 +286,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     }
 
     daysInMonthArray.map(day => {
-      const isToday = checkIsToday(currentJalaliYear, currentJalaliMonth, day);
+      const isTodayCell = checkIsToday(currentJalaliYear, currentJalaliMonth, day);
       // Calculate day of week based on our 0=Saturday convention
       const dayOfWeekArrayIndex = (firstDayOfWeekIndex + day - 1) % 7; 
       const isFriday = dayOfWeekArrayIndex === 6; // Friday (index 6 in our JALALI_DAY_NAMES_LONG)
@@ -306,11 +306,11 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           className={cn(
             "flex flex-col items-center justify-start aspect-square rounded-lg border cursor-pointer transition-colors relative group pt-1",
             "text-sm sm:text-base",
-            isToday && !isSelectedForNew && "bg-primary text-primary-foreground font-bold ring-2 ring-primary-foreground ring-offset-1 ring-offset-primary",
+            isTodayCell && !isSelectedForNew && "bg-primary text-primary-foreground font-bold ring-2 ring-primary-foreground ring-offset-1 ring-offset-primary",
             isSelectedForNew && "bg-blue-500 text-white ring-2 ring-blue-300",
-            !isToday && !isSelectedForNew && isPublicHoliday && "bg-accent/30 text-accent-foreground font-medium",
-            !isToday && !isSelectedForNew && !isPublicHoliday && isFriday && "text-orange-600 dark:text-orange-400 bg-secondary/30",
-            !isToday && !isSelectedForNew && !isPublicHoliday && !isFriday && "bg-card hover:bg-muted/80",
+            !isTodayCell && !isSelectedForNew && isPublicHoliday && "bg-accent/30 text-accent-foreground font-medium",
+            !isTodayCell && !isSelectedForNew && !isPublicHoliday && isFriday && "text-orange-600 dark:text-orange-400 bg-secondary/30",
+            !isTodayCell && !isSelectedForNew && !isPublicHoliday && !isFriday && "bg-card hover:bg-muted/80",
              hasBirthday && !isSelectedForNew && "shadow-inner shadow-yellow-400/50",
              hasEvent && !isSelectedForNew && !hasBirthday && "shadow-inner shadow-green-400/50",
              hasEvent && hasBirthday && !isSelectedForNew && "shadow-inner shadow-purple-400/50"

@@ -24,22 +24,22 @@ interface JalaliDatePickerProps {
 }
 
 export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }: JalaliDatePickerProps) {
-  const todayJalali = getJalaliToday();
+  const componentLoadToday = getJalaliToday(); // For initial state
   
   const [currentJalaliYear, setCurrentJalaliYear] = useState(() => {
     if (value) {
       const jalaliDate = gregorianToJalali(value.getFullYear(), value.getMonth() + 1, value.getDate());
-      return jalaliDate?.jy || initialYear || todayJalali.year;
+      return jalaliDate?.jy || initialYear || componentLoadToday.year;
     }
-    return initialYear || todayJalali.year;
+    return initialYear || componentLoadToday.year;
   });
 
   const [currentJalaliMonth, setCurrentJalaliMonth] = useState(() => { // 1-indexed
     if (value) {
       const jalaliDate = gregorianToJalali(value.getFullYear(), value.getMonth() + 1, value.getDate());
-      return jalaliDate?.jm || initialMonth || todayJalali.month;
+      return jalaliDate?.jm || initialMonth || componentLoadToday.month;
     }
-    return initialMonth || todayJalali.month;
+    return initialMonth || componentLoadToday.month;
   });
 
   const [daysInMonthArray, setDaysInMonthArray] = useState<number[]>([]);
@@ -85,8 +85,9 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
   };
   
   const handleGoToToday = () => {
-    setCurrentJalaliYear(todayJalali.year);
-    setCurrentJalaliMonth(todayJalali.month);
+    const freshToday = getJalaliToday(); // Get the absolute latest "today"
+    setCurrentJalaliYear(freshToday.year);
+    setCurrentJalaliMonth(freshToday.month);
   };
 
   const renderDayCells = () => {
@@ -96,7 +97,7 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
     }
 
     daysInMonthArray.forEach(day => {
-      const isToday = checkIsJalaliToday(currentJalaliYear, currentJalaliMonth, day);
+      const isTodayForCell = checkIsJalaliToday(currentJalaliYear, currentJalaliMonth, day);
       const dayOfWeekArrayIndex = (firstDayOfWeekIndex + day - 1) % 7; 
       const isFriday = dayOfWeekArrayIndex === 6;
 
@@ -112,9 +113,9 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
             "flex flex-col items-center justify-center aspect-square rounded-lg border cursor-pointer transition-colors relative group p-1",
             "text-sm sm:text-base",
             isSelected && "bg-primary text-primary-foreground font-bold ring-2 ring-primary-foreground ring-offset-1 ring-offset-primary",
-            !isSelected && isToday && "bg-accent text-accent-foreground font-semibold",
-            !isSelected && !isToday && isFriday && "text-orange-600 dark:text-orange-400 bg-secondary/30",
-            !isSelected && !isToday && !isFriday && "bg-card hover:bg-muted/80",
+            !isSelected && isTodayForCell && "bg-accent text-accent-foreground font-semibold",
+            !isSelected && !isTodayForCell && isFriday && "text-orange-600 dark:text-orange-400 bg-secondary/30",
+            !isSelected && !isTodayForCell && !isFriday && "bg-card hover:bg-muted/80",
           )}
         >
           <span className="font-medium">{day.toLocaleString('fa-IR')}</span>
