@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import type { Habit } from '@/types';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +21,7 @@ export default function HabitsPage() {
 
   const [habits, setHabits] = useDebouncedLocalStorage<Habit[]>('userHabitsDeeply', []);
 
-  const handleAddHabit = (name: string) => {
+  const handleAddHabit = useCallback((name: string) => {
     const newHabit: Habit = {
       id: crypto.randomUUID(),
       name,
@@ -33,9 +33,9 @@ export default function HabitsPage() {
       title: "عادت جدید اضافه شد",
       description: `عادت "${name}" با موفقیت ایجاد شد.`,
     });
-  };
+  }, [setHabits, toast]);
 
-  const handleToggleHabitCompletion = (habitId: string, date: string) => {
+  const handleToggleHabitCompletion = useCallback((habitId: string, date: string) => {
     setHabits(prevHabits =>
       prevHabits.map(habit => {
         if (habit.id === habitId) {
@@ -50,9 +50,9 @@ export default function HabitsPage() {
         return habit;
       })
     );
-  };
+  }, [setHabits]);
 
-  const handleDeleteHabit = (habitId: string) => {
+  const handleDeleteHabit = useCallback((habitId: string) => {
     const habitToDelete = habits.find(h => h.id === habitId);
     setHabits(prevHabits => prevHabits.filter(h => h.id !== habitId));
     if (habitToDelete) {
@@ -62,7 +62,7 @@ export default function HabitsPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [habits, setHabits, toast]);
 
   return (
     <div className="flex flex-col min-h-screen">

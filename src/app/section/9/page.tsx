@@ -7,12 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react'; // Added useState for editingBook
-import type { LongTermGoal, Book } from '@/types'; // Added Book type
+import { useState, useCallback } from 'react'; // Added useCallback
+import type { LongTermGoal, Book } from '@/types'; 
 import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm';
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
-import { CreateBookForm } from '@/components/books/CreateBookForm'; // New import
-import { BookList } from '@/components/books/BookList'; // New import
+import { CreateBookForm } from '@/components/books/CreateBookForm'; 
+import { BookList } from '@/components/books/BookList'; 
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,14 +29,14 @@ export default function SectionNineGoalsPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
 
 
- const handleSaveGoal = (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
+ const handleSaveGoal = useCallback((goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
     if (isEditing && editingGoal) { 
         setGoals(prevGoals =>
             prevGoals.map(goal =>
             goal.id === editingGoal.id ? { ...goal, ...goalData, title: goalData.title.trim(), id: editingGoal.id, createdAt: goal.createdAt } : goal
             )
         );
-        setEditingGoal(null); // Clear editing state
+        setEditingGoal(null); 
     } else {
         const newGoal: LongTermGoal = {
             ...goalData,
@@ -46,10 +46,9 @@ export default function SectionNineGoalsPage() {
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-    // Toast is handled by the form itself
-  };
+  }, [editingGoal, setGoals, toast]);
 
-  const handleDeleteGoal = (id: string) => {
+  const handleDeleteGoal = useCallback((id: string) => {
     const goalToDelete = goals.find(g => g.id === id);
     setGoals(prevGoals => prevGoals.filter(g => g.id !== id));
     if (goalToDelete) {
@@ -62,9 +61,9 @@ export default function SectionNineGoalsPage() {
      if (editingGoal?.id === id) {
       setEditingGoal(null);
     }
-  };
+  }, [goals, editingGoal, setGoals, toast]);
   
-  const handleUpdateGoal = (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
+  const handleUpdateGoal = useCallback((id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
      setGoals(prevGoals =>
       prevGoals.map(goal =>
         goal.id === id ? { 
@@ -76,17 +75,15 @@ export default function SectionNineGoalsPage() {
         } : goal
       )
     );
-    // Toast is handled by the LongTermGoalItem or form
-  };
+  }, [setGoals, toast]);
 
   // Book Handlers
-  const handleSaveBook = (bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
+  const handleSaveBook = useCallback((bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
     if (isEditingBook && editingBook) {
       const updatedBook: Book = {
         ...editingBook,
         ...bookData,
         title: bookData.title.trim(),
-        // Ensure finishedAt is updated correctly based on status
         finishedAt: bookData.status === 'read' && !editingBook.finishedAt ? new Date().toISOString() : (bookData.status !== 'read' ? null : editingBook.finishedAt),
       };
       setBooks(prevBooks => prevBooks.map(b => b.id === editingBook.id ? updatedBook : b));
@@ -101,15 +98,13 @@ export default function SectionNineGoalsPage() {
       };
       setBooks(prevBooks => [newBook, ...prevBooks].sort((a,b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()));
     }
-    // Toast is handled by CreateBookForm
-  };
+  }, [editingBook, setBooks, toast]);
 
-  const handleUpdateBook = (updatedBook: Book) => {
+  const handleUpdateBook = useCallback((updatedBook: Book) => {
     setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
-    // Toast can be handled in BookItem for specific actions like status change or notes update
-  };
+  }, [setBooks]);
 
-  const handleDeleteBook = (bookId: string) => {
+  const handleDeleteBook = useCallback((bookId: string) => {
     const bookToDelete = books.find(b => b.id === bookId);
     setBooks(prevBooks => prevBooks.filter(b => b.id !== bookId));
     if (bookToDelete) {
@@ -122,7 +117,11 @@ export default function SectionNineGoalsPage() {
     if (editingBook?.id === bookId) {
       setEditingBook(null);
     }
-  };
+  }, [books, editingBook, setBooks, toast]);
+
+  const handleTriggerEditBook = useCallback((book: Book) => {
+    setEditingBook(book);
+  }, []);
 
 
   return (
@@ -167,7 +166,6 @@ export default function SectionNineGoalsPage() {
               <TabsContent value="goals" className="space-y-8">
                 <Card>
                     <CardHeader>
-                        {/* CardTitle is now inside the CreateLongTermGoalForm */}
                     </CardHeader>
                     <CardContent>
                         <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
@@ -213,7 +211,6 @@ export default function SectionNineGoalsPage() {
               <TabsContent value="books" className="space-y-8">
                 <Card>
                     <CardHeader>
-                        {/* CardTitle is now inside the CreateBookForm */}
                     </CardHeader>
                     <CardContent>
                         <CreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
@@ -231,7 +228,7 @@ export default function SectionNineGoalsPage() {
                             books={books} 
                             onUpdateBook={handleUpdateBook} 
                             onDeleteBook={handleDeleteBook}
-                            onTriggerEdit={setEditingBook} 
+                            onTriggerEdit={handleTriggerEditBook} 
                         />
                     </CardContent>
                 </Card>

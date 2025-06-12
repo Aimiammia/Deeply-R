@@ -2,8 +2,8 @@
 'use client';
 
 import type { Task } from '@/types';
-import { useState } from 'react';
-import { Button, buttonVariants } from '@/components/ui/button'; // Added buttonVariants
+import { useState, memo, useCallback } from 'react'; // Added memo, useCallback
+import { Button, buttonVariants } from '@/components/ui/button'; 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy } from 'lucide-react';
@@ -30,25 +30,25 @@ interface TaskItemProps {
   onEditTask: (id: string, newTitle: string) => void;
 }
 
-export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: TaskItemProps) {
+const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }: TaskItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.title);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setIsEditing(false);
     setEditText(task.title);
-  };
+  }, [task.title]);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = useCallback(() => {
     if (editText.trim()) {
       onEditTask(task.id, editText.trim());
       setIsEditing(false);
     }
-  };
+  }, [editText, task.id, onEditTask]);
 
   const getPriorityBadgeVariant = (priority: Task['priority']) => {
     switch (priority) {
@@ -176,3 +176,4 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
     </li>
   );
 }
+export const TaskItem = memo(TaskItemComponent);

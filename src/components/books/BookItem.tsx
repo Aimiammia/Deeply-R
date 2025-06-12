@@ -2,7 +2,7 @@
 'use client';
 
 import type { Book } from '@/types';
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react'; // Added memo, useCallback
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,16 +31,16 @@ interface BookItemProps {
   book: Book;
   onUpdateBook: (book: Book) => void;
   onDeleteBook: (bookId: string) => void;
-  onTriggerEdit: (book: Book) => void; // To signal parent to show edit form
+  onTriggerEdit: (book: Book) => void; 
 }
 
-export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: BookItemProps) {
+const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: BookItemProps) => {
   const { toast } = useToast();
   const [currentBookPage, setCurrentBookPage] = useState<number | ''>(book.currentPage || '');
   const [bookNotes, setBookNotes] = useState(book.notes || '');
-  const [isExpanded, setIsExpanded] = useState(false); // For notes and details
+  const [isExpanded, setIsExpanded] = useState(false); 
 
-  const handleStatusChange = (newStatus: Book['status']) => {
+  const handleStatusChange = useCallback((newStatus: Book['status']) => {
     let updatedBook = { ...book, status: newStatus };
     if (newStatus === 'read') {
       updatedBook.finishedAt = new Date().toISOString();
@@ -51,20 +51,16 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
     } else {
       updatedBook.finishedAt = null;
     }
-    if (newStatus !== 'reading') {
-        // updatedBook.currentPage = null; // Keep current page if switching from reading to to-read maybe?
-        // setCurrentBookPage('');
-    }
     onUpdateBook(updatedBook);
     toast({ title: "وضعیت کتاب به‌روز شد", description: `وضعیت کتاب "${book.title}" به "${newStatus}" تغییر یافت.` });
-  };
+  }, [book, onUpdateBook, toast]);
 
   const handleCurrentPageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setCurrentBookPage(val === '' ? '' : parseInt(val));
   };
   
-  const handleCurrentPageBlur = () => {
+  const handleCurrentPageBlur = useCallback(() => {
      if (currentBookPage !== '' && book.totalPages && Number(currentBookPage) > book.totalPages) {
         setCurrentBookPage(book.totalPages);
         toast({ title: "خطا", description: "صفحه فعلی نمی‌تواند بیشتر از کل صفحات باشد.", variant: "destructive"});
@@ -81,20 +77,20 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
         onUpdateBook({ ...book, currentPage: null });
         toast({ title: "پیشرفت پاک شد", description: `صفحه فعلی کتاب "${book.title}" پاک شد.` });
      }
-  };
+  }, [book, currentBookPage, onUpdateBook, toast]);
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBookNotes(e.target.value);
   };
 
-  const handleNotesBlur = () => {
+  const handleNotesBlur = useCallback(() => {
     if (book.notes !== bookNotes) {
       onUpdateBook({ ...book, notes: bookNotes || null });
       toast({ title: "یادداشت ذخیره شد", description: `یادداشت برای کتاب "${book.title}" به‌روز شد.` });
     }
-  };
+  }, [book, bookNotes, onUpdateBook, toast]);
   
-  const handleRatingChange = (newRatingStr: string) => {
+  const handleRatingChange = useCallback((newRatingStr: string) => {
     const newRating = newRatingStr === '' ? null : parseInt(newRatingStr);
     if (newRating === null || (newRating >= 1 && newRating <= 5)) {
       onUpdateBook({ ...book, rating: newRating });
@@ -102,7 +98,7 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
     } else {
       toast({ title: "خطا", description: "امتیاز باید بین ۱ تا ۵ باشد.", variant: "destructive" });
     }
-  };
+  }, [book, onUpdateBook, toast]);
 
   const progressPercentage = (book.totalPages && book.currentPage) ? (book.currentPage / book.totalPages) * 100 : 0;
 
@@ -212,7 +208,7 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
 
         {isExpanded && (
             <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2"> {/* Changed to 2 cols */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2"> 
                     {book.genre && (
                         <div>
                             <Label className="text-xs flex items-center mb-1 text-muted-foreground"><Layers className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />ژانر</Label>
@@ -255,4 +251,5 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
       </CardFooter>
     </Card>
   );
-}
+};
+export const BookItem = memo(BookItemComponent);

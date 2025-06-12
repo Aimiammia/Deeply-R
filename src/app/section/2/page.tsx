@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -27,7 +27,7 @@ export default function ReflectionsPage() {
   const [insightsError, setInsightsError] = useState<string | null>(null);
   const [isSavingReflection, setIsSavingReflection] = useState(false);
 
-  const fetchInsights = async (reflectionText: string) => {
+  const fetchInsights = useCallback(async (reflectionText: string) => {
     setIsLoadingInsights(true);
     setInsightsError(null);
     setInsights(undefined);
@@ -46,30 +46,30 @@ export default function ReflectionsPage() {
     } finally {
       setIsLoadingInsights(false);
     }
-  };
+  }, [toast]);
 
-  const handleSaveReflection = async (reflectionText: string) => {
+  const handleSaveReflection = useCallback(async (reflectionText: string) => {
     setIsSavingReflection(true);
     const newReflection: ReflectionEntry = {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
-      prompt: currentPrompt, // Save the active prompt with the reflection
+      prompt: currentPrompt, 
       text: reflectionText,
     };
     setReflections(prevReflections => [newReflection, ...prevReflections].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    setSelectedReflection(newReflection); // Select the new reflection
-    await fetchInsights(newReflection.text); // Fetch insights for the new reflection
+    setSelectedReflection(newReflection); 
+    await fetchInsights(newReflection.text); 
     setIsSavingReflection(false);
     toast({
       title: "تأمل ذخیره شد",
       description: "تأمل شما با موفقیت ذخیره و تحلیل شد.",
     });
-  };
+  }, [setReflections, fetchInsights, toast, currentPrompt]);
 
-  const handleSelectReflection = (reflection: ReflectionEntry) => {
+  const handleSelectReflection = useCallback((reflection: ReflectionEntry) => {
     setSelectedReflection(reflection);
     fetchInsights(reflection.text);
-  };
+  }, [fetchInsights]);
   
   const sortedReflections = [...reflections].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 

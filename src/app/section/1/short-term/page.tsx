@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import Link from 'next/link';
 import { ArrowLeft, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import type { Task } from '@/types';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
@@ -28,7 +28,7 @@ export default function ShortTermPlannerPage() {
     setCurrentSuccessQuote(getDailySuccessQuote());
   }, []);
 
-  const handleAddTask = (
+  const handleAddTask = useCallback((
     title: string, 
     dueDate?: Date | null, 
     priority?: Task['priority'], 
@@ -59,9 +59,9 @@ export default function ShortTermPlannerPage() {
       description: `"${title}" با موفقیت به برنامه شما اضافه شد.`,
       variant: "default",
     });
-  };
+  }, [setTasks, toast]);
 
-  const handleToggleComplete = (id: string) => {
+  const handleToggleComplete = useCallback((id: string) => {
     let taskTitle = "";
     let isCompleted = false;
     setTasks(prevTasks =>
@@ -79,9 +79,9 @@ export default function ShortTermPlannerPage() {
       description: `"${taskTitle}" ${isCompleted ? 'با موفقیت انجام شد.' : 'مجدداً باز شد.'}`,
       variant: "default",
     });
-  };
+  }, [setTasks, toast]);
 
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = useCallback((id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     if (taskToDelete) {
@@ -91,9 +91,9 @@ export default function ShortTermPlannerPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [tasks, setTasks, toast]);
 
-  const handleEditTask = (id: string, newTitle: string) => {
+  const handleEditTask = useCallback((id: string, newTitle: string) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task.id === id ? { ...task, title: newTitle } : task
@@ -103,7 +103,7 @@ export default function ShortTermPlannerPage() {
       title: "کار ویرایش شد",
       description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
     });
-  };
+  }, [setTasks, toast]);
 
   return (
     <div className="flex flex-col min-h-screen">

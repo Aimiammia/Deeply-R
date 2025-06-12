@@ -2,7 +2,7 @@
 'use client';
 
 import type { LongTermGoal, Milestone } from '@/types';
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react'; // Added memo, useCallback
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CalendarDays, Target, CheckCircle, Clock, XCircle, ListChecks, CheckSquare, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CreateLongTermGoalForm } from './CreateLongTermGoalForm'; // For editing
+import { CreateLongTermGoalForm } from './CreateLongTermGoalForm'; 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -38,20 +38,20 @@ const statusOptions: { value: LongTermGoal['status']; label: string; icon: React
 ];
 
 
-export function LongTermGoalItem({ goal, onDeleteGoal, onUpdateGoal }: LongTermGoalItemProps) {
+const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal }: LongTermGoalItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSaveEdit = (updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
+  const handleSaveEdit = useCallback((updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
     onUpdateGoal(goal.id, updatedGoalData);
     setIsEditing(false);
-  };
+  }, [goal.id, onUpdateGoal]);
 
-  const handleToggleMilestone = (milestoneId: string) => {
+  const handleToggleMilestone = useCallback((milestoneId: string) => {
     const updatedMilestones = goal.milestones?.map(m => 
       m.id === milestoneId ? { ...m, completed: !m.completed } : m
     ) || [];
     onUpdateGoal(goal.id, { ...goal, milestones: updatedMilestones });
-  };
+  },[goal, onUpdateGoal]);
 
   const currentStatusOption = statusOptions.find(s => s.value === goal.status) || statusOptions[0];
   const StatusIcon = currentStatusOption.icon;
@@ -170,4 +170,5 @@ export function LongTermGoalItem({ goal, onDeleteGoal, onUpdateGoal }: LongTermG
         </CardContent>
     </Card>
   );
-}
+};
+export const LongTermGoalItem = memo(LongTermGoalItemComponent);

@@ -2,6 +2,7 @@
 'use client';
 
 import type { Budget, FinancialTransaction } from '@/types';
+import { memo, useMemo } from 'react'; // Added memo, useMemo
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Trash2, Edit3, AlertTriangle, TrendingUp, TrendingDown, Info } from 'lucide-react';
@@ -26,24 +27,29 @@ interface BudgetItemProps {
   onEditBudget: (budget: Budget) => void; 
 }
 
-export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) {
+const BudgetItemComponent = ({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
 
-  const now = new Date();
-  const currentMonthExpenses = transactions
-    .filter(t => 
-      t.type === 'expense' && 
-      t.category === budget.category &&
-      isSameMonth(parseISO(t.date), now) &&
-      getYear(parseISO(t.date)) === getYear(now)
-    )
-    .reduce((sum, t) => sum + t.amount, 0);
+  const { currentMonthExpenses, remainingAmount, progressPercentage, isOverBudget } = useMemo(() => {
+    const now = new Date();
+    const expenses = transactions
+      .filter(t => 
+        t.type === 'expense' && 
+        t.category === budget.category &&
+        isSameMonth(parseISO(t.date), now) &&
+        getYear(parseISO(t.date)) === getYear(now)
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const remaining = budget.amount - expenses;
+    const progress = budget.amount > 0 ? Math.min((expenses / budget.amount) * 100, 100) : 0;
+    const overBudget = expenses > budget.amount;
 
-  const remainingAmount = budget.amount - currentMonthExpenses;
-  const progressPercentage = budget.amount > 0 ? Math.min((currentMonthExpenses / budget.amount) * 100, 100) : 0;
-  const isOverBudget = currentMonthExpenses > budget.amount;
+    return { currentMonthExpenses: expenses, remainingAmount: remaining, progressPercentage: progress, isOverBudget: overBudget };
+  }, [budget, transactions]);
+
 
   return (
     <li className="p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors bg-card shadow-sm rounded-md mb-3">
@@ -128,4 +134,5 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
       )}
     </li>
   );
-}
+};
+export const BudgetItem = memo(BudgetItemComponent);

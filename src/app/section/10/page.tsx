@@ -6,8 +6,8 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, PieChart, ClipboardList, Target, FileText, Sparkles, Brain, Loader2, AlertCircle, Activity, CalendarRange } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
-import type { Task, LongTermGoal, DailyActivityLogEntry, ReflectionEntry, FinancialTransaction } from '@/types'; // Added ReflectionEntry, FinancialTransaction
+import { useState, useEffect, useMemo, useCallback } from 'react'; // Added useCallback
+import type { Task, LongTermGoal, DailyActivityLogEntry, ReflectionEntry, FinancialTransaction } from '@/types'; 
 import { format, parseISO, subDays, isWithinInterval } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -66,7 +66,7 @@ export default function IntelligentAnalysisPage() {
     setIsInitialLoadComplete(true);
   }, [toast]);
 
-  const handleAssessGoalProgress = async () => {
+  const handleAssessGoalProgress = useCallback(async () => {
     if (!isInitialLoadComplete) {
       toast({ title: "خطا", description: "داده‌ها هنوز به طور کامل بارگذاری نشده‌اند.", variant: "destructive" });
       return;
@@ -102,9 +102,9 @@ export default function IntelligentAnalysisPage() {
     } finally {
       setIsAssessingGoals(false);
     }
-  };
+  }, [isInitialLoadComplete, longTermGoals, tasks, activityLogs, toast]);
 
-  const calculateActivitySummary = (days: number): ActivitySummary => {
+  const calculateActivitySummary = useCallback((days: number): ActivitySummary => {
     const endDate = new Date();
     const startDate = subDays(endDate, days - 1); 
     
@@ -123,28 +123,28 @@ export default function IntelligentAnalysisPage() {
     const expenseTotal = periodTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
     return { tasksCompleted, reflectionsMade, incomeTotal, expenseTotal };
-  };
+  }, [tasks, reflections, transactions]);
 
-  const weeklySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(7) : null, [tasks, reflections, transactions, isInitialLoadComplete]);
-  const monthlySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(30) : null, [tasks, reflections, transactions, isInitialLoadComplete]);
+  const weeklySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(7) : null, [isInitialLoadComplete, calculateActivitySummary]);
+  const monthlySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(30) : null, [isInitialLoadComplete, calculateActivitySummary]);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
 
-  const upcomingTasks = tasks
+  const upcomingTasks = useMemo(() => tasks
     .filter(task => !task.completed)
     .sort((a, b) => (a.dueDate && b.dueDate ? new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime() : a.dueDate ? -1 : b.dueDate ? 1 : 0))
-    .slice(0, MAX_PREVIEW_ITEMS);
+    .slice(0, MAX_PREVIEW_ITEMS), [tasks]);
 
-  const activeGoals = longTermGoals
+  const activeGoals = useMemo(() => longTermGoals
     .filter(goal => goal.status === 'in-progress' || goal.status === 'not-started')
     .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, MAX_PREVIEW_ITEMS);
+    .slice(0, MAX_PREVIEW_ITEMS), [longTermGoals]);
 
-  const recentLogs = activityLogs
+  const recentLogs = useMemo(() => activityLogs
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, MAX_PREVIEW_ITEMS);
+    .slice(0, MAX_PREVIEW_ITEMS), [activityLogs]);
 
   const getPriorityText = (priority: Task['priority']) => {
     switch (priority) {

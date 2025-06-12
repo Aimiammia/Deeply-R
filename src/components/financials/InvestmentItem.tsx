@@ -2,6 +2,7 @@
 'use client';
 
 import type { FinancialInvestment } from '@/types';
+import { memo, useMemo } from 'react'; // Added memo, useMemo
 import { Button } from '@/components/ui/button';
 import { Edit3, Trash2, CalendarDays, TrendingUp, Info, TrendingDown, Minus, RefreshCw, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -29,17 +30,27 @@ interface InvestmentItemProps {
   isUpdatingPrice: boolean;
 }
 
-export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) {
+const InvestmentItemComponent = ({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
 
-  const typeLabel = investmentTypes.find(it => it.value === investment.type)?.label || investment.type;
+  const typeLabel = useMemo(() => 
+    investmentTypes.find(it => it.value === investment.type)?.label || investment.type
+  , [investment.type]);
 
-  const totalPurchaseCost = (investment.quantity * investment.purchasePricePerUnit) + investment.fees;
-  const currentTotalValue = investment.quantity * investment.currentPricePerUnit;
-  const profitOrLoss = currentTotalValue - totalPurchaseCost;
-  const profitOrLossPercentage = totalPurchaseCost !== 0 ? (profitOrLoss / totalPurchaseCost) * 100 : 0;
+  const { totalPurchaseCost, currentTotalValue, profitOrLoss, profitOrLossPercentage } = useMemo(() => {
+    const purchaseCost = (investment.quantity * investment.purchasePricePerUnit) + investment.fees;
+    const currentValue = investment.quantity * investment.currentPricePerUnit;
+    const pnl = currentValue - purchaseCost;
+    const pnlPercentage = purchaseCost !== 0 ? (pnl / purchaseCost) * 100 : 0;
+    return { 
+      totalPurchaseCost: purchaseCost, 
+      currentTotalValue: currentValue, 
+      profitOrLoss: pnl, 
+      profitOrLossPercentage: pnlPercentage 
+    };
+  }, [investment.quantity, investment.purchasePricePerUnit, investment.fees, investment.currentPricePerUnit]);
 
   let ProfitLossIcon = Minus;
   if (profitOrLoss > 0) ProfitLossIcon = TrendingUp;
@@ -152,4 +163,5 @@ export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestmen
       </p>
     </li>
   );
-}
+};
+export const InvestmentItem = memo(InvestmentItemComponent);

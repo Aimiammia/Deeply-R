@@ -3,14 +3,14 @@
 
 import Link from 'next/link';
 import { Header } from '@/components/Header';
-import { Card, CardContent } from '@/components/ui/card'; // CardHeader, CardTitle, CardDescription removed
+import { Card, CardContent } from '@/components/ui/card'; 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ClipboardList, Target, ChevronLeftSquare } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
 // Imports for Short-Term Planner
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import type { Task } from '@/types';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 import { TaskList } from '@/components/tasks/TaskList';
@@ -33,7 +33,7 @@ export default function PlannerLandingPage() {
     setCurrentSuccessQuote(getDailySuccessQuote());
   }, []);
 
-  const handleAddTask = (
+  const handleAddTask = useCallback((
     title: string, 
     dueDate?: Date | null, 
     priority?: Task['priority'], 
@@ -64,9 +64,9 @@ export default function PlannerLandingPage() {
       description: `"${title}" با موفقیت به برنامه شما اضافه شد.`,
       variant: "default",
     });
-  };
+  }, [setTasks, toast]);
 
-  const handleToggleComplete = (id: string) => {
+  const handleToggleComplete = useCallback((id: string) => {
     let taskTitle = "";
     let isCompleted = false;
     setTasks(prevTasks =>
@@ -84,9 +84,9 @@ export default function PlannerLandingPage() {
       description: `"${taskTitle}" ${isCompleted ? 'با موفقیت انجام شد.' : 'مجدداً باز شد.'}`,
       variant: "default",
     });
-  };
+  }, [setTasks, toast]);
 
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = useCallback((id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     if (taskToDelete) {
@@ -96,9 +96,9 @@ export default function PlannerLandingPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [tasks, setTasks, toast]);
 
-  const handleEditTask = (id: string, newTitle: string) => {
+  const handleEditTask = useCallback((id: string, newTitle: string) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task.id === id ? { ...task, title: newTitle } : task
@@ -108,7 +108,7 @@ export default function PlannerLandingPage() {
       title: "کار ویرایش شد",
       description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
     });
-  };
+  }, [setTasks, toast]);
 
 
   return (
@@ -192,4 +192,3 @@ export default function PlannerLandingPage() {
     </div>
   );
 }
-

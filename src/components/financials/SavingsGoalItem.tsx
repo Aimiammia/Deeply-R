@@ -2,11 +2,11 @@
 'use client';
 
 import type { SavingsGoal } from '@/types';
-import { useState } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react'; // Added memo, useCallback, useMemo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSign, Edit3, TrendingUp } from 'lucide-react'; // Added TrendingUp
+import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSign, Edit3, TrendingUp } from 'lucide-react'; 
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -31,7 +31,7 @@ interface SavingsGoalItemProps {
   onSetStatus: (id: string, status: SavingsGoal['status']) => void;
 }
 
-export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) {
+const SavingsGoalItemComponent = ({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) => {
   const [isAddingFunds, setIsAddingFunds] = useState(false);
   const [fundsToAdd, setFundsToAdd] = useState<number | ''>('');
 
@@ -39,26 +39,31 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
 
-  const progressPercentage = goal.targetAmount > 0 ? Math.min((goal.currentAmount / goal.targetAmount) * 100, 100) : 0;
-  const isAchieved = goal.status === 'achieved' || goal.currentAmount >= goal.targetAmount;
-  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
+  const { progressPercentage, isAchieved, remainingAmount } = useMemo(() => {
+    const progress = goal.targetAmount > 0 ? Math.min((goal.currentAmount / goal.targetAmount) * 100, 100) : 0;
+    const achieved = goal.status === 'achieved' || goal.currentAmount >= goal.targetAmount;
+    const remaining = Math.max(0, goal.targetAmount - goal.currentAmount);
+    return { progressPercentage: progress, isAchieved: achieved, remainingAmount: remaining };
+  }, [goal.targetAmount, goal.currentAmount, goal.status]);
 
-  const handleAddFundsSubmit = () => {
+
+  const handleAddFundsSubmit = useCallback(() => {
     if (fundsToAdd !== '' && Number(fundsToAdd) > 0) {
       onAddFunds(goal.id, Number(fundsToAdd));
       setFundsToAdd('');
       setIsAddingFunds(false);
     }
-  };
+  }, [fundsToAdd, goal.id, onAddFunds]);
   
-  const getStatusTextAndColor = () => {
+  const getStatusTextAndColor = useCallback(() => {
     switch(goal.status) {
       case 'active': return { text: 'فعال', color: 'bg-blue-500 hover:bg-blue-600' };
       case 'achieved': return { text: 'رسیده شده', color: 'bg-green-500 hover:bg-green-600' };
       case 'cancelled': return { text: 'لغو شده', color: 'bg-red-500 hover:bg-red-600' };
       default: return { text: 'نامشخص', color: 'bg-gray-500 hover:bg-gray-600' };
     }
-  };
+  }, [goal.status]);
+
   const statusInfo = getStatusTextAndColor();
 
 
@@ -183,4 +188,5 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
       </p>
     </li>
   );
-}
+};
+export const SavingsGoalItem = memo(SavingsGoalItemComponent);

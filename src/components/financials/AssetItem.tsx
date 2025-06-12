@@ -2,6 +2,7 @@
 'use client';
 
 import type { FinancialAsset } from '@/types';
+import { memo, useMemo } from 'react'; // Added memo, useMemo
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CalendarDays, Building, TrendingUp, Info, Edit3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +24,7 @@ import {
 interface AssetItemProps {
   asset: FinancialAsset;
   onDeleteAsset: (id: string) => void;
-  onEditAsset: (asset: FinancialAsset) => void; // Trigger edit form
+  onEditAsset: (asset: FinancialAsset) => void; 
 }
 
 const assetTypeLabels: Record<FinancialAsset['type'], string> = {
@@ -36,13 +37,16 @@ const assetTypeLabels: Record<FinancialAsset['type'], string> = {
   other: 'سایر',
 };
 
-export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) {
+const AssetItemComponent = ({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
   };
 
-  const valueChange = asset.currentValue - asset.initialValue;
-  const valueChangePercentage = asset.initialValue !== 0 ? (valueChange / asset.initialValue) * 100 : 0;
+  const { valueChange, valueChangePercentage } = useMemo(() => {
+    const change = asset.currentValue - asset.initialValue;
+    const percentage = asset.initialValue !== 0 ? (change / asset.initialValue) * 100 : 0;
+    return { valueChange: change, valueChangePercentage: percentage };
+  }, [asset.currentValue, asset.initialValue]);
 
   return (
     <li className="p-4 border rounded-lg shadow-sm bg-card mb-4">
@@ -125,4 +129,5 @@ export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps)
       </p>
     </li>
   );
-}
+};
+export const AssetItem = memo(AssetItemComponent);

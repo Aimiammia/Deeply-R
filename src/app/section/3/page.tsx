@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react'; // Added useCallback
 import { AddTransactionForm } from '@/components/financials/AddTransactionForm';
 import { TransactionList } from '@/components/financials/TransactionList';
 import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment, SavingsGoal } from '@/types';
@@ -35,21 +35,12 @@ const persianMonthNames = [
   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
 ];
 
-// Mock function to simulate fetching live price
 const fetchMockLivePrice = async (currentPrice: number, investmentType: FinancialInvestment['type']): Promise<number> => {
-  // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-
-  // Simulate price change (e.g., +/- 5%)
-  // For crypto, allow larger swings, for others, smaller.
   const volatilityFactor = investmentType === 'crypto' ? 0.15 : (investmentType === 'stocks' ? 0.05 : 0.02);
-  const priceChangePercentage = (Math.random() - 0.5) * 2 * volatilityFactor; // Random change between -volatilityFactor and +volatilityFactor
+  const priceChangePercentage = (Math.random() - 0.5) * 2 * volatilityFactor; 
   let newPrice = currentPrice * (1 + priceChangePercentage);
-  
-  // Ensure price doesn't go below zero (or a very small positive number)
   newPrice = Math.max(0.01, newPrice); 
-  
-  // For simplicity, let's round to 2 decimal places for potential non-integer prices
   return parseFloat(newPrice.toFixed(2));
 };
 
@@ -76,7 +67,7 @@ export default function FinancialManagementPage() {
   const [editingSavingsGoal, setEditingSavingsGoal] = useState<SavingsGoal | null>(null);
 
 
-  const handleAddTransaction = (transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
+  const handleAddTransaction = useCallback((transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
     const newTransaction: FinancialTransaction = {
       ...transactionData,
       id: crypto.randomUUID(),
@@ -88,9 +79,9 @@ export default function FinancialManagementPage() {
       description: `تراکنش "${transactionData.description}" با موفقیت ثبت شد.`,
       variant: "default",
     });
-  };
+  }, [setTransactions, toast]);
 
-  const handleDeleteTransaction = (id: string) => {
+  const handleDeleteTransaction = useCallback((id: string) => {
     const transactionToDelete = transactions.find(t => t.id === id);
     setTransactions(prevTransactions => prevTransactions.filter(t => t.id !== id));
     if (transactionToDelete) {
@@ -100,16 +91,16 @@ export default function FinancialManagementPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [transactions, setTransactions, toast]);
   
-  const handleSetBudget = (category: string, amount: number) => {
+  const handleSetBudget = useCallback((category: string, amount: number) => {
     setBudgets(prevBudgets => {
       const existingBudgetIndex = prevBudgets.findIndex(b => b.category === category);
       if (existingBudgetIndex > -1 && editingBudget && prevBudgets[existingBudgetIndex].id === editingBudget.id) {
         const updatedBudgets = [...prevBudgets];
         updatedBudgets[existingBudgetIndex] = { ...updatedBudgets[existingBudgetIndex], amount, createdAt: new Date().toISOString() };
         return updatedBudgets;
-      } else if (existingBudgetIndex === -1 && !editingBudget) { // Adding new budget
+      } else if (existingBudgetIndex === -1 && !editingBudget) { 
         const newBudget: Budget = {
           id: crypto.randomUUID(), 
           category,
@@ -125,9 +116,9 @@ export default function FinancialManagementPage() {
       description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تومان تنظیم شد.`,
     });
     setEditingBudget(null); 
-  };
+  }, [setBudgets, toast, editingBudget]);
 
-  const handleDeleteBudget = (budgetId: string) => { 
+  const handleDeleteBudget = useCallback((budgetId: string) => { 
     const budgetToDelete = budgets.find(b => b.id === budgetId);
     setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== budgetId));
      if (budgetToDelete) {
@@ -140,13 +131,13 @@ export default function FinancialManagementPage() {
      if (editingBudget?.id === budgetId) {
       setEditingBudget(null);
     }
-  };
+  }, [budgets, editingBudget, setBudgets, toast]);
   
-  const handleEditBudget = (budgetToEdit: Budget) => {
+  const handleEditBudget = useCallback((budgetToEdit: Budget) => {
     setEditingBudget(budgetToEdit);
-  };
+  }, []);
 
-  const handleSaveAsset = (assetData: Omit<FinancialAsset, 'id' | 'createdAt' | 'lastValueUpdate'>, isEditingExisting: boolean) => {
+  const handleSaveAsset = useCallback((assetData: Omit<FinancialAsset, 'id' | 'createdAt' | 'lastValueUpdate'>, isEditingExisting: boolean) => {
     if (isEditingExisting && editingAsset) {
       const updatedAsset: FinancialAsset = {
         ...editingAsset,
@@ -166,9 +157,9 @@ export default function FinancialManagementPage() {
       setAssets(prevAssets => [newAsset, ...prevAssets]);
       toast({ title: "دارایی اضافه شد", description: `دارایی "${assetData.name}" با موفقیت اضافه شد.` });
     }
-  };
+  }, [editingAsset, setAssets, toast]);
 
-  const handleDeleteAsset = (id: string) => {
+  const handleDeleteAsset = useCallback((id: string) => {
     const assetToDelete = assets.find(a => a.id === id);
     setAssets(prevAssets => prevAssets.filter(a => a.id !== id));
     if (assetToDelete) {
@@ -177,9 +168,9 @@ export default function FinancialManagementPage() {
     if (editingAsset?.id === id) {
         setEditingAsset(null); 
     }
-  };
+  }, [assets, editingAsset, setAssets, toast]);
 
-  const handleSaveInvestment = (investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditingExisting: boolean) => {
+  const handleSaveInvestment = useCallback((investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditingExisting: boolean) => {
     const nowISO = new Date().toISOString();
     if (isEditingExisting && editingInvestment) {
         const updatedInvestment: FinancialInvestment = {
@@ -200,9 +191,9 @@ export default function FinancialManagementPage() {
         setInvestments(prevInvestments => [newInvestment, ...prevInvestments]);
         toast({ title: "سرمایه‌گذاری اضافه شد", description: `سرمایه‌گذاری "${investmentData.name}" اضافه شد.` });
     }
-  };
+  }, [editingInvestment, setInvestments, toast]);
 
-  const handleDeleteInvestment = (id: string) => {
+  const handleDeleteInvestment = useCallback((id: string) => {
     const investmentToDelete = investments.find(i => i.id === id);
     setInvestments(prevInvestments => prevInvestments.filter(i => i.id !== id));
     if (investmentToDelete) {
@@ -211,9 +202,9 @@ export default function FinancialManagementPage() {
     if (editingInvestment?.id === id) {
         setEditingInvestment(null);
     }
-  };
+  }, [investments, editingInvestment, setInvestments, toast]);
 
-  const handleUpdateInvestmentPrice = async (investmentId: string) => {
+  const handleUpdateInvestmentPrice = useCallback(async (investmentId: string) => {
     const investmentToUpdate = investments.find(inv => inv.id === investmentId);
     if (!investmentToUpdate) {
       toast({ title: "خطا", description: "سرمایه‌گذاری مورد نظر یافت نشد.", variant: "destructive" });
@@ -239,10 +230,10 @@ export default function FinancialManagementPage() {
     } finally {
       setUpdatingPriceForId(null);
     }
-  };
+  }, [investments, setInvestments, toast]);
 
 
-  const handleSaveSavingsGoal = (goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => {
+  const handleSaveSavingsGoal = useCallback((goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => {
     if (isEditing && editingSavingsGoal) {
       const updatedGoal: SavingsGoal = {
         ...editingSavingsGoal,
@@ -264,9 +255,9 @@ export default function FinancialManagementPage() {
       setSavingsGoals(prevGoals => [newGoal, ...prevGoals]);
       toast({ title: "هدف پس‌انداز اضافه شد", description: `هدف "${goalData.name}" با موفقیت اضافه شد.` });
     }
-  };
+  }, [editingSavingsGoal, setSavingsGoals, toast]);
 
-  const handleDeleteSavingsGoal = (id: string) => {
+  const handleDeleteSavingsGoal = useCallback((id: string) => {
     const goalToDelete = savingsGoals.find(g => g.id === id);
     setSavingsGoals(prevGoals => prevGoals.filter(g => g.id !== id));
     if (goalToDelete) {
@@ -275,9 +266,9 @@ export default function FinancialManagementPage() {
     if (editingSavingsGoal?.id === id) {
       setEditingSavingsGoal(null);
     }
-  };
+  }, [savingsGoals, editingSavingsGoal, setSavingsGoals, toast]);
 
-  const handleAddFundsToSavingsGoal = (id: string, amount: number) => {
+  const handleAddFundsToSavingsGoal = useCallback((id: string, amount: number) => {
     setSavingsGoals(prevGoals =>
       prevGoals.map(goal => {
         if (goal.id === id) {
@@ -285,22 +276,22 @@ export default function FinancialManagementPage() {
           return { 
             ...goal, 
             currentAmount: newCurrentAmount,
-            status: newCurrentAmount >= goal.targetAmount && goal.status === 'active' ? 'achieved' : goal.status // Only auto-achieve if active
+            status: newCurrentAmount >= goal.targetAmount && goal.status === 'active' ? 'achieved' : goal.status 
           };
         }
         return goal;
       })
     );
     toast({ title: "وجه اضافه شد", description: `مبلغ ${formatCurrency(amount)} تومان به هدف اضافه شد.` });
-  };
+  }, [setSavingsGoals, toast]);
   
-  const handleSetSavingsGoalStatus = (id: string, status: SavingsGoal['status']) => {
+  const handleSetSavingsGoalStatus = useCallback((id: string, status: SavingsGoal['status']) => {
      setSavingsGoals(prevGoals =>
       prevGoals.map(goal => goal.id === id ? { ...goal, status } : goal)
     );
     const statusText = status === 'achieved' ? 'رسیده شده' : status === 'cancelled' ? 'لغو شده' : 'فعال';
     toast({ title: "وضعیت هدف تغییر کرد", description: `وضعیت هدف به "${statusText}" تغییر یافت.` });
-  };
+  }, [setSavingsGoals, toast]);
 
 
   const chartData = useMemo(() => {
@@ -537,7 +528,7 @@ export default function FinancialManagementPage() {
                      <SavingsGoalList 
                         goals={savingsGoals} 
                         onDeleteGoal={handleDeleteSavingsGoal} 
-                        onEditGoal={(goal) => setEditingSavingsGoal(goal)}
+                        onEditGoal={setEditingSavingsGoal}
                         onAddFunds={handleAddFundsToSavingsGoal}
                         onSetStatus={handleSetSavingsGoalStatus}
                       />

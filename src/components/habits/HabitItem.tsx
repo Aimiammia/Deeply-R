@@ -2,6 +2,7 @@
 'use client';
 
 import type { Habit } from '@/types';
+import { memo, useCallback } from 'react'; // Added memo, useCallback
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2 } from 'lucide-react';
@@ -26,14 +27,14 @@ interface HabitItemProps {
   onDeleteHabit: (habitId: string) => void;
 }
 
-export function HabitItem({ habit, onToggleCompletion, onDeleteHabit }: HabitItemProps) {
-  const todayISOString = startOfDay(new Date()).toISOString().split('T')[0]; // YYYY-MM-DD format
+const HabitItemComponent = ({ habit, onToggleCompletion, onDeleteHabit }: HabitItemProps) => {
+  const todayISOString = startOfDay(new Date()).toISOString().split('T')[0]; 
 
   const isCompletedToday = habit.completions?.includes(todayISOString);
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     onToggleCompletion(habit.id, todayISOString);
-  };
+  }, [habit.id, todayISOString, onToggleCompletion]);
 
   return (
     <li className="flex items-center justify-between gap-3 p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
@@ -79,4 +80,5 @@ export function HabitItem({ habit, onToggleCompletion, onDeleteHabit }: HabitIte
       </div>
     </li>
   );
-}
+};
+export const HabitItem = memo(HabitItemComponent);
