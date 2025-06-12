@@ -137,8 +137,6 @@ export interface SavingsGoal {
 export interface Habit {
   id: string;
   name: string;
-  // frequency: 'daily' | 'weekly'; // For simplicity, start with daily
-  // targetDays?: number; // For weekly habits, e.g., 3 times a week
   createdAt: string; // ISO date string
   completions: string[]; // Array of ISO date strings (YYYY-MM-DD) for when the habit was completed
 }
@@ -158,3 +156,44 @@ export interface Book {
   rating?: number | null; // Optional rating (e.g., 1-5 stars)
 }
 
+// Inputs for new AI Flows in Section 10
+export interface AnalyzeProductivityPatternsInput {
+  tasks: Task[];
+  activityLogs: DailyActivityLogEntry[];
+}
+export interface AnalyzeProductivityPatternsOutput {
+  analysis: string; // Textual analysis of productivity patterns
+}
+
+export interface SuggestTaskOptimizationsInput {
+  tasks: Task[];
+  longTermGoals: LongTermGoal[];
+}
+export interface SuggestTaskOptimizationsOutput {
+  suggestions: string; // Textual suggestions for task optimization
+}
+
+export interface AnalyzeMoodTaskCorrelationInput {
+  reflections: ReflectionEntry[];
+  tasks: Task[];
+}
+export interface AnalyzeMoodTaskCorrelationOutput {
+  analysis: string; // Textual analysis of mood-task correlation
+}
+
+export interface GenerateOverallProgressReportInput {
+  tasks: Task[];
+  longTermGoals: LongTermGoal[];
+  activityLogs: DailyActivityLogEntry[];
+  reflections: ReflectionEntry[];
+  // Simple financial summary for now
+  financialSummary?: {
+    totalIncomeLast30Days: number;
+    totalExpensesLast30Days: number;
+    activeBudgetsCount: number;
+    savingsGoalsProgress: number; // Avg percentage
+  };
+}
+export interface GenerateOverallProgressReportOutput {
+  report: string; // Comprehensive textual report
+}
