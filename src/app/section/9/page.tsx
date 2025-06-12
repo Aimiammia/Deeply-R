@@ -12,6 +12,7 @@ import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongT
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SectionNineGoalsPage() { 
   const sectionTitle = "اهداف"; 
@@ -89,86 +90,109 @@ export default function SectionNineGoalsPage() {
           </p>
         </div>
 
-        <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                        <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                        ایجاد یا ویرایش هدف
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} />
-                </CardContent>
-            </Card>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                        <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                        لیست اهداف شما
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <LongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
-                </CardContent>
-            </Card>
+        <Card className="shadow-lg bg-card">
+          <CardContent className="p-6">
+            <Tabs defaultValue="goals" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1">
+                <TabsTrigger
+                  value="goals"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف
+                </TabsTrigger>
+                <TabsTrigger
+                  value="books"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                >
+                  <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> کتاب
+                </TabsTrigger>
+              </TabsList>
 
-            <Card className="bg-secondary/50">
-                <CardHeader>
-                    <div className="flex items-center">
-                        <BookOpen className="h-6 w-6 text-primary mr-2 rtl:ml-2 rtl:mr-0" />
-                        <CardTitle className="text-xl text-primary">اهداف مرتبط با کتاب و مطالعه</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-foreground/90 mb-4">
-                    میتوانید اهداف مرتبط با مطالعه کتاب، مانند "خواندن ۱۲ کتاب در سال جاری" یا "تمام کردن کتاب 'تاریخ بیهقی' تا سه ماه آینده" را به عنوان یک هدف بلندمدت در فرم بالا تعریف کنید.
-                    </p>
-                    <p className="text-sm text-foreground/90 mb-4">
-                    همچنین، برای برنامه‌ریزی مطالعه فصول خاصی از کتب درسی، می‌توانید از بخش <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه</Link> استفاده کرده و وظایف با دسته‌بندی "درس" ایجاد نمایید. مقطع تحصیلی شما از بخش <Link href="/section/7" className="text-primary hover:underline">تحصیل</Link> برای انتخاب دروس در دسترس خواهد بود.
-                    </p>
-                    <Image 
-                        src="https://placehold.co/600x300.png" 
-                        alt="تصویر مفهومی کتاب‌ها و اهداف مطالعه" 
-                        width={600} 
-                        height={300}
-                        className="rounded-md mx-auto shadow-md mt-4 opacity-70"
-                        data-ai-hint="books reading goals"
-                    />
-                    <h5 className="text-md font-semibold text-primary mt-6 mb-2">قابلیت‌های آینده برای بخش کتاب:</h5>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80">
-                        <li>ایجاد لیست کتاب‌های خوانده شده / در حال خواندن / برای خواندن.</li>
-                        <li>پیگیری پیشرفت مطالعه هر کتاب (مثلا بر اساس صفحه یا فصل).</li>
-                        <li>امکان یادداشت‌برداری و ثبت نظرات برای هر کتاب.</li>
-                        <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف.</li>
-                    </ul>
-                </CardContent>
-            </Card>
-            
-            <Card className="bg-secondary/50">
-                <CardHeader>
-                     <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای اهداف</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
-                    <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
-                    <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
-                    <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
-                    <li>اتصال اهداف به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
-                    <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>
-                    </ul>
-                    <Image 
-                        src="https://placehold.co/600x350.png" 
-                        alt="تصویر مفهومی برنامه‌ریزی آینده و استراتژی" 
-                        width={600} 
-                        height={350}
-                        className="rounded-md mx-auto shadow-md mt-6 opacity-70"
-                        data-ai-hint="future planning strategy"
-                    />
-                </CardContent>
-            </Card>
-        </div>
+              <TabsContent value="goals" className="space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                            <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                            ایجاد یا ویرایش هدف
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <CreateLongTermGoalForm onSaveGoal={handleSaveGoal} />
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                            <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                            لیست اهداف شما
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <LongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
+                    </CardContent>
+                </Card>
+                
+                <Card className="bg-secondary/50">
+                    <CardHeader>
+                         <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای اهداف</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
+                            <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
+                            <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
+                            <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
+                            <li>اتصال اهداف به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
+                            <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>
+                        </ul>
+                        <Image 
+                            src="https://placehold.co/600x350.png" 
+                            alt="تصویر مفهومی برنامه‌ریزی آینده و استراتژی" 
+                            width={600} 
+                            height={350}
+                            className="rounded-md mx-auto shadow-md mt-6 opacity-70"
+                            data-ai-hint="future planning strategy"
+                        />
+                    </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="books" className="space-y-8">
+                <Card className="bg-secondary/50">
+                    <CardHeader>
+                        <div className="flex items-center">
+                            <BookOpen className="h-6 w-6 text-primary mr-2 rtl:ml-2 rtl:mr-0" />
+                            <CardTitle className="text-xl text-primary">اهداف مرتبط با کتاب و مطالعه</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-foreground/90 mb-4">
+                        میتوانید اهداف مرتبط با مطالعه کتاب، مانند "خواندن ۱۲ کتاب در سال جاری" یا "تمام کردن کتاب 'تاریخ بیهقی' تا سه ماه آینده" را به عنوان یک هدف بلندمدت در تب "اهداف" تعریف کنید.
+                        </p>
+                        <p className="text-sm text-foreground/90 mb-4">
+                        همچنین، برای برنامه‌ریزی مطالعه فصول خاصی از کتب درسی، می‌توانید از بخش <Link href="/section/1" className="text-primary hover:underline">برنامه‌ریز روزانه</Link> استفاده کرده و وظایف با دسته‌بندی "درس" ایجاد نمایید. مقطع تحصیلی شما از بخش <Link href="/section/7" className="text-primary hover:underline">تحصیل</Link> برای انتخاب دروس در دسترس خواهد بود.
+                        </p>
+                        <Image 
+                            src="https://placehold.co/600x300.png" 
+                            alt="تصویر مفهومی کتاب‌ها و اهداف مطالعه" 
+                            width={600} 
+                            height={300}
+                            className="rounded-md mx-auto shadow-md mt-4 opacity-70"
+                            data-ai-hint="books reading goals"
+                        />
+                        <h5 className="text-md font-semibold text-primary mt-6 mb-2">قابلیت‌های آینده برای بخش کتاب:</h5>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80">
+                            <li>ایجاد لیست کتاب‌های خوانده شده / در حال خواندن / برای خواندن.</li>
+                            <li>پیگیری پیشرفت مطالعه هر کتاب (مثلا بر اساس صفحه یا فصل).</li>
+                            <li>امکان یادداشت‌برداری و ثبت نظرات برای هر کتاب.</li>
+                            <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف.</li>
+                        </ul>
+                    </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
