@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare, Settings } from 'lucide-react';
+import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare, Settings, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +28,9 @@ import { faIR } from 'date-fns/locale';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubjectType } from '@/lib/educational-data';
+import { ClientOnly } from '@/components/ClientOnly';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const educationalLevels = [
@@ -46,8 +49,8 @@ const educationalLevels = [
   { value: 'other', label: 'سایر' },
 ];
 
-const MEHR_FIRST_MONTH = 8; // September (JavaScript month is 0-indexed, so 8 is September)
-const MEHR_FIRST_DAY = 23; 
+const MEHR_FIRST_MONTH = 7; // Corrected: Jalali Mehr is the 7th month (0-indexed for JS Date is 6, but jalali-moment uses 1-indexed, so 7 is correct for logic)
+const MEHR_FIRST_DAY_GREGORIAN_APPROX = 23; // Around Sept 23rd
 
 function findNextLevelValue(currentValue: string): string | undefined {
   const currentIndex = educationalLevels.findIndex(level => level.value === currentValue);
@@ -67,21 +70,28 @@ const initialEducationalSettings: EducationalLevelStorage = {
   lastPromotionCheckDate: new Date(1970, 0, 1).toISOString(),
 };
 
-export default function EducationPage() {
-  const sectionTitle = "تحصیل و یادگیری";
-  const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
+const DynamicEducationContent = dynamic(() => Promise.resolve(EducationContent), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-8">
+      <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full mt-4" /></CardContent></Card>
+      <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-20 w-full" /></CardContent></Card>
+    </div>
+  )
+});
+
+function EducationContent({
+  educationalSettings,
+  setEducationalSettings,
+  subjectProgress,
+  setSubjectProgress
+}: {
+  educationalSettings: EducationalLevelStorage;
+  setEducationalSettings: (value: EducationalLevelStorage | ((val: EducationalLevelStorage) => EducationalLevelStorage)) => void;
+  subjectProgress: EducationalSubjectUserProgress;
+  setSubjectProgress: (value: EducationalSubjectUserProgress | ((val: EducationalSubjectUserProgress) => EducationalSubjectUserProgress)) => void;
+}) {
   const { toast } = useToast();
-
-  const [educationalSettings, setEducationalSettings] = useDebouncedLocalStorage<EducationalLevelStorage>(
-    'educationalLevelSettingsDeeply', 
-    initialEducationalSettings
-  );
-  
-  const [subjectProgress, setSubjectProgress] = useDebouncedLocalStorage<EducationalSubjectUserProgress>(
-    'educationalSubjectProgressDeeply',
-    {}
-  );
-
   const [isClient, setIsClient] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [levelToConfirm, setLevelToConfirm] = useState<string | undefined>(undefined);
@@ -101,7 +111,6 @@ export default function EducationPage() {
     }
   }, [educationalSettings.levelValue, isClient]);
 
-
   const calculateAutoPromotion = useCallback((currentSettings: EducationalLevelStorage): EducationalLevelStorage | null => {
     const { levelValue, lastPromotionCheckDate: lastPromoDateISO, isConfirmed } = currentSettings;
 
@@ -116,11 +125,7 @@ export default function EducationPage() {
     let effectiveLastPromotionDate = lastPromoDate;
 
     for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
-      // Note: JavaScript months are 0-indexed, so MEHR_FIRST_MONTH (e.g., 9 for September) needs -1.
-      // However, the problem description uses `MEHR_FIRST_MONTH = 8` and seems to imply it's already adjusted or using a 1-indexed idea that gets corrected.
-      // For safety, let's assume the MEHR_FIRST_MONTH constant is for `new Date(year, MONTH, DAY)` where MONTH is 0-indexed.
-      // If MEHR_FIRST_MONTH = 8 means "Mehr" (which is the 7th month in Jalali, around Sept/Oct), then using 8 for September is correct for JS Date.
-      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY); // Adjusted for 0-indexed month
+      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY_GREGORIAN_APPROX); 
       
       if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
         const nextLevel = findNextLevelValue(currentProcessingLevel);
@@ -144,36 +149,38 @@ export default function EducationPage() {
     return null; 
   }, []);
 
-
   useEffect(() => {
     if (isClient && educationalSettings.isConfirmed) {
       const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
-      
+      const today = new Date();
+      const todayDateString = format(today, 'yyyy-MM-dd');
+      const currentLastPromotionCheckDateString = educationalSettings.lastPromotionCheckDate
+        ? format(parseISO(educationalSettings.lastPromotionCheckDate), 'yyyy-MM-dd')
+        : '1970-01-01';
+
       if (newSettingsFromPromotion) {
+        const newPromoEffectiveDateString = format(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'yyyy-MM-dd');
+        // Check if level or the effective promotion date (ignoring time) has changed
         if (newSettingsFromPromotion.levelValue !== educationalSettings.levelValue || 
-            newSettingsFromPromotion.lastPromotionCheckDate !== educationalSettings.lastPromotionCheckDate) {
+            newPromoEffectiveDateString !== currentLastPromotionCheckDateString) {
           setEducationalSettings(newSettingsFromPromotion);
           toast({
             title: "مقطع تحصیلی به‌روز شد",
-            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" ارتقا یافت.`,
+            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${newPromoEffectiveDateString} ارتقا یافت.`,
             duration: 7000,
           });
+        } else if (currentLastPromotionCheckDateString !== todayDateString) {
+          // Level and effective promotion date are the same as current, but last check was not today. Update last check date.
+           setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
         }
       } else {
-        // No promotion occurred, update lastPromotionCheckDate only if it's a new day
-        const today = new Date();
-        const lastCheckDate = educationalSettings.lastPromotionCheckDate ? parseISO(educationalSettings.lastPromotionCheckDate) : new Date(1970,0,1);
-        
-        // Compare date part only
-        const todayDateString = format(today, 'yyyy-MM-dd');
-        const lastCheckDateString = format(lastCheckDate, 'yyyy-MM-dd');
-
-        if (lastCheckDateString !== todayDateString) {
+        // No promotion occurred. Update lastPromotionCheckDate only if it's not already today.
+        if (currentLastPromotionCheckDateString !== todayDateString) {
           setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
         }
       }
     }
-  }, [isClient, educationalSettings, calculateAutoPromotion, toast, setEducationalSettings]);
+  }, [isClient, educationalSettings, calculateAutoPromotion, setEducationalSettings, toast]);
 
 
   const handleLevelChange = (value: string) => {
@@ -211,7 +218,7 @@ export default function EducationPage() {
     setLevelToConfirm(undefined);
   };
 
-  const handleSubjectStatusChange = (subjectId: string, newStatus: SubjectProgress['status']) => {
+  const handleSubjectStatusChange = useCallback((subjectId: string, newStatus: SubjectProgress['status']) => {
     setSubjectProgress(prev => {
       const currentProgress = prev[subjectId] || { status: 'not-started', currentGrade: null, detailedNotes: null };
       return {
@@ -222,9 +229,9 @@ export default function EducationPage() {
         }
       };
     });
-  };
+  }, [setSubjectProgress]);
   
-  const handleGradeChange = (subjectId: string, newGrade: string) => {
+  const handleGradeChange = useCallback((subjectId: string, newGrade: string) => {
     setSubjectProgress(prev => {
       const currentProgress = prev[subjectId] || { status: 'not-started', currentGrade: null, detailedNotes: null };
       return {
@@ -235,9 +242,9 @@ export default function EducationPage() {
         }
       };
     });
-  };
+  }, [setSubjectProgress]);
 
-  const handleDetailedNotesChange = (subjectId: string, newNotes: string) => {
+  const handleDetailedNotesChange = useCallback((subjectId: string, newNotes: string) => {
     setSubjectProgress(prev => {
       const currentProgress = prev[subjectId] || { status: 'not-started', currentGrade: null, detailedNotes: null };
       return {
@@ -248,9 +255,172 @@ export default function EducationPage() {
         }
       };
     });
-  };
+  }, [setSubjectProgress]);
   
   const currentLevelLabel = educationalLevels.find(l => l.value === educationalSettings.levelValue)?.label;
+
+  return (
+    <>
+      <Card>
+          <CardHeader>
+              <CardTitle className="text-xl flex items-center text-foreground">
+                  <Settings className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                  تنظیمات مقطع تحصیلی
+              </CardTitle>
+          </CardHeader>
+          <CardContent className="max-w-md mx-auto">
+              {!educationalSettings.isConfirmed && isClient && (
+                  <>
+                  <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
+                      مقطع تحصیلی فعلی خود را انتخاب کنید:
+                  </Label>
+                  <Select
+                      value={transientSelectedLevel}
+                      onValueChange={handleLevelChange}
+                      dir="rtl"
+                  >
+                      <SelectTrigger id="educationalLevelSelect" className="w-full text-base py-3">
+                      <SelectValue placeholder="انتخاب کنید..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                      {educationalLevels.map(level => (
+                          <SelectItem key={level.value} value={level.value} className="text-base">
+                          {level.label}
+                          </SelectItem>
+                      ))}
+                      </SelectContent>
+                  </Select>
+                  <Button onClick={handleOpenConfirmationDialog} className="w-full mt-4" disabled={!transientSelectedLevel}>
+                      ذخیره و تایید مقطع
+                  </Button>
+                  </>
+              )}
+
+              {isClient && educationalSettings.isConfirmed && currentLevelLabel && (
+                  <div className="p-4 border rounded-lg bg-secondary/30 text-center">
+                  <p className="text-lg font-semibold text-foreground mb-1">
+                      مقطع تحصیلی فعلی شما:
+                  </p>
+                  <p className="text-2xl text-primary font-bold">
+                      {currentLevelLabel}
+                  </p>
+                  {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                      آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
+                      </p>
+                  )}
+                  <p className="text-sm text-muted-foreground mt-3">
+                      <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
+                      مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
+                  </p>
+                  <Button variant="link" size="sm" onClick={() => {
+                      setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''});
+                      }} className="mt-2 text-xs">
+                      تغییر مقطع تحصیلی
+                  </Button>
+                  </div>
+              )}
+              {!isClient && (
+                  <div className="flex justify-center items-center p-6">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <p className="text-muted-foreground mr-2">در حال بارگذاری تنظیمات...</p>
+                  </div>
+              )}
+          </CardContent>
+      </Card>
+
+      {isClient && educationalSettings.isConfirmed && currentSubjectsForLevel.length > 0 && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="text-xl flex items-center text-foreground">
+                        <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                        پیگیری پیشرفت دروس ({currentLevelLabel})
+                  </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  {currentSubjectsForLevel.map(subject => (
+                      <Card key={subject.id} className="bg-card shadow-sm">
+                          <CardHeader className="pb-3">
+                              <CardTitle className="text-md">{subject.name}</CardTitle>
+                              <CardDescription>تعداد کل فصول: {subject.totalChapters.toLocaleString('fa-IR')}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="pt-0 space-y-3">
+                              <div>
+                                  <Label htmlFor={`status-${subject.id}`} className="text-xs">وضعیت مطالعه:</Label>
+                                  <Select
+                                      value={subjectProgress[subject.id]?.status || 'not-started'}
+                                      onValueChange={(value) => handleSubjectStatusChange(subject.id, value as SubjectProgress['status'])}
+                                  >
+                                      <SelectTrigger id={`status-${subject.id}`} className="mt-1">
+                                          <SelectValue placeholder="انتخاب وضعیت..." />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                          <SelectItem value="not-started">شروع نشده</SelectItem>
+                                          <SelectItem value="in-progress">در حال مطالعه</SelectItem>
+                                          <SelectItem value="completed">مطالعه شده</SelectItem>
+                                      </SelectContent>
+                                  </Select>
+                              </div>
+                              <div>
+                                  <Label htmlFor={`grade-${subject.id}`} className="text-xs">نمره فعلی/توصیفی (اختیاری):</Label>
+                                  <Input
+                                    id={`grade-${subject.id}`}
+                                    value={subjectProgress[subject.id]?.currentGrade || ''}
+                                    onChange={(e) => handleGradeChange(subject.id, e.target.value)}
+                                    placeholder="مثلا: ۱۸.۵، عالی، نیاز به تلاش بیشتر"
+                                    className="mt-1"
+                                  />
+                              </div>
+                              <div>
+                                  <Label htmlFor={`detailedNotes-${subject.id}`} className="text-xs">یادداشت‌های بیشتر (اختیاری):</Label>
+                                  <Textarea
+                                    id={`detailedNotes-${subject.id}`}
+                                    value={subjectProgress[subject.id]?.detailedNotes || ''}
+                                    onChange={(e) => handleDetailedNotesChange(subject.id, e.target.value)}
+                                    placeholder="نکات مهم، مباحث نیازمند مرور، سوالات و..."
+                                    rows={2}
+                                    className="mt-1"
+                                  />
+                              </div>
+                          </CardContent>
+                      </Card>
+                  ))}
+              </CardContent>
+          </Card>
+      )}
+       <AlertDialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog} dir="rtl">
+          <AlertDialogContent>
+          <AlertDialogHeader>
+              <AlertDialogTitle>تایید مقطع تحصیلی</AlertDialogTitle>
+              <AlertDialogDescription>
+              آیا از انتخاب مقطع تحصیلی "{educationalLevels.find(l => l.value === levelToConfirm)?.label}" مطمئن هستید؟ پس از تایید، این مقطع به صورت سالانه (اول مهر) به طور خودکار ارتقا پیدا خواهد کرد و پیشرفت دروس فعلی شما (در صورت وجود) پاک خواهد شد.
+              </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {setShowConfirmationDialog(false); setLevelToConfirm(undefined);}}>لغو</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmLevel}>تایید و ذخیره</AlertDialogAction>
+          </AlertDialogFooter>
+          </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+
+export default function EducationPage() {
+  const sectionTitle = "تحصیل و یادگیری";
+  const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
+  
+  const [educationalSettings, setEducationalSettings] = useDebouncedLocalStorage<EducationalLevelStorage>(
+    'educationalLevelSettingsDeeply', 
+    initialEducationalSettings
+  );
+  
+  const [subjectProgress, setSubjectProgress] = useDebouncedLocalStorage<EducationalSubjectUserProgress>(
+    'educationalSubjectProgressDeeply',
+    {}
+  );
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -274,146 +444,18 @@ export default function EducationPage() {
         </div>
         
         <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                        <Settings className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                        تنظیمات مقطع تحصیلی
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="max-w-md mx-auto">
-                    {!educationalSettings.isConfirmed && isClient && (
-                        <>
-                        <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
-                            مقطع تحصیلی فعلی خود را انتخاب کنید:
-                        </Label>
-                        <Select
-                            value={transientSelectedLevel}
-                            onValueChange={handleLevelChange}
-                            dir="rtl"
-                        >
-                            <SelectTrigger id="educationalLevelSelect" className="w-full text-base py-3">
-                            <SelectValue placeholder="انتخاب کنید..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                            {educationalLevels.map(level => (
-                                <SelectItem key={level.value} value={level.value} className="text-base">
-                                {level.label}
-                                </SelectItem>
-                            ))}
-                            </SelectContent>
-                        </Select>
-                        <Button onClick={handleOpenConfirmationDialog} className="w-full mt-4" disabled={!transientSelectedLevel}>
-                            ذخیره و تایید مقطع
-                        </Button>
-                        </>
-                    )}
-
-                    {isClient && educationalSettings.isConfirmed && currentLevelLabel && (
-                        <div className="p-4 border rounded-lg bg-secondary/30 text-center">
-                        <p className="text-lg font-semibold text-foreground mb-1">
-                            مقطع تحصیلی فعلی شما:
-                        </p>
-                        <p className="text-2xl text-primary font-bold">
-                            {currentLevelLabel}
-                        </p>
-                        {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
-                            <p className="text-xs text-muted-foreground mt-2">
-                            آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
-                            </p>
-                        )}
-                        <p className="text-sm text-muted-foreground mt-3">
-                            <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
-                            مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
-                        </p>
-                        <Button variant="link" size="sm" onClick={() => {
-                            setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''});
-                            }} className="mt-2 text-xs">
-                            تغییر مقطع تحصیلی
-                        </Button>
-                        </div>
-                    )}
-                    {!isClient && (
-                        <p className="text-muted-foreground text-center py-4">در حال بارگذاری اطلاعات مقطع تحصیلی...</p>
-                    )}
-
-
-                    <AlertDialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog} dir="rtl">
-                        <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>تایید مقطع تحصیلی</AlertDialogTitle>
-                            <AlertDialogDescription>
-                            آیا از انتخاب مقطع تحصیلی "{educationalLevels.find(l => l.value === levelToConfirm)?.label}" مطمئن هستید؟ پس از تایید، این مقطع به صورت سالانه (اول مهر) به طور خودکار ارتقا پیدا خواهد کرد و پیشرفت دروس فعلی شما (در صورت وجود) پاک خواهد شد.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => {setShowConfirmationDialog(false); setLevelToConfirm(undefined);}}>لغو</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleConfirmLevel}>تایید و ذخیره</AlertDialogAction>
-                        </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </CardContent>
-            </Card>
-
-            {isClient && educationalSettings.isConfirmed && currentSubjectsForLevel.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                             <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                             پیگیری پیشرفت دروس ({currentLevelLabel})
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {currentSubjectsForLevel.map(subject => (
-                            <Card key={subject.id} className="bg-card shadow-sm">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-md">{subject.name}</CardTitle>
-                                    <CardDescription>تعداد کل فصول: {subject.totalChapters.toLocaleString('fa-IR')}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="pt-0 space-y-3">
-                                    <div>
-                                        <Label htmlFor={`status-${subject.id}`} className="text-xs">وضعیت مطالعه:</Label>
-                                        <Select
-                                            value={subjectProgress[subject.id]?.status || 'not-started'}
-                                            onValueChange={(value) => handleSubjectStatusChange(subject.id, value as SubjectProgress['status'])}
-                                        >
-                                            <SelectTrigger id={`status-${subject.id}`} className="mt-1">
-                                                <SelectValue placeholder="انتخاب وضعیت..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="not-started">شروع نشده</SelectItem>
-                                                <SelectItem value="in-progress">در حال مطالعه</SelectItem>
-                                                <SelectItem value="completed">مطالعه شده</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label htmlFor={`grade-${subject.id}`} className="text-xs">نمره فعلی/توصیفی (اختیاری):</Label>
-                                        <Input
-                                          id={`grade-${subject.id}`}
-                                          value={subjectProgress[subject.id]?.currentGrade || ''}
-                                          onChange={(e) => handleGradeChange(subject.id, e.target.value)}
-                                          placeholder="مثلا: ۱۸.۵، عالی، نیاز به تلاش بیشتر"
-                                          className="mt-1"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor={`detailedNotes-${subject.id}`} className="text-xs">یادداشت‌های بیشتر (اختیاری):</Label>
-                                        <Textarea
-                                          id={`detailedNotes-${subject.id}`}
-                                          value={subjectProgress[subject.id]?.detailedNotes || ''}
-                                          onChange={(e) => handleDetailedNotesChange(subject.id, e.target.value)}
-                                          placeholder="نکات مهم، مباحث نیازمند مرور، سوالات و..."
-                                          rows={2}
-                                          className="mt-1"
-                                        />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </CardContent>
-                </Card>
-            )}
+            <ClientOnly fallback={
+              <div className="space-y-8">
+                <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full mt-4" /></CardContent></Card>
+              </div>
+            }>
+              <DynamicEducationContent 
+                educationalSettings={educationalSettings}
+                setEducationalSettings={setEducationalSettings}
+                subjectProgress={subjectProgress}
+                setSubjectProgress={setSubjectProgress}
+              />
+            </ClientOnly>
             
             <Card className="bg-secondary/50">
                 <CardHeader>
@@ -517,6 +559,5 @@ export default function EducationPage() {
     </div>
   );
 }
-
 
     
