@@ -30,13 +30,13 @@ const LongTermGoalSchema = z.object({
   status: z.string(), // e.g., 'in-progress'
 }).describe("Represents a long-term goal.");
 
-export const SuggestTaskOptimizationsInputSchema = z.object({
+const SuggestTaskOptimizationsInputSchema = z.object({
   tasks: z.array(TaskSchema).describe("List of the user's current tasks, including completed and uncompleted."),
   longTermGoals: z.array(LongTermGoalSchema).describe("List of the user's long-term goals."),
 });
 export type SuggestTaskOptimizationsInput = z.infer<typeof SuggestTaskOptimizationsInputSchema>;
 
-export const SuggestTaskOptimizationsOutputSchema = z.object({
+const SuggestTaskOptimizationsOutputSchema = z.object({
   suggestions: z.string().describe("Actionable suggestions in Persian for optimizing daily tasks to better achieve long-term goals. This may include breaking down large tasks, prioritizing tasks aligned with goals, or rephrasing tasks for clarity."),
 });
 export type SuggestTaskOptimizationsOutput = z.infer<typeof SuggestTaskOptimizationsOutputSchema>;

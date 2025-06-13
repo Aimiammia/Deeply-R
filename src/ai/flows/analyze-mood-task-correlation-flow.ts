@@ -30,13 +30,13 @@ const TaskSchema = z.object({
   // For now, focusing on completion status.
 }).describe("Represents a single task item.");
 
-export const AnalyzeMoodTaskCorrelationInputSchema = z.object({
+const AnalyzeMoodTaskCorrelationInputSchema = z.object({
   reflections: z.array(ReflectionEntrySchema).describe("List of the user's recent reflections."),
   tasks: z.array(TaskSchema).describe("List of user's tasks, ideally from a similar period as reflections."),
 });
 export type AnalyzeMoodTaskCorrelationInput = z.infer<typeof AnalyzeMoodTaskCorrelationInputSchema>;
 
-export const AnalyzeMoodTaskCorrelationOutputSchema = z.object({
+const AnalyzeMoodTaskCorrelationOutputSchema = z.object({
   analysis: z.string().describe("A textual analysis in Persian on the correlation between the user's inferred mood from reflections and their task completion patterns. It should highlight if positive/negative moods correlate with higher/lower productivity and offer insights."),
 });
 export type AnalyzeMoodTaskCorrelationOutput = z.infer<typeof AnalyzeMoodTaskCorrelationOutputSchema>;

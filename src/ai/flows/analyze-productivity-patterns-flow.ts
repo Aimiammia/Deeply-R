@@ -29,13 +29,13 @@ const DailyActivityLogEntrySchema = z.object({
   text: z.string(),
 }).describe("Represents a single daily activity log entry.");
 
-export const AnalyzeProductivityPatternsInputSchema = z.object({
+const AnalyzeProductivityPatternsInputSchema = z.object({
   tasks: z.array(TaskSchema).describe("List of the user's tasks."),
   activityLogs: z.array(DailyActivityLogEntrySchema).describe("List of the user's daily activity logs."),
 });
 export type AnalyzeProductivityPatternsInput = z.infer<typeof AnalyzeProductivityPatternsInputSchema>;
 
-export const AnalyzeProductivityPatternsOutputSchema = z.object({
+const AnalyzeProductivityPatternsOutputSchema = z.object({
   analysis: z.string().describe("A textual analysis in Persian of the user's productivity patterns, identifying peak times, common activities leading to task completion, and potential distractions or unproductive periods based on task completion and activity logs."),
 });
 export type AnalyzeProductivityPatternsOutput = z.infer<typeof AnalyzeProductivityPatternsOutputSchema>;

@@ -27,7 +27,7 @@ const FinancialSummarySchema = z.object({
   }).optional();
 
 
-export const GenerateOverallProgressReportInputSchema = z.object({
+const GenerateOverallProgressReportInputSchema = z.object({
   tasks: z.array(TaskSchema).describe("User's tasks."),
   longTermGoals: z.array(LongTermGoalSchema).describe("User's long-term goals."),
   activityLogs: z.array(DailyActivityLogEntrySchema).describe("User's daily activity logs."),
@@ -36,7 +36,7 @@ export const GenerateOverallProgressReportInputSchema = z.object({
 });
 export type GenerateOverallProgressReportInput = z.infer<typeof GenerateOverallProgressReportInputSchema>;
 
-export const GenerateOverallProgressReportOutputSchema = z.object({
+const GenerateOverallProgressReportOutputSchema = z.object({
   report: z.string().describe("A comprehensive, multi-paragraph report in Persian summarizing the user's overall progress, highlighting achievements, areas for improvement, and connections between different aspects of their activities (e.g., how daily tasks contribute to long-term goals, how mood might affect productivity)."),
 });
 export type GenerateOverallProgressReportOutput = z.infer<typeof GenerateOverallProgressReportOutputSchema>;
