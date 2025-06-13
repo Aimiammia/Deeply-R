@@ -7,12 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; 
 import { PlusCircle, Calendar as CalendarIcon, Trash2, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { LongTermGoal, Milestone } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
+import { generateId } from '@/lib/utils';
 
 interface CreateLongTermGoalFormProps {
   onSaveGoal: (goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => void;
@@ -51,7 +52,7 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
 
   const handleAddMilestone = () => {
     if (newMilestoneName.trim()) {
-      setMilestones([...milestones, { id: crypto.randomUUID(), name: newMilestoneName.trim(), completed: false }]);
+      setMilestones([...milestones, { id: generateId(), name: newMilestoneName.trim(), completed: false }]);
       setNewMilestoneName('');
     }
   };
@@ -149,7 +150,7 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-                <DynamicJalaliDatePicker // Changed
+                <DynamicJalaliDatePicker 
                     value={targetDate}
                     onChange={setTargetDate}
                     initialYear={targetDate ? new Date(targetDate).getFullYear() : undefined}

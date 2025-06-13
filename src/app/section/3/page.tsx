@@ -7,10 +7,8 @@ import Link from 'next/link';
 import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, Settings2, BarChartBig, BellRing, Building, TrendingUp, PackageSearch, Save, Sigma, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useState, useEffect, useMemo, useCallback } from 'react'; // Added useCallback
-import dynamic from 'next/dynamic'; // Added
-// import { AddTransactionForm } from '@/components/financials/AddTransactionForm'; // Commented
-// import { TransactionList } from '@/components/financials/TransactionList'; // Commented
+import { useState, useEffect, useMemo, useCallback } from 'react'; 
+import dynamic from 'next/dynamic'; 
 import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment, SavingsGoal } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
@@ -19,17 +17,8 @@ import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { ClientOnly } from '@/components/ClientOnly';
 import { cn } from '@/lib/utils';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
-import { Skeleton } from '@/components/ui/skeleton'; // Added
-
-
-// import { CreateBudgetForm } from '@/components/financials/CreateBudgetForm'; // Commented
-// import { BudgetList } from '@/components/financials/BudgetList'; // Commented
-// import { CreateAssetForm } from '@/components/financials/CreateAssetForm'; // Commented
-// import { AssetList } from '@/components/financials/AssetList'; // Commented
-// import { CreateInvestmentForm } from '@/components/financials/CreateInvestmentForm'; // Commented
-// import { InvestmentList } from '@/components/financials/InvestmentList'; // Commented
-// import { CreateSavingsGoalForm } from '@/components/financials/CreateSavingsGoalForm'; // Commented
-// import { SavingsGoalList } from '@/components/financials/SavingsGoalList'; // Commented
+import { Skeleton } from '@/components/ui/skeleton'; 
+import { generateId } from '@/lib/utils';
 
 
 const FormLoadingSkeleton = () => (
@@ -108,7 +97,7 @@ export default function FinancialManagementPage() {
   const handleAddTransaction = useCallback((transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
     const newTransaction: FinancialTransaction = {
       ...transactionData,
-      id: crypto.randomUUID(),
+      id: generateId(),
       createdAt: new Date().toISOString(),
     };
     setTransactions(prevTransactions => [newTransaction, ...prevTransactions]);
@@ -140,7 +129,7 @@ export default function FinancialManagementPage() {
         return updatedBudgets;
       } else if (existingBudgetIndex === -1 && !editingBudget) { 
         const newBudget: Budget = {
-          id: crypto.randomUUID(), 
+          id: generateId(), 
           category,
           amount,
           createdAt: new Date().toISOString(),
@@ -188,7 +177,7 @@ export default function FinancialManagementPage() {
     } else {
       const newAsset: FinancialAsset = {
         ...assetData,
-        id: crypto.randomUUID(),
+        id: generateId(),
         createdAt: new Date().toISOString(),
         lastValueUpdate: new Date().toISOString(),
       };
@@ -222,7 +211,7 @@ export default function FinancialManagementPage() {
     } else {
         const newInvestment: FinancialInvestment = {
             ...investmentData,
-            id: crypto.randomUUID(),
+            id: generateId(),
             createdAt: nowISO,
             lastPriceUpdateDate: nowISO,
         };
@@ -285,7 +274,7 @@ export default function FinancialManagementPage() {
     } else {
       const newGoal: SavingsGoal = {
         ...goalData,
-        id: crypto.randomUUID(),
+        id: generateId(),
         currentAmount: 0,
         status: 'active',
         createdAt: new Date().toISOString(),

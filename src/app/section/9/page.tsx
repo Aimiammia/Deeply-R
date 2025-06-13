@@ -2,22 +2,23 @@
 'use client';
 
 import Link from 'next/link';
-import dynamic from 'next/dynamic'; // Added
+import dynamic from 'next/dynamic'; 
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks, Loader2 } from 'lucide-react'; // Added Loader2
+import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks, Loader2 } from 'lucide-react'; 
 import Image from 'next/image';
-import { useState, useCallback } from 'react'; // Added useCallback
+import { useState, useCallback } from 'react'; 
 import type { LongTermGoal, Book } from '@/types'; 
-// import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm'; // Commented
+// import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm'; // Lazy loaded
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
-// import { CreateBookForm } from '@/components/books/CreateBookForm'; // Commented
+// import { CreateBookForm } from '@/components/books/CreateBookForm'; // Lazy loaded
 import { BookList } from '@/components/books/BookList'; 
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from '@/components/ui/skeleton'; // Added
+import { Skeleton } from '@/components/ui/skeleton'; 
+import { generateId } from '@/lib/utils';
 
 const FormLoadingSkeleton = () => (
   <div className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8 animate-pulse">
@@ -59,13 +60,13 @@ export default function SectionNineGoalsPage() {
     } else {
         const newGoal: LongTermGoal = {
             ...goalData,
-            id: crypto.randomUUID(),
+            id: generateId(),
             createdAt: new Date().toISOString(),
             status: goalData.status || 'not-started',
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-  }, [setGoals, editingGoal, toast]); // Added toast to dependencies if CreateLongTermGoalForm uses it internally for success
+  }, [setGoals, editingGoal, toast]); 
 
   const handleDeleteGoal = useCallback((id: string) => {
     const goalToDelete = goals.find(g => g.id === id);
@@ -94,10 +95,8 @@ export default function SectionNineGoalsPage() {
         } : goal
       )
     );
-    // Toast for update is usually handled by the item/form itself after successful edit
   }, [setGoals]);
 
-  // Book Handlers
   const handleSaveBook = useCallback((bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'>, isEditingBook: boolean) => {
     if (isEditingBook && editingBook) {
       const updatedBook: Book = {
@@ -111,19 +110,17 @@ export default function SectionNineGoalsPage() {
     } else {
       const newBook: Book = {
         ...bookData,
-        id: crypto.randomUUID(),
+        id: generateId(),
         addedAt: new Date().toISOString(),
         finishedAt: bookData.status === 'read' ? new Date().toISOString() : null,
         notes: bookData.notes || null,
       };
       setBooks(prevBooks => [newBook, ...prevBooks].sort((a,b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()));
     }
-     // Toast is usually handled by CreateBookForm itself
   }, [setBooks, editingBook, toast]);
 
   const handleUpdateBook = useCallback((updatedBook: Book) => {
     setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
-    // Toast for update is usually handled by BookItem after successful interaction
   }, [setBooks]);
 
   const handleDeleteBook = useCallback((bookId: string) => {

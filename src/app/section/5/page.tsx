@@ -2,17 +2,30 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags } from 'lucide-react';
+import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Habit } from '@/types';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { useToast } from '@/hooks/use-toast';
-import { CreateHabitForm } from '@/components/habits/CreateHabitForm';
-import { HabitList } from '@/components/habits/HabitList';
+// import { CreateHabitForm } from '@/components/habits/CreateHabitForm'; // Lazy loaded
+// import { HabitList } from '@/components/habits/HabitList'; // Lazy loaded
+import { generateId } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const DynamicCreateHabitForm = dynamic(() => import('@/components/habits/CreateHabitForm').then(mod => mod.CreateHabitForm), {
+  loading: () => <Skeleton className="h-24 w-full" />,
+  ssr: false
+});
+const DynamicHabitList = dynamic(() => import('@/components/habits/HabitList').then(mod => mod.HabitList), {
+  loading: () => <Skeleton className="h-48 w-full" />,
+  ssr: false
+});
+
 
 export default function HabitsPage() {
   const sectionTitle = "ردیاب عادت‌ها";
@@ -21,9 +34,9 @@ export default function HabitsPage() {
 
   const [habits, setHabits] = useDebouncedLocalStorage<Habit[]>('userHabitsDeeply', []);
 
-  const handleAddHabit = (name: string) => {
+  const handleAddHabit = useCallback((name: string) => {
     const newHabit: Habit = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       name,
       createdAt: new Date().toISOString(),
       completions: [],
@@ -33,9 +46,9 @@ export default function HabitsPage() {
       title: "عادت جدید اضافه شد",
       description: `عادت "${name}" با موفقیت ایجاد شد.`,
     });
-  };
+  }, [setHabits, toast]);
 
-  const handleToggleHabitCompletion = (habitId: string, date: string) => {
+  const handleToggleHabitCompletion = useCallback((habitId: string, date: string) => {
     setHabits(prevHabits =>
       prevHabits.map(habit => {
         if (habit.id === habitId) {
@@ -50,9 +63,9 @@ export default function HabitsPage() {
         return habit;
       })
     );
-  };
+  }, [setHabits]);
 
-  const handleDeleteHabit = (habitId: string) => {
+  const handleDeleteHabit = useCallback((habitId: string) => {
     const habitToDelete = habits.find(h => h.id === habitId);
     setHabits(prevHabits => prevHabits.filter(h => h.id !== habitId));
     if (habitToDelete) {
@@ -62,7 +75,7 @@ export default function HabitsPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [habits, setHabits, toast]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -93,8 +106,8 @@ export default function HabitsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CreateHabitForm onAddHabit={handleAddHabit} />
-                <HabitList 
+                <DynamicCreateHabitForm onAddHabit={handleAddHabit} />
+                <DynamicHabitList 
                     habits={habits} 
                     onToggleCompletion={handleToggleHabitCompletion}
                     onDeleteHabit={handleDeleteHabit} 

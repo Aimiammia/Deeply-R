@@ -1,20 +1,37 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brain, History, Edit3, BookHeart } from 'lucide-react';
-import { ReflectionForm } from '@/components/ReflectionForm';
-import { ReflectionHistoryList } from '@/components/ReflectionHistoryList';
-import { ReflectionInsightsDisplay } from '@/components/ReflectionInsightsDisplay';
+import { ArrowLeft, Brain, History, Edit3, BookHeart, Loader2 } from 'lucide-react';
+// import { ReflectionForm } from '@/components/ReflectionForm'; // Lazy loaded
+// import { ReflectionHistoryList } from '@/components/ReflectionHistoryList'; // Lazy loaded
+// import { ReflectionInsightsDisplay } from '@/components/ReflectionInsightsDisplay'; // Lazy loaded
 import { useToast } from '@/hooks/use-toast';
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { analyzeUserReflections, type AnalyzeUserReflectionsInput, type AnalyzeUserReflectionsOutput } from '@/ai/flows/analyze-user-reflections';
 import type { ReflectionEntry } from '@/types';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { generateId } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const DynamicReflectionForm = dynamic(() => import('@/components/ReflectionForm').then(mod => mod.ReflectionForm), {
+  loading: () => <Skeleton className="h-32 w-full" />,
+  ssr: false
+});
+const DynamicReflectionHistoryList = dynamic(() => import('@/components/ReflectionHistoryList').then(mod => mod.ReflectionHistoryList), {
+  loading: () => <Skeleton className="h-64 w-full" />,
+  ssr: false
+});
+const DynamicReflectionInsightsDisplay = dynamic(() => import('@/components/ReflectionInsightsDisplay').then(mod => mod.ReflectionInsightsDisplay), {
+  loading: () => <Skeleton className="h-48 w-full" />,
+  ssr: false
+});
+
 
 export default function ReflectionsPage() {
   const { toast } = useToast();
@@ -27,7 +44,7 @@ export default function ReflectionsPage() {
   const [insightsError, setInsightsError] = useState<string | null>(null);
   const [isSavingReflection, setIsSavingReflection] = useState(false);
 
-  const fetchInsights = async (reflectionText: string) => {
+  const fetchInsights = useCallback(async (reflectionText: string) => {
     setIsLoadingInsights(true);
     setInsightsError(null);
     setInsights(undefined);
@@ -46,12 +63,12 @@ export default function ReflectionsPage() {
     } finally {
       setIsLoadingInsights(false);
     }
-  };
+  }, [toast]);
 
-  const handleSaveReflection = async (reflectionText: string) => {
+  const handleSaveReflection = useCallback(async (reflectionText: string) => {
     setIsSavingReflection(true);
     const newReflection: ReflectionEntry = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       date: new Date().toISOString(),
       prompt: currentPrompt, 
       text: reflectionText,
@@ -64,12 +81,12 @@ export default function ReflectionsPage() {
       title: "تأمل ذخیره شد",
       description: "تأمل شما با موفقیت ذخیره و تحلیل شد.",
     });
-  };
+  }, [setReflections, currentPrompt, fetchInsights, toast]);
 
-  const handleSelectReflection = (reflection: ReflectionEntry) => {
+  const handleSelectReflection = useCallback((reflection: ReflectionEntry) => {
     setSelectedReflection(reflection);
     fetchInsights(reflection.text);
-  };
+  }, [fetchInsights]);
   
   const sortedReflections = [...reflections].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -105,7 +122,7 @@ export default function ReflectionsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ReflectionForm onSaveReflection={handleSaveReflection} isLoading={isSavingReflection} />
+                <DynamicReflectionForm onSaveReflection={handleSaveReflection} isLoading={isSavingReflection} />
               </CardContent>
             </Card>
 
@@ -118,7 +135,7 @@ export default function ReflectionsPage() {
               </CardHeader>
               <CardContent>
                 {selectedReflection ? (
-                  <ReflectionInsightsDisplay insights={insights} isLoading={isLoadingInsights} error={insightsError} />
+                  <DynamicReflectionInsightsDisplay insights={insights} isLoading={isLoadingInsights} error={insightsError} />
                 ) : (
                  <p className="text-muted-foreground text-center py-4">یک تأمل از تاریخچه انتخاب کنید یا یک تأمل جدید بنویسید تا تحلیل آن نمایش داده شود.</p>
                 )}
@@ -133,7 +150,7 @@ export default function ReflectionsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ReflectionHistoryList 
+                <DynamicReflectionHistoryList 
                     reflections={sortedReflections} 
                     onSelectReflection={handleSelectReflection}
                     selectedReflectionId={selectedReflection?.id}

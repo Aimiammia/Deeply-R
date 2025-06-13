@@ -12,6 +12,7 @@ import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongT
 import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { generateId } from '@/lib/utils';
 
 export default function LongTermPlannerPage() {
   const sectionTitle = "برنامه‌ریزی بلند مدت";
@@ -34,7 +35,7 @@ export default function LongTermPlannerPage() {
     } else {
         const newGoal: LongTermGoal = {
             ...goalData,
-            id: crypto.randomUUID(),
+            id: generateId(),
             createdAt: new Date().toISOString(),
             status: goalData.status || 'not-started', // Ensure status is set
         };

@@ -1,19 +1,32 @@
 
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
-import { ArrowLeft, ClipboardList } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Task } from '@/types';
-import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
-import { TaskList } from '@/components/tasks/TaskList';
+// import { CreateTaskForm } from '@/components/tasks/CreateTaskForm'; // Lazy loaded
+// import { TaskList } from '@/components/tasks/TaskList'; // Lazy loaded
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { generateId } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const DynamicCreateTaskForm = dynamic(() => import('@/components/tasks/CreateTaskForm').then(mod => mod.CreateTaskForm), {
+  loading: () => <Skeleton className="h-48 w-full" />,
+  ssr: false
+});
+const DynamicTaskList = dynamic(() => import('@/components/tasks/TaskList').then(mod => mod.TaskList), {
+  loading: () => <Skeleton className="h-64 w-full" />,
+  ssr: false
+});
+
 
 export default function ShortTermPlannerPage() {
   const { toast } = useToast();
@@ -28,7 +41,7 @@ export default function ShortTermPlannerPage() {
     setCurrentSuccessQuote(getDailySuccessQuote());
   }, []);
 
-  const handleAddTask = (
+  const handleAddTask = useCallback((
     title: string, 
     dueDate?: Date | null, 
     priority?: Task['priority'], 
@@ -40,7 +53,7 @@ export default function ShortTermPlannerPage() {
     educationalLevelContext?: string | null
   ) => {
     const newTask: Task = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       title,
       completed: false,
       createdAt: new Date().toISOString(),
@@ -59,9 +72,9 @@ export default function ShortTermPlannerPage() {
       description: `"${title}" با موفقیت به برنامه شما اضافه شد.`,
       variant: "default",
     });
-  };
+  }, [setTasks, toast]);
 
-  const handleToggleComplete = (id: string) => {
+  const handleToggleComplete = useCallback((id: string) => {
     let taskTitle = "";
     let isCompleted = false;
     setTasks(prevTasks =>
@@ -79,9 +92,9 @@ export default function ShortTermPlannerPage() {
       description: `"${taskTitle}" ${isCompleted ? 'با موفقیت انجام شد.' : 'مجدداً باز شد.'}`,
       variant: "default",
     });
-  };
+  }, [setTasks, toast]);
 
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = useCallback((id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     if (taskToDelete) {
@@ -91,9 +104,9 @@ export default function ShortTermPlannerPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [tasks, setTasks, toast]);
 
-  const handleEditTask = (id: string, newTitle: string) => {
+  const handleEditTask = useCallback((id: string, newTitle: string) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task.id === id ? { ...task, title: newTitle } : task
@@ -103,7 +116,7 @@ export default function ShortTermPlannerPage() {
       title: "کار ویرایش شد",
       description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
     });
-  };
+  }, [setTasks, toast]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -131,8 +144,8 @@ export default function ShortTermPlannerPage() {
             <div className="mb-6 p-4 rounded-md border bg-primary/10 shadow-sm">
               <DailyPromptDisplay prompt={currentSuccessQuote} />
             </div>
-            <CreateTaskForm onAddTask={handleAddTask} />
-            <TaskList
+            <DynamicCreateTaskForm onAddTask={handleAddTask} />
+            <DynamicTaskList
               tasks={tasks}
               onToggleComplete={handleToggleComplete}
               onDeleteTask={handleDeleteTask}
