@@ -25,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
 import { format as formatGregorian } from 'date-fns';
 import { faIR as faIRLocale } from 'date-fns/locale';
+import { generateId } from '@/lib/utils'; // Import generateId
 
 
 interface PersianCalendarViewProps {
@@ -157,7 +158,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         return;
     }
     const newBirthday: BirthdayEntry = {
-      id: crypto.randomUUID(),
+      id: generateId(), // Use generateId
       name: newBirthdayName.trim(),
       jYear: selectedBirthdayDate.year, jMonth: selectedBirthdayDate.month, jDay: selectedBirthdayDate.day,
       gDate: nativeDate.toISOString(), // Store Gregorian ISO string
@@ -199,7 +200,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         toast({ title: "رویداد ویرایش شد", description: `رویداد "${updatedEvent.name}" با موفقیت ویرایش شد.` });
     } else {
         const newEvent: CalendarEvent = {
-          id: crypto.randomUUID(),
+          id: generateId(), // Use generateId
           name: newEventName.trim(),
           description: newEventDescription.trim() || null,
           jYear: selectedEventDate.year, jMonth: selectedEventDate.month, jDay: selectedEventDate.day,
@@ -518,3 +519,4 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     </div>
   );
 }
+
