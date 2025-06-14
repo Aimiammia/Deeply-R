@@ -8,7 +8,7 @@ import { Edit3, Trash2, CalendarDays, TrendingUp, Info, TrendingDown, Minus, Ref
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils'; // Updated import
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,9 +31,6 @@ interface InvestmentItemProps {
 }
 
 export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
-  };
 
   const typeLabel = useMemo(() => 
     investmentTypes.find(it => it.value === investment.type)?.label || investment.type
@@ -164,5 +161,3 @@ export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestmen
     </li>
   );
 };
-// Removed React.memo wrapper
-export { InvestmentItem };

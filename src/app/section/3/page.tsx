@@ -15,10 +15,9 @@ import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { ClientOnly } from '@/components/ClientOnly';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency, generateId } from '@/lib/utils'; // Updated import
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 import { Skeleton } from '@/components/ui/skeleton'; 
-import { generateId } from '@/lib/utils';
 
 
 const FormLoadingSkeleton = () => (
@@ -69,10 +68,6 @@ const fetchMockLivePrice = async (currentPrice: number, investmentType: Financia
   let newPrice = currentPrice * (1 + priceChangePercentage);
   newPrice = Math.max(0.01, newPrice); 
   return parseFloat(newPrice.toFixed(2));
-};
-
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
 };
 
 

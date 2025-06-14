@@ -15,3 +15,10 @@ export function generateId(): string {
   const randomPart = Math.random().toString(36).substring(2, 10);
   return `${timestamp}-${randomPart}`;
 }
+
+export const formatCurrency = (value: number | null | undefined): string => {
+  if (value === null || value === undefined || isNaN(Number(value))) {
+    return '۰ تومان'; // Or handle as an error, or return empty string
+  }
+  return new Intl.NumberFormat('fa-IR').format(Number(value)) + ' تومان';
+};

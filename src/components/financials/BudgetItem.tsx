@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { parseISO, isSameMonth, getMonth, getYear } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils'; // Updated import
 
 interface BudgetItemProps {
   budget: Budget;
@@ -28,9 +28,6 @@ interface BudgetItemProps {
 }
 
 export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
-  };
 
   const { currentMonthExpenses, remainingAmount, progressPercentage, isOverBudget } = useMemo(() => {
     const now = new Date();
@@ -135,5 +132,3 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
     </li>
   );
 };
-// Removed React.memo wrapper
-export { BudgetItem };

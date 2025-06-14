@@ -8,7 +8,7 @@ import { Pencil, Trash2, CalendarDays, Building, TrendingUp, Info, Edit3 } from 
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils'; // Updated import
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,9 +38,6 @@ const assetTypeLabels: Record<FinancialAsset['type'], string> = {
 };
 
 export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
-  };
 
   const { valueChange, valueChangePercentage } = useMemo(() => {
     const change = asset.currentValue - asset.initialValue;
@@ -130,5 +127,3 @@ export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps)
     </li>
   );
 };
-// Removed React.memo wrapper
-export { AssetItem };

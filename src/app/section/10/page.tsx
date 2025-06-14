@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { formatCurrency } from '@/lib/utils'; // Updated import
 
 // Existing Flow
 import { assessGoalProgress, type AssessGoalProgressInput, type AssessGoalProgressOutput } from '@/ai/flows/assess-goal-progress-flow';
@@ -243,9 +244,6 @@ export default function IntelligentAnalysisPage() {
   const weeklySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(7) : null, [isInitialLoadComplete, calculateActivitySummary]);
   const monthlySummary = useMemo(() => isInitialLoadComplete ? calculateActivitySummary(30) : null, [isInitialLoadComplete, calculateActivitySummary]);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
-  };
 
   const upcomingTasks = useMemo(() => tasks
     .filter(task => !task.completed)

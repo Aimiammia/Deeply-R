@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, ArrowUpCircle, ArrowDownCircle, CalendarDays, Tag } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils'; // Updated import
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,10 +29,6 @@ export function TransactionItem({ transaction, onDeleteTransaction }: Transactio
   const isIncome = transaction.type === 'income';
   const amountColor = isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
   const TypeIcon = isIncome ? ArrowUpCircle : ArrowDownCircle;
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
-  };
 
   return (
     <li className="flex flex-col gap-2 p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors">

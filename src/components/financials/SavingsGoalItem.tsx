@@ -10,7 +10,7 @@ import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSi
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils'; // Updated import
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,10 +34,6 @@ interface SavingsGoalItemProps {
 export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) {
   const [isAddingFunds, setIsAddingFunds] = useState(false);
   const [fundsToAdd, setFundsToAdd] = useState<number | ''>('');
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
-  };
 
   const { progressPercentage, isAchieved, remainingAmount } = useMemo(() => {
     const progress = goal.targetAmount > 0 ? Math.min((goal.currentAmount / goal.targetAmount) * 100, 100) : 0;
@@ -189,5 +185,3 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
     </li>
   );
 };
-// Removed React.memo wrapper
-export { SavingsGoalItem };
