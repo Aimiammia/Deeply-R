@@ -10,7 +10,6 @@ export function generateId(): string {
     return crypto.randomUUID();
   }
   // Fallback for environments where crypto.randomUUID is not available
-  // This creates a simple, non-cryptographically-secure but likely unique enough ID for client-side use.
   const timestamp = Date.now().toString(36);
   const randomPart = Math.random().toString(36).substring(2, 10);
   return `${timestamp}-${randomPart}`;
@@ -18,7 +17,10 @@ export function generateId(): string {
 
 export const formatCurrency = (value: number | null | undefined): string => {
   if (value === null || value === undefined || isNaN(Number(value))) {
-    return '۰ تومان'; // Or handle as an error, or return empty string
+    return '۰ تومان';
   }
-  return new Intl.NumberFormat('fa-IR').format(Number(value)) + ' تومان';
+  const numericValue = Number(value);
+  // fa-IR locale should use Arabic-Indic digits and Persian/Arabic thousands separator (٬)
+  // Explicitly using style: 'decimal' ensures number formatting.
+  return new Intl.NumberFormat('fa-IR', { style: 'decimal' }).format(numericValue) + ' تومان';
 };

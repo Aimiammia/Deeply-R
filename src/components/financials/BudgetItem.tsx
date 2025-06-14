@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { parseISO, isSameMonth, getMonth, getYear } from 'date-fns';
-import { cn, formatCurrency } from '@/lib/utils'; // Updated import
+import { cn, formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
 
 interface BudgetItemProps {
   budget: Budget;
@@ -104,9 +104,6 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
             progressPercentage > 100 ? "bg-destructive/20" : "bg-secondary",
             "[&>div]:rounded-full" 
         )}
-        style={{ 
-            
-        }}
       >
         <div
             className={cn(

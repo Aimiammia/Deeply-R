@@ -10,7 +10,7 @@ import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSi
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn, formatCurrency } from '@/lib/utils'; // Updated import
+import { cn, formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast'; // Added useToast
 
 interface SavingsGoalItemProps {
   goal: SavingsGoal;
@@ -32,6 +33,7 @@ interface SavingsGoalItemProps {
 }
 
 export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) {
+  const { toast } = useToast(); // Initialize toast
   const [isAddingFunds, setIsAddingFunds] = useState(false);
   const [fundsToAdd, setFundsToAdd] = useState<number | ''>('');
 
@@ -46,6 +48,7 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
   const handleAddFundsSubmit = () => {
     if (fundsToAdd !== '' && Number(fundsToAdd) > 0) {
       onAddFunds(goal.id, Number(fundsToAdd));
+      // Toast is handled by parent page in onAddFunds callback
       setFundsToAdd('');
       setIsAddingFunds(false);
     }

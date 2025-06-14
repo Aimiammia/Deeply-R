@@ -8,7 +8,7 @@ import { Pencil, Trash2, CalendarDays, Building, TrendingUp, Info, Edit3 } from 
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn, formatCurrency } from '@/lib/utils'; // Updated import
+import { cn, formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
 import {
   AlertDialog,
   AlertDialogAction,

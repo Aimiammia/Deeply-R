@@ -15,7 +15,7 @@ import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { ClientOnly } from '@/components/ClientOnly';
-import { cn, formatCurrency, generateId } from '@/lib/utils'; // Updated import
+import { cn, formatCurrency, generateId } from '@/lib/utils'; // Ensured formatCurrency is imported
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 import { Skeleton } from '@/components/ui/skeleton'; 
 
@@ -391,14 +391,14 @@ export default function FinancialManagementPage() {
                 <DynamicAddTransactionForm onAddTransaction={handleAddTransaction} />
                 <DynamicTransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
                 <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-                  <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (به تومان)</h4>
+                  <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (تومان)</h4>
                   {chartData.length > 0 ? (
                       <div style={{ width: '100%', height: 350 }}>
                         <ResponsiveContainer>
                           <BarChart data={chartData} margin={{ top: 5, right: 5, left: 30, bottom: 70 }} dir="rtl">
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                             <XAxis dataKey="name" angle={-45} textAnchor="end" height={50} interval={0} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
-                            <YAxis tickFormatter={value => formatCurrency(value)} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
+                            <YAxis tickFormatter={value => formatCurrency(value).replace(' تومان', '')} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
                             <Tooltip formatter={(value: number, name: string) => [formatCurrency(value), name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
                             <Legend formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} wrapperStyle={{direction: 'rtl', paddingTop: '10px'}} payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}/>
                             <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
@@ -576,4 +576,3 @@ export default function FinancialManagementPage() {
     </ClientOnly>
   );
 }
-

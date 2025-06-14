@@ -3,11 +3,11 @@
 
 import type { FinancialTransaction } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+// Badge removed as it's not used here
 import { Trash2, ArrowUpCircle, ArrowDownCircle, CalendarDays, Tag } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn, formatCurrency } from '@/lib/utils'; // Updated import
+import { cn, formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
 import {
   AlertDialog,
   AlertDialogAction,

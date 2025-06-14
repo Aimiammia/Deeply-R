@@ -18,7 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
-import { formatCurrency } from '@/lib/utils'; // Updated import
+import { formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
 
 // Existing Flow
 import { assessGoalProgress, type AssessGoalProgressInput, type AssessGoalProgressOutput } from '@/ai/flows/assess-goal-progress-flow';
@@ -88,8 +88,6 @@ export default function IntelligentAnalysisPage() {
 
 
   useEffect(() => {
-    // Data loading from localStorage is handled by useDebouncedLocalStorage.
-    // We just need to set isInitialLoadComplete to true after the first render.
     setIsInitialLoadComplete(true);
   }, []);
 
@@ -160,7 +158,7 @@ export default function IntelligentAnalysisPage() {
   }, [isInitialLoadComplete, tasks, longTermGoals, toast]);
 
   const handleAnalyzeMoodCorrelation = useCallback(async () => {
-    const recentReflections = reflections.slice(0, 20); // Take last 20 reflections
+    const recentReflections = reflections.slice(0, 20); 
     if (!isInitialLoadComplete || recentReflections.length === 0 || tasks.length === 0) {
          toast({ title: "اطلاعات ناکافی", description: "برای تحلیل ارتباط خلق و خو با وظایف، نیاز به تأملات و وظایف ثبت شده است.", variant: "default" });
         return;
@@ -189,7 +187,6 @@ export default function IntelligentAnalysisPage() {
     }
     setIsGeneratingReport(true); setOverallReport(null); setReportError(null);
     try {
-        // Prepare financial summary
         const now = new Date();
         const last30DaysStart = subDays(now, 30);
         const periodTransactions = transactions.filter(t => isWithinInterval(parseISO(t.date), { start: last30DaysStart, end: now }));
@@ -200,12 +197,12 @@ export default function IntelligentAnalysisPage() {
             tasks,
             longTermGoals,
             activityLogs,
-            reflections: reflections.slice(0, 10), // Limit for report
+            reflections: reflections.slice(0, 10), 
             financialSummary: {
                 totalIncomeLast30Days: totalIncome,
                 totalExpensesLast30Days: totalExpenses,
                 activeBudgetsCount: budgets.length,
-                savingsGoalsProgress: 0, // Placeholder for now
+                savingsGoalsProgress: 0, 
             }
         };
         const result = await generateOverallProgressReport(input);
@@ -356,7 +353,7 @@ export default function IntelligentAnalysisPage() {
             {renderAnalysisSection(
                 "شناسایی الگوهای بهره‌وری",
                 "الگوهای زمانی و فعالیتی خود را برای شناسایی اوج بهره‌وری و عوامل موثر بر آن تحلیل کنید.",
-                Zap, // Changed Icon
+                Zap, 
                 productivityPatterns,
                 isAnalyzingProductivity,
                 productivityError,
@@ -367,7 +364,7 @@ export default function IntelligentAnalysisPage() {
             {renderAnalysisSection(
                 "پیشنهاد برای تنظیم بهتر وظایف",
                 "بر اساس اهداف و وظایف فعلی، پیشنهاداتی برای بهینه‌سازی برنامه‌ریزی روزانه خود دریافت کنید.",
-                Lightbulb, // Changed Icon
+                Lightbulb, 
                 taskOptimizations,
                 isSuggestingOptimizations,
                 optimizationsError,
@@ -378,7 +375,7 @@ export default function IntelligentAnalysisPage() {
             {renderAnalysisSection(
                 "تحلیل ارتباط خلق و خو و پیشرفت",
                 "ارتباط بین حالات روحی ثبت شده در تأملات و میزان پیشرفت در وظایف و اهداف را بررسی کنید.",
-                BarChartHorizontalBig, // Changed Icon
+                BarChartHorizontalBig, 
                 moodTaskCorrelation,
                 isAnalyzingMoodCorrelation,
                 moodCorrelationError,
@@ -389,7 +386,7 @@ export default function IntelligentAnalysisPage() {
             {renderAnalysisSection(
                 "گزارش جامع پیشرفت کلی",
                 "یک گزارش دوره‌ای از پیشرفت خود در تمامی جنبه‌های برنامه (وظایف، اهداف، فعالیت‌ها، تأملات و مالی) دریافت کنید.",
-                FileSignature, // Changed Icon
+                FileSignature, 
                 overallReport,
                 isGeneratingReport,
                 reportError,
