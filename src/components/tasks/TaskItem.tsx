@@ -171,10 +171,10 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
             <BookCopy className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
             <span>{task.subjectName}</span>
             {task.startChapter && task.endChapter && (
-              <span className="mr-1 rtl:ml-1 rtl:mr-0">(فصل {task.startChapter} تا {task.endChapter})</span>
+              <span className="mr-1 rtl:ml-1 rtl:mr-0">(فصل {task.startChapter.toLocaleString('fa-IR')} تا {task.endChapter.toLocaleString('fa-IR')})</span>
             )}
              {task.startChapter && !task.endChapter && (
-              <span className="mr-1 rtl:ml-1 rtl:mr-0">(فصل {task.startChapter})</span>
+              <span className="mr-1 rtl:ml-1 rtl:mr-0">(فصل {task.startChapter.toLocaleString('fa-IR')})</span>
             )}
           </div>
         )}

@@ -162,7 +162,7 @@ export interface AnalyzeProductivityPatternsInput {
   tasks: Task[];
   activityLogs: DailyActivityLogEntry[];
 }
-export interface AnalyzeProductivityPatternsOutput {
+export type AnalyzeProductivityPatternsOutput = {
   analysis: string; // Textual analysis of productivity patterns
 }
 
@@ -170,7 +170,7 @@ export interface SuggestTaskOptimizationsInput {
   tasks: Task[];
   longTermGoals: LongTermGoal[];
 }
-export interface SuggestTaskOptimizationsOutput {
+export type SuggestTaskOptimizationsOutput = {
   suggestions: string; // Textual suggestions for task optimization
 }
 
@@ -178,7 +178,7 @@ export interface AnalyzeMoodTaskCorrelationInput {
   reflections: ReflectionEntry[];
   tasks: Task[];
 }
-export interface AnalyzeMoodTaskCorrelationOutput {
+export type AnalyzeMoodTaskCorrelationOutput = {
   analysis: string; // Textual analysis of mood-task correlation
 }
 
@@ -189,12 +189,12 @@ export interface GenerateOverallProgressReportInput {
   reflections: ReflectionEntry[];
   // Simple financial summary for now
   financialSummary?: {
-    totalIncomeLast30Days: number;
-    totalExpensesLast30Days: number;
-    activeBudgetsCount: number;
-    savingsGoalsProgress: number; // Avg percentage
+    totalIncomeLast30Days?: number;
+    totalExpensesLast30Days?: number;
+    activeBudgetsCount?: number;
+    savingsGoalsProgress?: number; // Avg percentage
   };
 }
-export interface GenerateOverallProgressReportOutput {
+export type GenerateOverallProgressReportOutput = {
   report: string; // Comprehensive textual report
 }
