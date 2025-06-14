@@ -139,7 +139,7 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
         </Button>
         <div className="text-center">
           <h3 className="text-md font-semibold">
-            {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear.toLocaleString('fa-IR')}
+            {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear}
           </h3>
         </div>
         <Button variant="ghost" size="icon" onClick={handleNextMonth} className="hover:bg-muted/80">
@@ -163,3 +163,4 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
     </div>
   );
 }
+

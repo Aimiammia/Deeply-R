@@ -350,7 +350,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         </Button>
         <div className="text-center">
             <h2 className="text-lg sm:text-xl font-bold">
-            {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear.toLocaleString('fa-IR')}
+            {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear}
             </h2>
             <p className="text-xs opacity-80">{getGregorianMonthRangeDisplay}</p>
         </div>
@@ -519,4 +519,5 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     </div>
   );
 }
+
 

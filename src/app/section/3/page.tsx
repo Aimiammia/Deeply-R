@@ -71,6 +71,10 @@ const fetchMockLivePrice = async (currentPrice: number, investmentType: Financia
   return parseFloat(newPrice.toFixed(2));
 };
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('fa-IR').format(value) + ' تومان';
+};
+
 
 export default function FinancialManagementPage() {
   const sectionTitle = "مدیریت مالی";
@@ -140,7 +144,7 @@ export default function FinancialManagementPage() {
     });
     toast({
       title: editingBudget ? "بودجه ویرایش شد" : "بودجه تنظیم شد",
-      description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${new Intl.NumberFormat('fa-IR').format(amount)} تومان تنظیم شد.`,
+      description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تنظیم شد.`,
     });
     setEditingBudget(null); 
   }, [setBudgets, toast, editingBudget]);
@@ -250,7 +254,7 @@ export default function FinancialManagementPage() {
             : inv
         )
       );
-      toast({ title: "قیمت به‌روز شد (شبیه‌سازی شده)", description: `قیمت "${investmentToUpdate.name}" به ${new Intl.NumberFormat('fa-IR').format(newPrice)} تومان تغییر یافت.` });
+      toast({ title: "قیمت به‌روز شد (شبیه‌سازی شده)", description: `قیمت "${investmentToUpdate.name}" به ${formatCurrency(newPrice)} تغییر یافت.` });
     } catch (error) {
       console.error("Error updating mock price:", error);
       toast({ title: "خطا در به‌روزرسانی قیمت", description: "هنگام شبیه‌سازی دریافت قیمت مشکلی پیش آمد.", variant: "destructive" });
@@ -309,7 +313,7 @@ export default function FinancialManagementPage() {
         return goal;
       })
     );
-    toast({ title: "وجه اضافه شد", description: `مبلغ ${new Intl.NumberFormat('fa-IR').format(amount)} تومان به هدف اضافه شد.` });
+    toast({ title: "وجه اضافه شد", description: `مبلغ ${formatCurrency(amount)} به هدف اضافه شد.` });
   }, [setSavingsGoals, toast]);
   
   const handleSetSavingsGoalStatus = useCallback((id: string, status: SavingsGoal['status']) => {
@@ -345,9 +349,6 @@ export default function FinancialManagementPage() {
     }, 0);
   }, [investments]);
 
-  const formatCurrency = useCallback((value: number) => {
-    return new Intl.NumberFormat('fa-IR').format(value);
-  },[]);
 
   return (
     <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
@@ -403,7 +404,7 @@ export default function FinancialManagementPage() {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                             <XAxis dataKey="name" angle={-45} textAnchor="end" height={50} interval={0} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
                             <YAxis tickFormatter={value => formatCurrency(value)} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
-                            <Tooltip formatter={(value: number, name: string) => [`${formatCurrency(value)} تومان`, name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
+                            <Tooltip formatter={(value: number, name: string) => [formatCurrency(value), name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
                             <Legend formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} wrapperStyle={{direction: 'rtl', paddingTop: '10px'}} payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}/>
                             <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
                             <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
@@ -512,7 +513,7 @@ export default function FinancialManagementPage() {
                             <CardContent className="p-2 text-sm">
                                 <p>مجموع سود/زیان کل: 
                                     <span className={cn("font-semibold", totalInvestmentProfitLoss >= 0 ? "text-green-600" : "text-red-600")}>
-                                        {formatCurrency(totalInvestmentProfitLoss)} تومان
+                                        {formatCurrency(totalInvestmentProfitLoss)}
                                     </span>
                                 </p>
                             </CardContent>
@@ -580,3 +581,4 @@ export default function FinancialManagementPage() {
     </ClientOnly>
   );
 }
+
