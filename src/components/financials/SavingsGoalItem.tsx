@@ -10,7 +10,7 @@ import { Pencil, Trash2, Save, X, CalendarDays, PiggyBank, CheckCircle, DollarSi
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
-import { cn, formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
+import { cn, formatCurrency } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast'; // Added useToast
+import { useToast } from '@/hooks/use-toast';
 
 interface SavingsGoalItemProps {
   goal: SavingsGoal;
@@ -33,7 +33,7 @@ interface SavingsGoalItemProps {
 }
 
 export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) {
-  const { toast } = useToast(); // Initialize toast
+  const { toast } = useToast();
   const [isAddingFunds, setIsAddingFunds] = useState(false);
   const [fundsToAdd, setFundsToAdd] = useState<number | ''>('');
 
@@ -44,13 +44,22 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
     return { progressPercentage: progress, isAchieved: achieved, remainingAmount: remaining };
   }, [goal.targetAmount, goal.currentAmount, goal.status]);
 
+  const handleFundsToAddChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ''); // Remove commas
+    setFundsToAdd(value === '' ? '' : parseFloat(value) || '');
+  };
 
   const handleAddFundsSubmit = () => {
     if (fundsToAdd !== '' && Number(fundsToAdd) > 0) {
       onAddFunds(goal.id, Number(fundsToAdd));
-      // Toast is handled by parent page in onAddFunds callback
       setFundsToAdd('');
       setIsAddingFunds(false);
+    } else {
+        toast({
+            title: "مبلغ نامعتبر",
+            description: "لطفاً مبلغ صحیحی برای افزودن وارد کنید.",
+            variant: "destructive",
+        });
     }
   };
   
@@ -151,12 +160,11 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
               <Label htmlFor={`add-funds-${goal.id}`} className="text-xs">مبلغ برای افزودن (تومان)</Label>
               <Input
                 id={`add-funds-${goal.id}`}
-                type="number"
-                value={fundsToAdd}
-                onChange={(e) => setFundsToAdd(parseFloat(e.target.value) || '')}
-                placeholder="مثلا: 500000"
+                type="text" // Change to text
+                value={fundsToAdd === '' ? '' : fundsToAdd.toLocaleString('en-US')} // Display with comma
+                onChange={handleFundsToAddChange}
+                placeholder="مثلا: 500,000"
                 className="text-sm h-9"
-                min="1"
               />
               <div className="flex gap-2">
                 <Button onClick={handleAddFundsSubmit} size="sm" className="flex-1" disabled={!fundsToAdd || Number(fundsToAdd) <= 0}>

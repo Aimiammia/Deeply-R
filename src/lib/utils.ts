@@ -16,11 +16,13 @@ export function generateId(): string {
 }
 
 export const formatCurrency = (value: number | null | undefined): string => {
-  if (value === null || value === undefined || isNaN(Number(value))) {
+  if (value === null || value === undefined) {
     return '۰ تومان';
   }
   const numericValue = Number(value);
-  // fa-IR locale should use Arabic-Indic digits and Persian/Arabic thousands separator (٬)
-  // Explicitly using style: 'decimal' ensures number formatting.
+  if (isNaN(numericValue)) {
+      return '۰ تومان';
+  }
+  // fa-IR locale uses Arabic-Indic digits and Persian/Arabic thousands separator (٬)
   return new Intl.NumberFormat('fa-IR', { style: 'decimal' }).format(numericValue) + ' تومان';
 };

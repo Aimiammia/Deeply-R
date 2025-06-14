@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,11 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [category, setCategory] = useState<string | undefined>(undefined);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ''); // Remove commas
+    setAmount(value === '' ? '' : parseFloat(value) || '');
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -66,13 +71,12 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
         <Label htmlFor="amount" className="mb-1 block">مبلغ (تومان)</Label>
         <Input
           id="amount"
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(parseFloat(e.target.value) || '')}
-          placeholder="مثلا: 50000"
+          type="text" // Change to text to allow commas, parsing will handle it
+          value={amount === '' ? '' : amount.toLocaleString('en-US')} // Display with comma for user input
+          onChange={handleAmountChange}
+          placeholder="مثلا: 50,000"
           className="text-base"
           required
-          min="0"
         />
       </div>
 
@@ -121,7 +125,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <DynamicJalaliDatePicker // Changed
+              <DynamicJalaliDatePicker
                 value={date}
                 onChange={setDate}
                 initialYear={date ? new Date(date).getFullYear() : undefined}

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, PlusCircle, Edit3, Building } from 'lucide-react';
-import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { FinancialAsset } from '@/types';
@@ -56,6 +56,11 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
       setNotes('');
     }
   }, [existingAsset]);
+
+  const handleNumericInputChange = (setter: React.Dispatch<React.SetStateAction<number | ''>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, '');
+    setter(value === '' ? '' : parseFloat(value) || '');
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -120,13 +125,12 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
             <Label htmlFor="initialValue" className="mb-1 block">ارزش اولیه / قیمت خرید (تومان)</Label>
             <Input
             id="initialValue"
-            type="number"
-            value={initialValue}
-            onChange={(e) => setInitialValue(parseFloat(e.target.value) || '')}
-            placeholder="مثلا: 500000000"
+            type="text" // Change to text
+            value={initialValue === '' ? '' : initialValue.toLocaleString('en-US')} // Display with comma
+            onChange={handleNumericInputChange(setInitialValue)}
+            placeholder="مثلا: 500,000,000"
             className="text-base"
             required
-            min="0"
             />
         </div>
         <div>
@@ -145,7 +149,7 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
                 </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                <DynamicJalaliDatePicker // Changed
+                <DynamicJalaliDatePicker
                     value={purchaseDate}
                     onChange={setPurchaseDate}
                     initialYear={purchaseDate ? new Date(purchaseDate).getFullYear() : undefined}
@@ -160,13 +164,12 @@ export function CreateAssetForm({ onSaveAsset, existingAsset }: CreateAssetFormP
         <Label htmlFor="currentValue" className="mb-1 block">ارزش فعلی (تومان)</Label>
         <Input
           id="currentValue"
-          type="number"
-          value={currentValue}
-          onChange={(e) => setCurrentValue(parseFloat(e.target.value) || '')}
-          placeholder="مثلا: 650000000"
+          type="text" // Change to text
+          value={currentValue === '' ? '' : currentValue.toLocaleString('en-US')} // Display with comma
+          onChange={handleNumericInputChange(setCurrentValue)}
+          placeholder="مثلا: 650,000,000"
           className="text-base"
           required
-          min="0"
         />
         <p className="text-xs text-muted-foreground mt-1">این ارزش می‌تواند به صورت دوره‌ای به‌روز شود.</p>
       </div>

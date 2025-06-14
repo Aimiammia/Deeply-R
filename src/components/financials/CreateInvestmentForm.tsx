@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, PlusCircle, Edit3, TrendingUp, DollarSign } from 'lucide-react';
-import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { FinancialInvestment } from '@/types';
@@ -53,6 +53,27 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
       setNotes('');
     }
   }, [existingInvestment]);
+
+  const handleNumericInputChange = (setter: React.Dispatch<React.SetStateAction<number | ''>>, allowZero: boolean = false) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, '');
+    if (value === '') {
+      setter('');
+    } else {
+      const parsed = parseFloat(value);
+      if (!isNaN(parsed)) {
+        setter(parsed);
+      } else if (allowZero && value === '0') {
+        setter(0);
+      } else {
+        setter(''); // Or keep previous valid value
+      }
+    }
+  };
+  
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, '');
+    setQuantity(value === '' ? '' : parseFloat(value) || '');
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -122,14 +143,12 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
           <Label htmlFor="quantity" className="mb-1 block">تعداد / مقدار</Label>
           <Input
             id="quantity"
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(parseFloat(e.target.value) || '')}
-            placeholder="مثلا: 100 (سهم) یا 0.5 (بیت‌کوین)"
+            type="text" // Allow for decimals and commas
+            value={quantity === '' ? '' : quantity.toLocaleString('en-US')}
+            onChange={handleQuantityChange}
+            placeholder="مثلا: 100 یا 0.5"
             className="text-base"
             required
-            min="0"
-            step="any"
           />
         </div>
         <div>
@@ -145,7 +164,7 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <DynamicJalaliDatePicker // Changed
+              <DynamicJalaliDatePicker
                 value={purchaseDate}
                 onChange={setPurchaseDate}
               />
@@ -159,25 +178,23 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
           <Label htmlFor="purchasePricePerUnit" className="mb-1 block">قیمت خرید هر واحد (تومان)</Label>
           <Input
             id="purchasePricePerUnit"
-            type="number"
-            value={purchasePricePerUnit}
-            onChange={(e) => setPurchasePricePerUnit(parseFloat(e.target.value) || '')}
-            placeholder="مثلا: 15000"
+            type="text"
+            value={purchasePricePerUnit === '' ? '' : purchasePricePerUnit.toLocaleString('en-US')}
+            onChange={handleNumericInputChange(setPurchasePricePerUnit)}
+            placeholder="مثلا: 15,000"
             className="text-base"
             required
-            min="0"
           />
         </div>
         <div>
           <Label htmlFor="fees" className="mb-1 block">کارمزد خرید (تومان - اختیاری)</Label>
           <Input
             id="fees"
-            type="number"
-            value={fees}
-            onChange={(e) => setFees(parseFloat(e.target.value) || 0)}
-            placeholder="مثلا: 5000"
+            type="text"
+            value={fees === '' ? '' : fees.toLocaleString('en-US')}
+            onChange={handleNumericInputChange(setFees, true)}
+            placeholder="مثلا: 5,000"
             className="text-base"
-            min="0"
           />
         </div>
       </div>
@@ -186,13 +203,12 @@ export function CreateInvestmentForm({ onSaveInvestment, existingInvestment }: C
         <Label htmlFor="currentPricePerUnit" className="mb-1 block">قیمت فعلی هر واحد (تومان)</Label>
         <Input
           id="currentPricePerUnit"
-          type="number"
-          value={currentPricePerUnit}
-          onChange={(e) => setCurrentPricePerUnit(parseFloat(e.target.value) || '')}
-          placeholder="مثلا: 18000"
+          type="text"
+          value={currentPricePerUnit === '' ? '' : currentPricePerUnit.toLocaleString('en-US')}
+          onChange={handleNumericInputChange(setCurrentPricePerUnit)}
+          placeholder="مثلا: 18,000"
           className="text-base"
           required
-          min="0"
         />
         <p className="text-xs text-muted-foreground mt-1">این قیمت برای محاسبه سود/زیان فعلی استفاده می‌شود.</p>
       </div>

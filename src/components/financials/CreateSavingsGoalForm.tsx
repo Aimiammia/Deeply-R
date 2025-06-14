@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarIcon, PlusCircle, Edit3, PiggyBank, Save } from 'lucide-react'; 
-import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { cn } from '@/lib/utils';
 import type { SavingsGoal } from '@/types';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers'; 
@@ -35,6 +35,11 @@ export function CreateSavingsGoalForm({ onSaveGoal, existingGoal }: CreateSaving
       setTargetDate(undefined);
     }
   }, [existingGoal]);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ''); // Remove commas
+    setTargetAmount(value === '' ? '' : parseFloat(value) || '');
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -77,13 +82,12 @@ export function CreateSavingsGoalForm({ onSaveGoal, existingGoal }: CreateSaving
         <Label htmlFor="targetAmount" className="mb-1 block">مبلغ هدف (تومان)</Label>
         <Input
           id="targetAmount"
-          type="number"
-          value={targetAmount}
-          onChange={(e) => setTargetAmount(parseFloat(e.target.value) || '')}
-          placeholder="مثلا: 30000000"
+          type="text" // Change to text
+          value={targetAmount === '' ? '' : targetAmount.toLocaleString('en-US')} // Display with comma
+          onChange={handleAmountChange}
+          placeholder="مثلا: 30,000,000"
           className="text-base"
           required
-          min="1"
         />
       </div>
       
@@ -103,7 +107,7 @@ export function CreateSavingsGoalForm({ onSaveGoal, existingGoal }: CreateSaving
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <DynamicJalaliDatePicker // Changed
+            <DynamicJalaliDatePicker
               value={targetDate}
               onChange={setTargetDate}
             />

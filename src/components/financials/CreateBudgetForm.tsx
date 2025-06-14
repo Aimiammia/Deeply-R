@@ -8,11 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings2, Tag as CategoryIcon } from 'lucide-react';
 import type { Budget } from '@/types';
-import { expenseCategories } from '@/lib/financial-categories'; // Only expense categories for budgeting
+import { expenseCategories } from '@/lib/financial-categories'; 
 
 interface CreateBudgetFormProps {
   onSetBudget: (category: string, amount: number) => void;
-  existingBudget?: Budget | null; // To prefill form for editing
+  existingBudget?: Budget | null; 
 }
 
 export function CreateBudgetForm({ onSetBudget, existingBudget }: CreateBudgetFormProps) {
@@ -29,12 +29,15 @@ export function CreateBudgetForm({ onSetBudget, existingBudget }: CreateBudgetFo
     }
   }, [existingBudget]);
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ''); // Remove commas
+    setBudgetAmount(value === '' ? '' : parseFloat(value) || '');
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (selectedCategory && budgetAmount && Number(budgetAmount) > 0) {
       onSetBudget(selectedCategory, Number(budgetAmount));
-      // Resetting is handled by useEffect when existingBudget prop changes to null via parent,
-      // or if it was never an existingBudget (i.e., adding new)
       if (!existingBudget) {
         setSelectedCategory('');
         setBudgetAmount('');
@@ -54,7 +57,7 @@ export function CreateBudgetForm({ onSetBudget, existingBudget }: CreateBudgetFo
         <Select 
           value={selectedCategory} 
           onValueChange={setSelectedCategory}
-          disabled={!!existingBudget} // Disable category change when editing
+          disabled={!!existingBudget} 
         >
           <SelectTrigger id="budgetCategory" className="w-full" aria-label="انتخاب دسته‌بندی برای بودجه">
             <CategoryIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
@@ -74,13 +77,12 @@ export function CreateBudgetForm({ onSetBudget, existingBudget }: CreateBudgetFo
         <Label htmlFor="budgetAmount" className="mb-1 block">مبلغ بودجه (تومان)</Label>
         <Input
           id="budgetAmount"
-          type="number"
-          value={budgetAmount}
-          onChange={(e) => setBudgetAmount(parseFloat(e.target.value) || '')}
-          placeholder="مثلا: 200000"
+          type="text" // Change to text
+          value={budgetAmount === '' ? '' : budgetAmount.toLocaleString('en-US')} // Display with comma
+          onChange={handleAmountChange}
+          placeholder="مثلا: 200,000"
           className="text-base"
           required
-          min="1"
         />
       </div>
       
