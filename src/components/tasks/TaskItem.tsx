@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -146,6 +146,12 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
           <div className="flex items-center">
             <CalendarDays className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
             <span>سررسید: {format(parseISO(task.dueDate), "PPP", { locale: faIR })}</span>
+            {task.dueTime && (
+                <span className="mr-1 rtl:ml-1 rtl:mr-0 flex items-center">
+                    <Clock className="ml-1 h-3 w-3 rtl:mr-1 rtl:ml-0" />
+                    {task.dueTime}
+                </span>
+            )}
           </div>
         )}
         {task.priority && (

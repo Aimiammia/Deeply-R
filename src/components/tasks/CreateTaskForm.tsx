@@ -4,9 +4,9 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter, Clock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker'; // Changed
+import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -16,9 +16,10 @@ import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 
 interface CreateTaskFormProps {
   onAddTask: (
-    title: string, 
-    dueDate?: Date | null, 
-    priority?: Task['priority'], 
+    title: string,
+    dueDate?: Date | null,
+    dueTime?: string | null,
+    priority?: Task['priority'],
     category?: string | null,
     subjectId?: string | null,
     subjectName?: string | null,
@@ -42,6 +43,7 @@ const predefinedCategories = [
 export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [dueTime, setDueTime] = useState<string>('');
   const [priority, setPriority] = useState<Task['priority'] | undefined>(undefined);
   const [category, setCategory] = useState<string | undefined>(undefined);
 
@@ -88,9 +90,10 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
     if (title.trim()) {
       if (category === 'درس' && selectedSubject) {
         onAddTask(
-          title.trim(), 
-          dueDate ?? null, 
-          priority ?? null, 
+          title.trim(),
+          dueDate ?? null,
+          dueTime || null,
+          priority ?? null,
           category || null,
           selectedSubject.id,
           selectedSubject.name,
@@ -99,11 +102,12 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
           userEducationalLevel
         );
       } else {
-        onAddTask(title.trim(), dueDate ?? null, priority ?? null, category || null);
+        onAddTask(title.trim(), dueDate ?? null, dueTime || null, priority ?? null, category || null);
       }
-      
+
       setTitle('');
       setDueDate(undefined);
+      setDueTime('');
       setPriority(undefined);
       setCategory(undefined);
       setSelectedSubject(null);
@@ -125,27 +129,46 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
         required
       />
       <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full sm:flex-1 justify-start text-left font-normal",
-                !dueDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-              {dueDate ? formatJalaliDateDisplay(dueDate, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ سررسید</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <DynamicJalaliDatePicker // Changed
-              value={dueDate}
-              onChange={setDueDate}
+        <div className="flex-1">
+          <Label htmlFor="dueDate" className="mb-1 block text-xs">تاریخ سررسید</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="dueDate"
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dueDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+                {dueDate ? formatJalaliDateDisplay(dueDate, 'jYYYY/jMM/jDD') : <span>انتخاب تاریخ</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <DynamicJalaliDatePicker
+                value={dueDate}
+                onChange={setDueDate}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+        {dueDate && (
+          <div className="flex-1">
+            <Label htmlFor="dueTime" className="mb-1 block text-xs">ساعت (اختیاری)</Label>
+            <Input
+              id="dueTime"
+              type="time"
+              value={dueTime}
+              onChange={(e) => setDueTime(e.target.value)}
+              className="w-full"
+              aria-label="ساعت سررسید وظیفه"
             />
-          </PopoverContent>
-        </Popover>
-
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col sm:flex-row flex-wrap gap-4">
         <Select value={priority || ''} onValueChange={(value) => setPriority(value as Task['priority'])}>
           <SelectTrigger className="w-full sm:flex-1" aria-label="میزان اهمیت وظیفه">
             <ListFilter className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />

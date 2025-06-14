@@ -13,8 +13,6 @@ import Image from 'next/image';
 // Imports for Short-Term Planner
 import { useState, useEffect, useCallback } from 'react';
 import type { Task } from '@/types';
-// import { CreateTaskForm } from '@/components/tasks/CreateTaskForm'; // Lazy loaded
-// import { TaskList } from '@/components/tasks/TaskList'; // Lazy loaded
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
@@ -46,9 +44,10 @@ export default function PlannerLandingPage() {
   }, []);
 
   const handleAddTask = useCallback((
-    title: string, 
-    dueDate?: Date | null, 
-    priority?: Task['priority'], 
+    title: string,
+    dueDate?: Date | null,
+    dueTime?: string | null,
+    priority?: Task['priority'],
     category?: string | null,
     subjectId?: string | null,
     subjectName?: string | null,
@@ -62,6 +61,7 @@ export default function PlannerLandingPage() {
       completed: false,
       createdAt: new Date().toISOString(),
       dueDate: dueDate ? dueDate.toISOString() : null,
+      dueTime: dueTime || null,
       priority: priority || null,
       category: category || null,
       subjectId: subjectId || null,

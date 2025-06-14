@@ -5,6 +5,7 @@ export interface Task {
   completed: boolean;
   createdAt: string; // ISO date string
   dueDate?: string | null; // ISO date string, optional
+  dueTime?: string | null; // Optional time string, e.g., "14:30"
   priority?: 'low' | 'medium' | 'high' | null; // Optional
   category?: string | null; // Optional
   subjectId?: string | null; // e.g., "math_h10" from educational-data.ts
