@@ -96,7 +96,7 @@ export default function IntelligentAnalysisPage() {
     const errorMessage = error instanceof Error ? error.message : defaultMessage;
     toast({
       title: toastTitle,
-      description: `متاسفانه مشکلی پیش آمد: ${errorMessage}. لطفاً از اتصال اینترنت و صحیح بودن کلید API اطمینان حاصل کنید.`,
+      description: `متاسفانه مشکلی پیش آمد: ${errorMessage}. لطفاً از اتصال اینترنت و صحیح بودن کلید API (در صورت نیاز به ارائه‌دهنده AI خارجی) اطمینان حاصل کنید.`,
       variant: "destructive",
       duration: 7000,
     });
@@ -160,7 +160,7 @@ export default function IntelligentAnalysisPage() {
   const handleAnalyzeMoodCorrelation = useCallback(async () => {
     const recentReflections = reflections.slice(0, 20); 
     if (!isInitialLoadComplete || recentReflections.length === 0 || tasks.length === 0) {
-         toast({ title: "اطلاعات ناکافی", description: "برای تحلیل ارتباط خلق و خو با وظایف، نیاز به تأملات و وظایف ثبت شده است.", variant: "default" });
+         toast({ title: "اطلاعات ناکافی", description: "برای تحلیل ارتباط خلق و خو با وظایف، نیاز به تأملات و وظایf ثبت شده است.", variant: "default" });
         return;
     }
     setIsAnalyzingMoodCorrelation(true); setMoodTaskCorrelation(null); setMoodCorrelationError(null);
@@ -202,6 +202,7 @@ export default function IntelligentAnalysisPage() {
                 totalIncomeLast30Days: totalIncome,
                 totalExpensesLast30Days: totalExpenses,
                 activeBudgetsCount: budgets.length,
+                // Placeholder for savings goals progress if implemented
                 savingsGoalsProgress: 0, 
             }
         };
@@ -218,7 +219,7 @@ export default function IntelligentAnalysisPage() {
 
   const calculateActivitySummary = useCallback((days: number): ActivitySummary => {
     const endDate = new Date();
-    const startDate = subDays(endDate, days - 1);
+    const startDate = subDays(endDate, days - 1); // -1 because subDays(date, 0) is same day
 
     const tasksCompleted = tasks.filter(task =>
         task.completed && task.createdAt && isWithinInterval(parseISO(task.createdAt), { start: startDate, end: endDate })

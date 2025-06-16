@@ -88,6 +88,11 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
     const freshToday = getJalaliToday(); // Get the absolute latest "today"
     setCurrentJalaliYear(freshToday.year);
     setCurrentJalaliMonth(freshToday.month);
+    // Optionally, also select today's date if needed by the parent component
+    // const todayGregorian = parseJalaliDate(freshToday.year, freshToday.month, freshToday.day);
+    // if (todayGregorian) {
+    //   onChange(todayGregorian);
+    // }
   };
 
   const renderDayCells = () => {
@@ -139,7 +144,7 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
         </Button>
         <div className="text-center">
           <h3 className="text-md font-semibold">
-            {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear}
+            {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear.toLocaleString('fa-IR', {useGrouping: false})}
           </h3>
         </div>
         <Button variant="ghost" size="icon" onClick={handleNextMonth} className="hover:bg-muted/80">
@@ -163,4 +168,3 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
     </div>
   );
 }
-
