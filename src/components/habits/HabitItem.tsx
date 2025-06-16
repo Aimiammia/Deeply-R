@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'; // Added Badge
 import { format, parseISO, startOfDay, differenceInCalendarDays, isSameDay, subDays } from 'date-fns'; // Added date-fns functions
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useMemo } from 'react'; // Added useMemo
+import { useMemo, memo } from 'react'; // Added useMemo and memo
 import {
   AlertDialog,
   AlertDialogAction,
@@ -68,7 +68,7 @@ const calculateCurrentStreak = (completionISODates: string[]): number => {
 };
 
 
-export function HabitItem({ habit, onToggleCompletion, onDeleteHabit }: HabitItemProps) {
+const HabitItemComponent = ({ habit, onToggleCompletion, onDeleteHabit }: HabitItemProps) => {
   const todayISOString = startOfDay(new Date()).toISOString().split('T')[0]; 
 
   const isCompletedToday = habit.completions?.includes(todayISOString);
@@ -131,4 +131,6 @@ export function HabitItem({ habit, onToggleCompletion, onDeleteHabit }: HabitIte
   );
 };
 
-export { HabitItem };
+export const HabitItem = memo(HabitItemComponent);
+// Removed React.memo wrapper as it's already applied to HabitItemComponent
+// export { HabitItem };

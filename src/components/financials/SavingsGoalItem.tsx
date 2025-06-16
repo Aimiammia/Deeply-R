@@ -2,7 +2,7 @@
 'use client';
 
 import type { SavingsGoal } from '@/types';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react'; // Added memo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -32,7 +32,7 @@ interface SavingsGoalItemProps {
   onSetStatus: (id: string, status: SavingsGoal['status']) => void;
 }
 
-export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) {
+const SavingsGoalItemComponent = ({ goal, onDeleteGoal, onEditGoal, onAddFunds, onSetStatus }: SavingsGoalItemProps) => {
   const { toast } = useToast();
   const [isAddingFunds, setIsAddingFunds] = useState(false);
   const [fundsToAdd, setFundsToAdd] = useState<number | ''>('');
@@ -196,3 +196,4 @@ export function SavingsGoalItem({ goal, onDeleteGoal, onEditGoal, onAddFunds, on
     </li>
   );
 };
+export const SavingsGoalItem = memo(SavingsGoalItemComponent);

@@ -2,7 +2,7 @@
 'use client';
 
 import type { Book } from '@/types';
-import { useState } from 'react';
+import { useState, memo } from 'react'; // Added memo
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,7 @@ interface BookItemProps {
   onTriggerEdit: (book: Book) => void; 
 }
 
-export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: BookItemProps) {
+const BookItemComponent = ({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: BookItemProps) => {
   const { toast } = useToast();
   const [currentBookPage, setCurrentBookPage] = useState<number | ''>(book.currentPage || '');
   const [bookNotes, setBookNotes] = useState(book.notes || '');
@@ -252,5 +252,5 @@ export function BookItem({ book, onUpdateBook, onDeleteBook, onTriggerEdit }: Bo
     </Card>
   );
 };
-// Removed React.memo wrapper
-export { BookItem };
+// Removed React.memo wrapper as it's already applied to BookItemComponent
+export const BookItem = memo(BookItemComponent);

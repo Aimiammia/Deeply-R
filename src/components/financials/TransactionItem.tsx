@@ -19,13 +19,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { memo } from 'react'; // Added memo
 
 interface TransactionItemProps {
   transaction: FinancialTransaction;
   onDeleteTransaction: (id: string) => void;
 }
 
-export function TransactionItem({ transaction, onDeleteTransaction }: TransactionItemProps) {
+const TransactionItemComponent = ({ transaction, onDeleteTransaction }: TransactionItemProps) => {
   const isIncome = transaction.type === 'income';
   const amountColor = isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
   const TypeIcon = isIncome ? ArrowUpCircle : ArrowDownCircle;
@@ -78,3 +79,5 @@ export function TransactionItem({ transaction, onDeleteTransaction }: Transactio
     </li>
   );
 };
+
+export const TransactionItem = memo(TransactionItemComponent);

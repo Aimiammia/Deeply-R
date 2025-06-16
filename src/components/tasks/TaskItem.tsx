@@ -2,7 +2,7 @@
 'use client';
 
 import type { Task } from '@/types';
-import { useState } from 'react';
+import { useState, memo } from 'react'; // Added memo
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,7 @@ interface TaskItemProps {
   onEditTask: (id: string, newTitle: string) => void;
 }
 
-export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: TaskItemProps) {
+const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }: TaskItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.title);
 
@@ -181,4 +181,6 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask, onEditTask }: T
       </div>
     </li>
   );
-}
+};
+
+export const TaskItem = memo(TaskItemComponent);

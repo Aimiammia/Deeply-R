@@ -2,7 +2,7 @@
 'use client';
 
 import type { LongTermGoal, Milestone } from '@/types';
-import { useState } from 'react';
+import { useState, memo } from 'react'; // Added memo
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CalendarDays, Target, CheckCircle, Clock, XCircle, ListChecks, CheckSquare, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +38,7 @@ const statusOptions: { value: LongTermGoal['status']; label: string; icon: React
 ];
 
 
-export function LongTermGoalItem({ goal, onDeleteGoal, onUpdateGoal }: LongTermGoalItemProps) {
+const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal }: LongTermGoalItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSaveEdit = (updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
@@ -171,5 +171,4 @@ export function LongTermGoalItem({ goal, onDeleteGoal, onUpdateGoal }: LongTermG
     </Card>
   );
 };
-// Removed React.memo wrapper
-export { LongTermGoalItem };
+export const LongTermGoalItem = memo(LongTermGoalItemComponent);

@@ -2,7 +2,7 @@
 'use client';
 
 import type { Budget, FinancialTransaction } from '@/types';
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react'; // Added memo
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Trash2, Edit3, AlertTriangle, TrendingUp, TrendingDown, Info } from 'lucide-react';
@@ -27,7 +27,7 @@ interface BudgetItemProps {
   onEditBudget: (budget: Budget) => void; 
 }
 
-export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) {
+const BudgetItemComponent = ({ budget, transactions, onDeleteBudget, onEditBudget }: BudgetItemProps) => {
 
   const { currentMonthExpenses, remainingAmount, progressPercentage, isOverBudget } = useMemo(() => {
     const now = new Date();
@@ -129,3 +129,5 @@ export function BudgetItem({ budget, transactions, onDeleteBudget, onEditBudget 
     </li>
   );
 };
+
+export const BudgetItem = memo(BudgetItemComponent);

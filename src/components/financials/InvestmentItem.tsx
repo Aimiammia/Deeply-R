@@ -2,7 +2,7 @@
 'use client';
 
 import type { FinancialInvestment } from '@/types';
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react'; // Added memo
 import { Button } from '@/components/ui/button';
 import { Edit3, Trash2, CalendarDays, TrendingUp, Info, TrendingDown, Minus, RefreshCw, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,7 @@ interface InvestmentItemProps {
   isUpdatingPrice: boolean;
 }
 
-export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) {
+const InvestmentItemComponent = ({ investment, onDeleteInvestment, onEditInvestment, onUpdatePrice, isUpdatingPrice }: InvestmentItemProps) => {
 
   const typeLabel = useMemo(() => 
     investmentTypes.find(it => it.value === investment.type)?.label || investment.type
@@ -161,3 +161,5 @@ export function InvestmentItem({ investment, onDeleteInvestment, onEditInvestmen
     </li>
   );
 };
+
+export const InvestmentItem = memo(InvestmentItemComponent);

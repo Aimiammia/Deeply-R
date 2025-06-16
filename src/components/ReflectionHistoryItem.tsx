@@ -1,9 +1,11 @@
 
+
 import type { ReflectionEntry } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { memo } from 'react'; // Added memo
 
 interface ReflectionHistoryItemProps {
   reflection: ReflectionEntry;
@@ -11,7 +13,7 @@ interface ReflectionHistoryItemProps {
   isSelected: boolean;
 }
 
-export function ReflectionHistoryItem({ reflection, onSelectReflection, isSelected }: ReflectionHistoryItemProps) {
+const ReflectionHistoryItemComponent = ({ reflection, onSelectReflection, isSelected }: ReflectionHistoryItemProps) => {
   return (
     <Card className={`transition-all duration-300 ease-in-out ${isSelected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-md'}`}>
       <CardHeader>
@@ -39,3 +41,5 @@ export function ReflectionHistoryItem({ reflection, onSelectReflection, isSelect
     </Card>
   );
 };
+
+export const ReflectionHistoryItem = memo(ReflectionHistoryItemComponent);

@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { memo } from 'react'; // Added memo
 
 interface SportsActivityItemProps {
   activity: SportsActivity;
@@ -41,7 +42,7 @@ const activityTypeLabels: Record<SportsActivity['activityType'], string> = {
   other: 'سایر فعالیت‌ها',
 };
 
-export function SportsActivityItem({ activity, onDeleteActivity, onEditActivity }: SportsActivityItemProps) {
+const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivity }: SportsActivityItemProps) => {
   return (
     <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -117,4 +118,6 @@ export function SportsActivityItem({ activity, onDeleteActivity, onEditActivity 
       </CardFooter>
     </Card>
   );
-}
+};
+
+export const SportsActivityItem = memo(SportsActivityItemComponent);

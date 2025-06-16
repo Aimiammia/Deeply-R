@@ -11,9 +11,9 @@ import Image from 'next/image';
 import { useState, useCallback } from 'react'; 
 import type { LongTermGoal, Book } from '@/types'; 
 // import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm'; // Lazy loaded
-import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList';
+// import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList'; // Lazy loaded
 // import { CreateBookForm } from '@/components/books/CreateBookForm'; // Lazy loaded
-import { BookList } from '@/components/books/BookList'; 
+// import { BookList } from '@/components/books/BookList'; // Lazy loaded
 import { useToast } from "@/hooks/use-toast";
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,8 +33,22 @@ const FormLoadingSkeleton = () => (
   </div>
 );
 
+const ListLoadingSkeleton = () => (
+  <div className="mt-8 animate-pulse">
+    <Skeleton className="h-8 w-1/2 mb-4 rounded" />
+    <div className="space-y-4">
+      <Skeleton className="h-20 w-full rounded-lg" />
+      <Skeleton className="h-20 w-full rounded-lg" />
+      <Skeleton className="h-20 w-full rounded-lg" />
+    </div>
+  </div>
+);
+
+
 const DynamicCreateLongTermGoalForm = dynamic(() => import('@/components/long-term-goals/CreateLongTermGoalForm').then(mod => mod.CreateLongTermGoalForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
+const DynamicLongTermGoalList = dynamic(() => import('@/components/long-term-goals/LongTermGoalList').then(mod => mod.LongTermGoalList), { ssr: false, loading: () => <ListLoadingSkeleton /> });
 const DynamicCreateBookForm = dynamic(() => import('@/components/books/CreateBookForm').then(mod => mod.CreateBookForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
+const DynamicBookList = dynamic(() => import('@/components/books/BookList').then(mod => mod.BookList), { ssr: false, loading: () => <ListLoadingSkeleton /> });
 
 
 export default function SectionNineGoalsPage() { 
@@ -202,7 +216,7 @@ export default function SectionNineGoalsPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <LongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
+                        <DynamicLongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
                     </CardContent>
                 </Card>
                 
@@ -250,7 +264,7 @@ export default function SectionNineGoalsPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <BookList 
+                        <DynamicBookList 
                             books={books} 
                             onUpdateBook={handleUpdateBook} 
                             onDeleteBook={handleDeleteBook}

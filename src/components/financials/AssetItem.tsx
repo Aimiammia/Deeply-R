@@ -2,7 +2,7 @@
 'use client';
 
 import type { FinancialAsset } from '@/types';
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react'; // Added memo
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CalendarDays, Building, TrendingUp, Info, Edit3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +37,7 @@ const assetTypeLabels: Record<FinancialAsset['type'], string> = {
   other: 'سایر',
 };
 
-export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) {
+const AssetItemComponent = ({ asset, onDeleteAsset, onEditAsset }: AssetItemProps) => {
 
   const { valueChange, valueChangePercentage } = useMemo(() => {
     const change = asset.currentValue - asset.initialValue;
@@ -127,3 +127,5 @@ export function AssetItem({ asset, onDeleteAsset, onEditAsset }: AssetItemProps)
     </li>
   );
 };
+
+export const AssetItem = memo(AssetItemComponent);
