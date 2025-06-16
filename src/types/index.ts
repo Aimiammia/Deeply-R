@@ -157,6 +157,18 @@ export interface Book {
   rating?: number | null; // Optional rating (e.g., 1-5 stars)
 }
 
+export interface SportsActivity {
+  id: string;
+  activityType: 'running' | 'walking' | 'cycling' | 'swimming' | 'gym' | 'yoga' | 'pilates' | 'hiking' | 'sports_team' | 'other';
+  date: string; // ISO date string
+  durationMinutes: number;
+  distanceKm?: number | null;
+  caloriesBurned?: number | null;
+  notes?: string | null;
+  createdAt: string; // ISO date string
+}
+
+
 // Inputs for new AI Flows in Section 10
 export interface AnalyzeProductivityPatternsInput {
   tasks: Task[];
