@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardList, Target, ChevronLeftSquare, Loader2 } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Target, Loader2 } from 'lucide-react'; // Changed ChevronLeftSquare to Target
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
@@ -176,11 +176,11 @@ export default function PlannerLandingPage() {
                 <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">مدیریت اهداف</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  اهداف بزرگ و برنامه‌های خود را در صفحه اختصاصی اهداف تعریف، پیگیری و مدیریت کنید.
+                  اهداف بزرگ و برنامه‌های خود را در صفحه اختصاصی اهداف (بخش ۹) تعریف، پیگیری و مدیریت کنید.
                 </p>
                 <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
                   <Link href="/section/9"> 
-                     <ChevronLeftSquare className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                     <Target className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" /> {/* Changed icon */}
                     رفتن به صفحه اهداف
                   </Link>
                 </Button>
