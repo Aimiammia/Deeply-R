@@ -18,7 +18,9 @@ import { Separator } from '@/components/ui/separator';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
-import { formatCurrency } from '@/lib/utils'; // Ensured formatCurrency is imported
+import { formatCurrency, generateId } from '@/lib/utils';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
+
 
 // Existing Flow
 import { assessGoalProgress, type AssessGoalProgressInput, type AssessGoalProgressOutput } from '@/ai/flows/assess-goal-progress-flow';
@@ -96,9 +98,9 @@ export default function IntelligentAnalysisPage() {
     const errorMessage = error instanceof Error ? error.message : defaultMessage;
     toast({
       title: toastTitle,
-      description: `متاسفانه مشکلی پیش آمد: ${errorMessage}. لطفاً از اتصال اینترنت و صحیح بودن کلید API (در صورت نیاز به ارائه‌دهنده AI خارجی) اطمینان حاصل کنید.`,
+      description: `متاسفانه مشکلی پیش آمد: ${errorMessage}. لطفاً از اتصال اینترنت و صحیح بودن کلید API (در صورت نیاز به ارائه‌دهنده AI خارجی) اطمینان حاصل کنید. همچنین ممکن است به دلیل حجم زیاد داده، پردازش با مشکل مواجه شده باشد.`,
       variant: "destructive",
-      duration: 7000,
+      duration: 10000,
     });
     return errorMessage;
   };
@@ -202,7 +204,6 @@ export default function IntelligentAnalysisPage() {
                 totalIncomeLast30Days: totalIncome,
                 totalExpensesLast30Days: totalExpenses,
                 activeBudgetsCount: budgets.length,
-                // Placeholder for savings goals progress if implemented
                 savingsGoalsProgress: 0, 
             }
         };
@@ -219,7 +220,7 @@ export default function IntelligentAnalysisPage() {
 
   const calculateActivitySummary = useCallback((days: number): ActivitySummary => {
     const endDate = new Date();
-    const startDate = subDays(endDate, days - 1); // -1 because subDays(date, 0) is same day
+    const startDate = subDays(endDate, days - 1); 
 
     const tasksCompleted = tasks.filter(task =>
         task.completed && task.createdAt && isWithinInterval(parseISO(task.createdAt), { start: startDate, end: endDate })
@@ -375,7 +376,7 @@ export default function IntelligentAnalysisPage() {
             
             {renderAnalysisSection(
                 "تحلیل ارتباط خلق و خو و پیشرفت",
-                "ارتباط بین حالات روحی ثبت شده در تأملات و میزان پیشرفت در وظایف و اهداف را بررسی کنید.",
+                "ارتباط بین حالات روحی ثبت شده در تأملات و میزان پیشرفت در وظایf و اهداف را بررسی کنید.",
                 BarChartHorizontalBig, 
                 moodTaskCorrelation,
                 isAnalyzingMoodCorrelation,
@@ -463,7 +464,7 @@ export default function IntelligentAnalysisPage() {
                     {upcomingTasks.map(task => (
                       <li key={task.id} className="p-3 border rounded-md bg-card shadow-sm">
                         <p className="font-semibold text-foreground">{task.title}</p>
-                        {task.dueDate && <p className="text-xs text-muted-foreground">سررسید: {format(parseISO(task.dueDate), "PPP", { locale: faIR })}</p>}
+                        {task.dueDate && <p className="text-xs text-muted-foreground">سررسید: {task.dueDate ? formatJalaliDateDisplay(parseISO(task.dueDate), 'PPP') : 'نامشخص'}</p>}
                         {task.priority && <Badge variant={task.priority === 'high' ? 'destructive' : task.priority === 'medium' ? 'secondary' : 'outline'} className="text-xs mt-1">{getPriorityText(task.priority)}</Badge>}
                       </li>
                     ))}
@@ -493,7 +494,7 @@ export default function IntelligentAnalysisPage() {
                     {activeGoals.map(goal => (
                       <li key={goal.id} className="p-3 border rounded-md bg-card shadow-sm">
                         <p className="font-semibold text-foreground">{goal.title}</p>
-                        {goal.targetDate && <p className="text-xs text-muted-foreground">تاریخ هدف: {format(parseISO(goal.targetDate), "PPP", { locale: faIR })}</p>}
+                        {goal.targetDate && <p className="text-xs text-muted-foreground">تاریخ هدف: {goal.targetDate ? formatJalaliDateDisplay(parseISO(goal.targetDate), 'PPP') : 'نامشخص'}</p>}
                         <Badge variant={goal.status === 'completed' ? 'default' : goal.status === 'in-progress' ? 'secondary' : 'outline'} className="text-xs mt-1">{getGoalStatusText(goal.status)}</Badge>
                       </li>
                     ))}
@@ -524,7 +525,7 @@ export default function IntelligentAnalysisPage() {
                       {recentLogs.map(log => (
                         <li key={log.id} className="p-2 border rounded-md bg-card shadow-sm text-sm">
                           <p className="text-foreground truncate">{log.text}</p>
-                          <p className="text-xs text-muted-foreground">{format(parseISO(log.date), "HH:mm - PPP", { locale: faIR })}</p>
+                          <p className="text-xs text-muted-foreground">{formatJalaliDateDisplay(parseISO(log.date), "HH:mm - PPP")}</p>
                         </li>
                       ))}
                     </ul>
