@@ -76,3 +76,4 @@ In the `package.json`, you'll find several scripts:
 *   `npm run typecheck`: Runs TypeScript compiler to check for type errors.
 
 Now you should be all set to run and develop the application locally! If you encounter issues, ensure your Node.js version is up to date (18.x or later) and that you have correctly set up the `.env.local` file if you're using AI features.
+# Deeply-R
