@@ -6,17 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import Link from 'next/link';
 import { ArrowLeft, CircleDollarSign, Landmark, PiggyBank, Wallet, BarChartBig, TrendingUp, Loader2, RefreshCw, Sigma, TrendingDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useState, useEffect, useMemo, useCallback } from 'react'; 
+import { useState, useMemo, useCallback } from 'react'; 
 import dynamic from 'next/dynamic'; 
 import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment, SavingsGoal } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { parseISO, getMonth, getYear, isSameMonth, startOfMonth, endOfMonth, endOfYear, startOfYear, isWithinInterval, subDays } from 'date-fns';
+import { parseISO, isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSharedState } from '@/hooks/useSharedState';
 import { ClientOnly } from '@/components/ClientOnly';
 import { cn, formatCurrency, generateId } from '@/lib/utils';
-import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 import { Skeleton } from '@/components/ui/skeleton'; 
 
 
@@ -44,6 +42,7 @@ const ListLoadingSkeleton = () => (
   </div>
 );
 
+const DynamicFinancialChartDashboard = dynamic(() => import('@/components/financials/FinancialChartDashboard').then(mod => mod.FinancialChartDashboard), { ssr: false, loading: () => <Skeleton className="h-[400px] w-full" /> });
 const DynamicAddTransactionForm = dynamic(() => import('@/components/financials/AddTransactionForm').then(mod => mod.AddTransactionForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
 const DynamicTransactionList = dynamic(() => import('@/components/financials/TransactionList').then(mod => mod.TransactionList), { ssr: false, loading: () => <ListLoadingSkeleton /> });
 const DynamicCreateBudgetForm = dynamic(() => import('@/components/financials/CreateBudgetForm').then(mod => mod.CreateBudgetForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
@@ -55,11 +54,6 @@ const DynamicInvestmentList = dynamic(() => import('@/components/financials/Inve
 const DynamicCreateSavingsGoalForm = dynamic(() => import('@/components/financials/CreateSavingsGoalForm').then(mod => mod.CreateSavingsGoalForm), { ssr: false, loading: () => <FormLoadingSkeleton /> });
 const DynamicSavingsGoalList = dynamic(() => import('@/components/financials/SavingsGoalList').then(mod => mod.SavingsGoalList), { ssr: false, loading: () => <ListLoadingSkeleton /> });
 
-
-const persianMonthNames = [
-  'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
-  'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
-];
 
 const fetchMockLivePrice = async (currentPrice: number, investmentType: FinancialInvestment['type']): Promise<number> => {
   await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
@@ -341,23 +335,6 @@ export default function FinancialManagementPage() {
   }, [transactions, assets, investments]);
 
 
-  const chartData = useMemo(() => {
-    const monthlyData: { [key: string]: { year: number; monthIndex: number; name: string; درآمد: number; هزینه: number } } = {};
-    transactions.forEach(transaction => {
-      const date = parseISO(transaction.date);
-      const year = getYear(date);
-      const monthIndex = getMonth(date);
-      const key = `${year}-${monthIndex}`;
-      if (!monthlyData[key]) {
-        monthlyData[key] = { year, monthIndex, name: `${persianMonthNames[monthIndex]} - ${year}`, درآمد: 0, هزینه: 0 };
-      }
-      if (transaction.type === 'income') monthlyData[key].درآمد += transaction.amount;
-      else monthlyData[key].هزینه += transaction.amount;
-    });
-    return Object.values(monthlyData).sort((a, b) => a.year !== b.year ? a.year - b.year : a.monthIndex - b.monthIndex);
-  }, [transactions]);
-
-
   return (
     <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
@@ -429,9 +406,12 @@ export default function FinancialManagementPage() {
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6">
             <Tabs defaultValue="transactions" className="w-full">
-              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-5 mb-6 rounded-full bg-primary/10 p-1 h-auto">
+              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 mb-6 rounded-full bg-primary/10 p-1 h-auto">
                 <TabsTrigger value="transactions" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <Wallet className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> تراکنش‌ها
+                </TabsTrigger>
+                <TabsTrigger value="charts" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                  <BarChartBig className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> نمودارها
                 </TabsTrigger>
                 <TabsTrigger value="budgeting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
                   <Landmark className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> بودجه‌بندی
@@ -456,30 +436,10 @@ export default function FinancialManagementPage() {
                   <TabsContent value="transactions" className="space-y-8">
                     <DynamicAddTransactionForm onAddTransaction={handleAddTransaction} />
                     <DynamicTransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
-                    <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-                      <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (تومان)</h4>
-                      {chartData.length > 0 ? (
-                          <div style={{ width: '100%', height: 350 }}>
-                            <ResponsiveContainer>
-                              <BarChart data={chartData} margin={{ top: 5, right: 5, left: 30, bottom: 70 }} dir="rtl">
-                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                <XAxis dataKey="name" angle={-45} textAnchor="end" height={50} interval={0} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
-                                <YAxis tickFormatter={value => formatCurrency(value).replace(' تومان', '')} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
-                                <Tooltip formatter={(value: number, name: string) => [formatCurrency(value), name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
-                                <Legend formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} wrapperStyle={{direction: 'rtl', paddingTop: '10px'}} payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}/>
-                                <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
-                                <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        ) : (
-                          <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
-                            <p>داده‌ای برای نمایش در نمودار وجود ندارد. لطفاً ابتدا تراکنش‌های خود را ثبت کنید.</p>
-                          </div>
-                        )
-                      }
-                      <p className="text-muted-foreground text-sm mt-4 text-center">این نمودار، درآمدها و هزینه‌های ثبت شده شما را به تفکیک ماه نمایش می‌دهد.</p>
-                    </div>
+                  </TabsContent>
+
+                   <TabsContent value="charts" className="space-y-8">
+                      <DynamicFinancialChartDashboard transactions={transactions} />
                   </TabsContent>
 
                   <TabsContent value="budgeting" className="space-y-6">
