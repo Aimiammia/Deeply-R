@@ -23,7 +23,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 28% 45%;
 
-    --accent: 142 76% 95%;      /* Light Green for hover backgrounds */
+    --accent: 142 76% 90%;      /* A lighter Green for hover backgrounds */
     --accent-foreground: 142 76% 25%; /* Dark Green for hover text */
 
     --destructive: 0 84.2% 60.2%;
@@ -32,8 +32,6 @@
     --border: 214 32% 91.4%;
     --input: 214 32% 91.4%;
     --ring: 142 76% 36%;
-
-    --radius: 0.5rem;
 
      /* Chart colors based on green/amber theme */
     --chart-1: 142 70% 40%; /* Primary Green */
@@ -44,34 +42,34 @@
   }
 
   .dark {
-    /* Deep Green & Amber Theme - Dark Mode */
-    --background: 222 70% 9%; /* Very dark, slightly cool slate */
-    --foreground: 210 40% 98%;
+    /* Refined Slate & Green Theme - Dark Mode */
+    --background: 220 14% 10%;
+    --foreground: 210 20% 95%;
 
-    --card: 222 70% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 14% 15%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 222 70% 9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 14% 10%;
+    --popover-foreground: 210 20% 95%;
 
-    --primary: 142 71% 45%; /* A brighter green for dark mode */
-    --primary-foreground: 142 80% 96%;
+    --primary: 142 70% 55%; 
+    --primary-foreground: 210 20% 10%;
 
-    --secondary: 217 33% 17.2%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 14% 20%;
+    --secondary-foreground: 210 20% 95%;
 
-    --muted: 217 33% 17.2%;
-    --muted-foreground: 215 20% 65.1%;
+    --muted: 220 14% 20%;
+    --muted-foreground: 210 20% 75%;
 
-    --accent: 142 71% 15%; /* Dark Green for hover backgrounds */
-    --accent-foreground: 142 71% 55%; /* Bright green for hover text */
+    --accent: 142 70% 25%;
+    --accent-foreground: 142 70% 75%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 210 20% 95%;
 
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 142 71% 45%;
+    --border: 220 14% 25%;
+    --input: 220 14% 25%;
+    --ring: 142 70% 55%;
   }
 }
 

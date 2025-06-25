@@ -22,11 +22,11 @@ interface FastingTrackerProps {
 
 export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTrackerProps) {
     const [notes, setNotes] = useState('');
-    const [elapsedTime, setElapsedTime] = useState({ hours: 0, minutes: 0, text: '' });
+    const [elapsedTime, setElapsedTime] = useState<{ hours: number; minutes: number } | null>(null);
 
     useEffect(() => {
         if (!activeFast) {
-            setElapsedTime({ hours: 0, minutes: 0, text: '' });
+            setElapsedTime(null);
             return;
         }
 
@@ -41,7 +41,6 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
             setElapsedTime({
                 hours: hours,
                 minutes: minutes,
-                text: `${hours.toLocaleString('fa-IR')} ساعت و ${minutes.toLocaleString('fa-IR')} دقیقه`
             });
         };
         
@@ -57,9 +56,9 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
     };
 
     const currentStage = useMemo(() => {
-        if (!activeFast) return null;
+        if (!activeFast || !elapsedTime) return null;
         return fastingStages.slice().reverse().find(stage => elapsedTime.hours >= stage.startHour);
-    }, [elapsedTime.hours, activeFast]);
+    }, [elapsedTime, activeFast]);
 
 
     if (!activeFast) {
@@ -105,7 +104,16 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
                  <div className="p-3 border rounded-md bg-background text-center shadow-sm">
                     <p className="text-sm text-muted-foreground">مدت زمان سپری شده</p>
                     <p className="text-2xl font-bold text-primary tracking-wider">
-                        {elapsedTime.text || 'در حال محاسبه...'}
+                        {elapsedTime ? (
+                            <>
+                                <span dir="ltr">{elapsedTime.hours.toLocaleString('fa-IR')}</span>
+                                <span> ساعت و </span>
+                                <span dir="ltr">{elapsedTime.minutes.toLocaleString('fa-IR')}</span>
+                                <span> دقیقه</span>
+                            </>
+                        ) : (
+                            'در حال محاسبه...'
+                        )}
                     </p>
                 </div>
                 <div>
@@ -127,7 +135,7 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
                     <h4 className="text-md font-semibold text-primary mb-3">مراحل فستینگ و اتفاقات بدن</h4>
                     <div className="space-y-3">
                         {fastingStages.map((stage) => {
-                            const isAchieved = elapsedTime.hours >= stage.startHour;
+                            const isAchieved = elapsedTime ? elapsedTime.hours >= stage.startHour : false;
                             const isCurrent = currentStage?.startHour === stage.startHour;
 
                             return (

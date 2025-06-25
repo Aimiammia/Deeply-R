@@ -7,12 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare, Settings, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Construction, CheckCircle, AlertTriangle, ListChecks, FileText, Layers, Target as TargetIcon, CalendarClock, Brain, BookMarked, Edit, CheckSquare, Settings, Loader2, Edit3 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,9 @@ import { educationalSubjects, type Subject as EducationalSubjectType } from '@/l
 import { ClientOnly } from '@/components/ClientOnly';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 
 const educationalLevels = [
@@ -48,9 +52,6 @@ const educationalLevels = [
   { value: 'high_12', label: 'پایه دوازدهم' },
   { value: 'other', label: 'سایر' },
 ];
-
-const MEHR_FIRST_MONTH = 7; // Corrected: Jalali Mehr is the 7th month (0-indexed for JS Date is 6, but jalali-moment uses 1-indexed, so 7 is correct for logic)
-const MEHR_FIRST_DAY_GREGORIAN_APPROX = 23; // Around Sept 23rd
 
 function findNextLevelValue(currentValue: string): string | undefined {
   const currentIndex = educationalLevels.findIndex(level => level.value === currentValue);
@@ -97,6 +98,9 @@ function EducationContent({
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [levelToConfirm, setLevelToConfirm] = useState<string | undefined>(undefined);
   const [transientSelectedLevel, setTransientSelectedLevel] = useState<string | undefined>(educationalSettings.levelValue);
+  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentEditingSubject, setCurrentEditingSubject] = useState<EducationalSubjectType | null>(null);
 
   const currentSubjectsForLevel: EducationalSubjectType[] = educationalSettings.isConfirmed && educationalSettings.levelValue
     ? educationalSubjects[educationalSettings.levelValue] || []
@@ -115,6 +119,8 @@ function EducationContent({
       return null; 
     }
 
+    const MEHR_FIRST_MONTH = 7; 
+    const MEHR_FIRST_DAY_GREGORIAN_APPROX = 23;
     let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
     const today = new Date();
     let currentProcessingLevel = levelValue;
@@ -162,7 +168,7 @@ function EducationContent({
           setEducationalSettings(newSettingsFromPromotion);
           toast({
             title: "مقطع تحصیلی به‌روز شد",
-            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${newPromoEffectiveDateString} ارتقا یافت.`,
+            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
             duration: 7000,
           });
         } else if (currentLastPromotionCheckDateString !== todayDateString) {
@@ -251,7 +257,18 @@ function EducationContent({
     });
   }, [setSubjectProgress]);
   
+  const handleOpenEditDialog = (subject: EducationalSubjectType) => {
+    setCurrentEditingSubject(subject);
+    setDialogOpen(true);
+  };
+  
   const currentLevelLabel = educationalLevels.find(l => l.value === educationalSettings.levelValue)?.label;
+
+  const totalSubjects = currentSubjectsForLevel.length;
+  const completedSubjects = useMemo(() => {
+    return Object.values(subjectProgress).filter(p => p.status === 'completed').length;
+  }, [subjectProgress]);
+
 
   if (dataLoading) {
      return (
@@ -272,7 +289,7 @@ function EducationContent({
               </CardTitle>
           </CardHeader>
           <CardContent className="max-w-md mx-auto">
-              {!educationalSettings.isConfirmed && (
+              {!educationalSettings.isConfirmed ? (
                   <>
                   <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
                       مقطع تحصیلی فعلی خود را انتخاب کنید:
@@ -297,9 +314,7 @@ function EducationContent({
                       ذخیره و تایید مقطع
                   </Button>
                   </>
-              )}
-
-              {educationalSettings.isConfirmed && currentLevelLabel && (
+              ) : currentLevelLabel && (
                   <div className="p-4 border rounded-lg bg-secondary/30 text-center">
                   <p className="text-lg font-semibold text-foreground mb-1">
                       مقطع تحصیلی فعلی شما:
@@ -309,12 +324,12 @@ function EducationContent({
                   </p>
                   {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
                       <p className="text-xs text-muted-foreground mt-2">
-                      آخرین بررسی ارتقا: {format(parseISO(educationalSettings.lastPromotionCheckDate), "yyyy/MM/dd", { locale: faIR })}
+                      آخرین بررسی ارتقا: {formatJalaliDateDisplay(parseISO(educationalSettings.lastPromotionCheckDate), "PPP")}
                       </p>
                   )}
                   <p className="text-sm text-muted-foreground mt-3">
                       <AlertTriangle className="inline-block h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-amber-500" />
-                      مقطع تحصیلی شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت (در صورت امکان).
+                      مقطع شما هر سال در ابتدای مهر به طور خودکار ارتقا خواهد یافت.
                   </p>
                   <Button variant="link" size="sm" onClick={() => {
                       setEducationalSettings({...initialEducationalSettings, levelValue: educationalSettings.levelValue || ''});
@@ -333,58 +348,105 @@ function EducationContent({
                         <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
                         پیگیری پیشرفت دروس ({currentLevelLabel})
                   </CardTitle>
+                  <CardDescription>
+                      {totalSubjects > 0 ? `شما ${completedSubjects.toLocaleString('fa-IR')} از ${totalSubjects.toLocaleString('fa-IR')} درس را تکمیل کرده‌اید.` : 'درسی برای این مقطع تعریف نشده است.'}
+                  </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                  {currentSubjectsForLevel.map(subject => (
-                      <Card key={subject.id} className="bg-card shadow-sm">
-                          <CardHeader className="pb-3">
-                              <CardTitle className="text-md">{subject.name}</CardTitle>
-                              <CardDescription>تعداد کل فصول: {subject.totalChapters.toLocaleString('fa-IR')}</CardDescription>
-                          </CardHeader>
-                          <CardContent className="pt-0 space-y-3">
-                              <div>
-                                  <Label htmlFor={`status-${subject.id}`} className="text-xs">وضعیت مطالعه:</Label>
-                                  <Select
-                                      value={subjectProgress[subject.id]?.status || 'not-started'}
-                                      onValueChange={(value) => handleSubjectStatusChange(subject.id, value as SubjectProgress['status'])}
-                                  >
-                                      <SelectTrigger id={`status-${subject.id}`} className="mt-1">
-                                          <SelectValue placeholder="انتخاب وضعیت..." />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                          <SelectItem value="not-started">شروع نشده</SelectItem>
-                                          <SelectItem value="in-progress">در حال مطالعه</SelectItem>
-                                          <SelectItem value="completed">مطالعه شده</SelectItem>
-                                      </SelectContent>
-                                  </Select>
-                              </div>
-                              <div>
-                                  <Label htmlFor={`grade-${subject.id}`} className="text-xs">نمره فعلی/توصیفی (اختیاری):</Label>
-                                  <Input
-                                    id={`grade-${subject.id}`}
-                                    value={subjectProgress[subject.id]?.currentGrade || ''}
-                                    onChange={(e) => handleGradeChange(subject.id, e.target.value)}
-                                    placeholder="مثلا: ۱۸.۵، عالی، نیاز به تلاش بیشتر"
-                                    className="mt-1"
-                                  />
-                              </div>
-                              <div>
-                                  <Label htmlFor={`detailedNotes-${subject.id}`} className="text-xs">یادداشت‌های بیشتر (اختیاری):</Label>
-                                  <Textarea
-                                    id={`detailedNotes-${subject.id}`}
-                                    value={subjectProgress[subject.id]?.detailedNotes || ''}
-                                    onChange={(e) => handleDetailedNotesChange(subject.id, e.target.value)}
-                                    placeholder="نکات مهم، مباحث نیازمند مرور، سوالات و..."
-                                    rows={2}
-                                    className="mt-1"
-                                  />
-                              </div>
-                          </CardContent>
-                      </Card>
-                  ))}
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {currentSubjectsForLevel.map(subject => {
+                      const progress = subjectProgress[subject.id] || { status: 'not-started', currentGrade: null };
+                      const statusStyles = {
+                          'completed': 'border-green-500 bg-green-500/10 text-green-700 dark:text-green-400',
+                          'in-progress': 'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-400',
+                          'not-started': 'border-border bg-card'
+                      };
+                      const statusText = {
+                          'completed': 'مطالعه شده',
+                          'in-progress': 'در حال مطالعه',
+                          'not-started': 'شروع نشده'
+                      };
+                      return (
+                        <Card key={subject.id} className={cn("shadow-sm hover:shadow-md transition-shadow", statusStyles[progress.status])}>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-md">{subject.name}</CardTitle>
+                                <CardDescription>تعداد کل فصول: {subject.totalChapters.toLocaleString('fa-IR')}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-0 space-y-2">
+                                <Badge variant="secondary" className="text-xs">{statusText[progress.status]}</Badge>
+                                {progress.currentGrade && <Badge variant="outline" className="text-xs mr-2">{progress.currentGrade}</Badge>}
+                            </CardContent>
+                            <CardFooter className="p-3 pt-0">
+                               <Button variant="outline" size="sm" className="w-full" onClick={() => handleOpenEditDialog(subject)}>
+                                    <Edit3 className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+                                    ویرایش پیشرفت
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                      )
+                  })}
               </CardContent>
           </Card>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+            {currentEditingSubject && (
+                <>
+                    <DialogHeader>
+                        <DialogTitle>ویرایش پیشرفت: {currentEditingSubject.name}</DialogTitle>
+                        <DialogDescription>
+                            وضعیت مطالعه، نمره و یادداشت‌های خود را برای این درس به‌روز کنید.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                       <div>
+                            <Label htmlFor={`status-${currentEditingSubject.id}`} className="text-xs">وضعیت مطالعه:</Label>
+                            <Select
+                                value={subjectProgress[currentEditingSubject.id]?.status || 'not-started'}
+                                onValueChange={(value) => handleSubjectStatusChange(currentEditingSubject.id, value as SubjectProgress['status'])}
+                            >
+                                <SelectTrigger id={`status-${currentEditingSubject.id}`} className="mt-1">
+                                    <SelectValue placeholder="انتخاب وضعیت..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="not-started">شروع نشده</SelectItem>
+                                    <SelectItem value="in-progress">در حال مطالعه</SelectItem>
+                                    <SelectItem value="completed">مطالعه شده</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <Label htmlFor={`grade-${currentEditingSubject.id}`} className="text-xs">نمره فعلی/توصیفی (اختیاری):</Label>
+                            <Input
+                            id={`grade-${currentEditingSubject.id}`}
+                            value={subjectProgress[currentEditingSubject.id]?.currentGrade || ''}
+                            onChange={(e) => handleGradeChange(currentEditingSubject.id, e.target.value)}
+                            placeholder="مثلا: ۱۸.۵، عالی، نیاز به تلاش بیشتر"
+                            className="mt-1"
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor={`detailedNotes-${currentEditingSubject.id}`} className="text-xs">یادداشت‌های بیشتر (اختیاری):</Label>
+                            <Textarea
+                            id={`detailedNotes-${currentEditingSubject.id}`}
+                            value={subjectProgress[currentEditingSubject.id]?.detailedNotes || ''}
+                            onChange={(e) => handleDetailedNotesChange(currentEditingSubject.id, e.target.value)}
+                            placeholder="نکات مهم، مباحث نیازمند مرور، سوالات و..."
+                            rows={3}
+                            className="mt-1"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary">بستن</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </>
+            )}
+        </DialogContent>
+      </Dialog>
+      
        <AlertDialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog} dir="rtl">
           <AlertDialogContent>
           <AlertDialogHeader>
