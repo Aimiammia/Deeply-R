@@ -1,16 +1,18 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Clock, PlayCircle, StopCircle, Info, Timer } from 'lucide-react';
+import { Clock, PlayCircle, StopCircle, Timer } from 'lucide-react';
 import { format, parseISO, differenceInSeconds } from 'date-fns';
-import { faIR } from 'date-fns/locale';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 import type { ActiveFast } from '@/types';
+import { fastingStages } from '@/lib/fasting-stages';
+import { cn } from '@/lib/utils';
+
 
 interface FastingTrackerProps {
     activeFast: ActiveFast | null;
@@ -20,15 +22,15 @@ interface FastingTrackerProps {
 
 export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTrackerProps) {
     const [notes, setNotes] = useState('');
-    const [elapsedTime, setElapsedTime] = useState('');
+    const [elapsedTime, setElapsedTime] = useState({ hours: 0, minutes: 0, text: '' });
 
     useEffect(() => {
         if (!activeFast) {
-            setElapsedTime('');
+            setElapsedTime({ hours: 0, minutes: 0, text: '' });
             return;
         }
 
-        const timerId = setInterval(() => {
+        const calculateTime = () => {
             const now = new Date();
             const start = parseISO(activeFast.startTime);
             const seconds = differenceInSeconds(now, start);
@@ -36,8 +38,15 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
 
-            setElapsedTime(`${hours.toLocaleString('fa-IR')} ساعت و ${minutes.toLocaleString('fa-IR')} دقیقه`);
-        }, 1000);
+            setElapsedTime({
+                hours: hours,
+                minutes: minutes,
+                text: `${hours.toLocaleString('fa-IR')} ساعت و ${minutes.toLocaleString('fa-IR')} دقیقه`
+            });
+        };
+        
+        calculateTime();
+        const timerId = setInterval(calculateTime, 1000 * 60); // Update every minute
 
         return () => clearInterval(timerId);
     }, [activeFast]);
@@ -46,6 +55,12 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
         onEndFast(notes);
         setNotes('');
     };
+
+    const currentStage = useMemo(() => {
+        if (!activeFast) return null;
+        return fastingStages.slice().reverse().find(stage => elapsedTime.hours >= stage.startHour);
+    }, [elapsedTime.hours, activeFast]);
+
 
     if (!activeFast) {
         return (
@@ -90,7 +105,7 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
                  <div className="p-3 border rounded-md bg-background text-center shadow-sm">
                     <p className="text-sm text-muted-foreground">مدت زمان سپری شده</p>
                     <p className="text-2xl font-bold text-primary tracking-wider">
-                        {elapsedTime || 'در حال محاسبه...'}
+                        {elapsedTime.text || 'در حال محاسبه...'}
                     </p>
                 </div>
                 <div>
@@ -107,6 +122,41 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
                     <StopCircle className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />
                     پایان فستینگ و ذخیره جلسه
                 </Button>
+
+                <div className="mt-6 pt-4 border-t">
+                    <h4 className="text-md font-semibold text-primary mb-3">مراحل فستینگ و اتفاقات بدن</h4>
+                    <div className="space-y-3">
+                        {fastingStages.map((stage) => {
+                            const isAchieved = elapsedTime.hours >= stage.startHour;
+                            const isCurrent = currentStage?.startHour === stage.startHour;
+
+                            return (
+                                <Card key={stage.startHour} className={cn(
+                                "transition-all duration-500 overflow-hidden",
+                                isCurrent ? "border-primary shadow-lg bg-primary/5" : "bg-card",
+                                !isAchieved && "opacity-60 saturate-50"
+                                )}>
+                                    <CardHeader className="flex flex-row items-center gap-4 p-4">
+                                        <div className={cn(
+                                        "h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center",
+                                        isAchieved ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                        )}>
+                                        <stage.icon className="h-6 w-6" />
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-base">{stage.title}</CardTitle>
+                                        </div>
+                                    </CardHeader>
+                                    {isCurrent && (
+                                        <CardContent className="p-4 pt-0 pl-14 rtl:pr-14 rtl:pl-4 text-sm text-foreground/90 animate-in fade-in-50 duration-500">
+                                            <p>{stage.description}</p>
+                                        </CardContent>
+                                    )}
+                                </Card>
+                            )
+                        })}
+                    </div>
+                </div>
             </CardContent>
         </Card>
     );
