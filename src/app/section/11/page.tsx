@@ -88,6 +88,31 @@ export default function ProjectsPage() {
     setEditingProject(null);
     setShowForm(true);
   };
+  
+  const handleToggleTask = useCallback((id: string) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  }, [setTasks]);
+
+  const handleDeleteTask = useCallback((id: string) => {
+    const taskToDelete = tasks.find(task => task.id === id);
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+    if (taskToDelete) {
+      toast({ title: "کار حذف شد", variant: "destructive" });
+    }
+  }, [tasks, setTasks, toast]);
+  
+  const handleEditTask = useCallback((id: string, newTitle: string) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === id ? { ...task, title: newTitle } : task
+      )
+    );
+  }, [setTasks]);
+
 
   return (
     <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
@@ -111,7 +136,7 @@ export default function ProjectsPage() {
           </p>
 
           <div className="space-y-8">
-            <Card>
+            <Card id="project-form-card" className="scroll-mt-20">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center text-foreground">
@@ -154,6 +179,9 @@ export default function ProjectsPage() {
                         tasks={tasks}
                         onDeleteProject={handleDeleteProject}
                         onEditProject={handleEditProject}
+                        onToggleTask={handleToggleTask}
+                        onDeleteTask={handleDeleteTask}
+                        onEditTask={handleEditTask}
                     />
                 )}
               </CardContent>

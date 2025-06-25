@@ -13,21 +13,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-// Schemas based on src/types/index.ts
+// Simplified schemas for the AI prompt to reduce complexity and token usage.
 const TaskSchema = z.object({
   id: z.string(),
   title: z.string(),
   completed: z.boolean(),
   createdAt: z.string().datetime().describe("ISO date string of task creation"),
-  dueDate: z.string().datetime().nullable().describe("Optional ISO date string for task due date"),
-  priority: z.enum(['low', 'medium', 'high']).nullable().describe("Optional task priority"),
-  category: z.string().nullable().describe("Optional task category"),
-  subjectId: z.string().nullable().optional().describe("Optional subject ID for educational tasks"),
-  subjectName: z.string().nullable().optional().describe("Optional subject name for educational tasks"),
-  startChapter: z.number().nullable().optional().describe("Optional start chapter for educational tasks"),
-  endChapter: z.number().nullable().optional().describe("Optional end chapter for educational tasks"),
-  educationalLevelContext: z.string().nullable().optional().describe("Optional educational level context at time of task creation"),
-}).describe("Represents a single task item.");
+  category: z.string().nullable().describe("Optional task category, e.g., 'Work', 'Study'"),
+}).describe("Represents a single task item relevant for goal progress.");
 
 const LongTermGoalSchema = z.object({
   id: z.string(),
@@ -35,7 +28,6 @@ const LongTermGoalSchema = z.object({
   description: z.string().nullable().describe("Optional description for the goal"),
   targetDate: z.string().datetime().nullable().describe("Optional ISO date string for goal target date"),
   status: z.enum(['not-started', 'in-progress', 'completed', 'on-hold']).describe("Current status of the goal"),
-  createdAt: z.string().datetime().describe("ISO date string of goal creation"),
 }).describe("Represents a long-term goal.");
 
 const DailyActivityLogEntrySchema = z.object({
@@ -74,7 +66,7 @@ const assessGoalProgressPrompt = ai.definePrompt({
     *   آیا یادداشت‌های فعالیت روزانه نشان‌دهنده تلاش در جهت این اهداف هستند؟
 3.  **موانع یا چالش‌های احتمالی:**
     *   آیا تعداد زیادی وظیفه معوق (دارای تاریخ سررسید گذشته و تکمیل‌نشده)، به‌خصوص مرتبط با اهداف، وجود دارد؟
-    *   آیا یادداشت‌های فعالیت روزانه نشان‌دهنده فعالیت‌هایی است که ممکن است مانع پیشرفت هدف شوند (مثلا اتلاف وقت زیاد)؟
+    *   آیا یادداشت‌های فعالیت روزانه نشان‌деنده فعالیت‌هایی است که ممکن است مانع پیشرفت هدف شوند (مثلا اتلاف وقت زیاد)؟
     *   آیا اهدافی با وضعیت "متوقف شده" (on-hold) وجود دارد؟ در صورت وجود، به آن اشاره کنید.
 4.  **نقاط قوت و پیشنهادها:**
     *   به جنبه‌هایی که کاربر در آن‌ها عملکرد خوبی دارد، اشاره کنید (مثلا تکمیل منظم وظایف مرتبط با یک هدف خاص).

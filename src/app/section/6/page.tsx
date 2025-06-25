@@ -16,6 +16,7 @@ import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { differenceInHours } from 'date-fns';
+import { ClientOnly } from '@/components/ClientOnly';
 
 
 const FormLoadingSkeleton = () => (
@@ -163,39 +164,39 @@ export default function SportsPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                <Dumbbell className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+        <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow container mx-auto px-4 py-8">
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                    <Dumbbell className="h-8 w-8 text-primary" />
+                    <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
+                </div>
+                <Button asChild variant="outline">
+                    <Link href="/">
+                        <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                        بازگشت به خانه
+                    </Link>
+                </Button>
             </div>
-            <Button asChild variant="outline">
-                <Link href="/">
-                    <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-                    بازگشت به خانه
-                </Link>
-            </Button>
-        </div>
-        <p className="text-lg text-muted-foreground mb-8">
-            {sectionPageDescription}
-        </p>
+            <p className="text-lg text-muted-foreground mb-8">
+                {sectionPageDescription}
+            </p>
 
-        <Card className="shadow-lg bg-card">
-            <CardContent className="p-6">
-                <Tabs defaultValue="activities" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1 h-auto">
-                        <TabsTrigger value="activities" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
-                            <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
-                        </TabsTrigger>
-                        <TabsTrigger value="fasting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
-                           <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
-                        </TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="activities" className="space-y-8">
-                        {activitiesLoading ? <ListLoadingSkeleton /> : (
+            <Card className="shadow-lg bg-card">
+                <CardContent className="p-6">
+                    <Tabs defaultValue="activities" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1 h-auto">
+                            <TabsTrigger value="activities" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                                <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
+                            </TabsTrigger>
+                            <TabsTrigger value="fasting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                            <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
+                            </TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="activities" className="space-y-8">
                             <Card>
                                 <CardHeader className="flex flex-row items-center justify-between">
                                     <div>
@@ -231,31 +232,27 @@ export default function SportsPage() {
                                     )}
                                 </CardContent>
                             </Card>
-                        )}
-                    </TabsContent>
+                        </TabsContent>
 
-                    <TabsContent value="fasting" className="space-y-8">
-                        {pageIsLoading ? <ListLoadingSkeleton /> : (
-                            <>
-                                <DynamicFastingTracker 
-                                    activeFast={activeFast}
-                                    onStartFast={handleStartFast}
-                                    onEndFast={handleEndFast}
-                                />
-                                <DynamicFastingHistory
-                                    sessions={fastingSessions}
-                                    onDelete={handleDeleteFastSession}
-                                />
-                            </>
-                        )}
-                    </TabsContent>
-                </Tabs>
-            </CardContent>
-        </Card>
-      </main>
-      <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-      </footer>
-    </div>
+                        <TabsContent value="fasting" className="space-y-8">
+                            <DynamicFastingTracker 
+                                activeFast={activeFast}
+                                onStartFast={handleStartFast}
+                                onEndFast={handleEndFast}
+                            />
+                            <DynamicFastingHistory
+                                sessions={fastingSessions}
+                                onDelete={handleDeleteFastSession}
+                            />
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+            </Card>
+        </main>
+        <footer className="text-center py-4 text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+        </footer>
+        </div>
+    </ClientOnly>
   );
 }
