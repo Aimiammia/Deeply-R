@@ -40,7 +40,16 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-12 sm:py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            فضای شما برای رشد و تأمل
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
+             "زندگی‌ای که مورد بررسی قرار نگیرد، ارزش زیستن ندارد." - سقراط
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
             const iconIndex = sectionNumber -1;
@@ -105,12 +114,14 @@ export default function HomePage() {
             }
 
             return (
-              <Link href={sectionLink} key={sectionNumber} className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
-                <Card className="shadow-md hover:shadow-lg border border-border/60 hover:border-primary/70 transition-all duration-300 ease-in-out hover:scale-[1.02] cursor-pointer h-full flex flex-col bg-card">
+              <Link href={sectionLink} key={sectionNumber} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background">
+                <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-accent/50">
                   <CardHeader className="flex-shrink-0 p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <IconComponent className="h-6 w-6 text-primary" />
-                      <CardTitle className="text-xl font-headline font-semibold text-foreground">
+                      <div className="bg-accent/10 p-2 rounded-lg">
+                        <IconComponent className="h-6 w-6 text-accent transition-transform duration-300 group-hover:scale-110" />
+                      </div>
+                      <CardTitle className="text-lg font-headline font-semibold text-foreground">
                         {sectionTitle}
                       </CardTitle>
                     </div>
@@ -129,7 +140,7 @@ export default function HomePage() {
           })}
         </div>
       </main>
-      <footer className="text-center py-4 text-sm text-muted-foreground">
+      <footer className="text-center py-6 mt-8 border-t border-border/10 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>

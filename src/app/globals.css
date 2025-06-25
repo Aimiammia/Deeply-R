@@ -4,87 +4,74 @@
 
 @layer base {
   :root {
-    /* Green Theme Palette */
-    --background: 120 60% 97%; /* Very light, almost minty white */
-    --foreground: 120 25% 15%; /* Dark, desaturated green-gray for text */
+    /* Deep Blue & Gold Theme - Light Mode */
+    --background: 220 20% 98%; /* Very light, cool gray-blue */
+    --foreground: 224 71% 4%;   /* Very dark blue */
 
-    --card: 0 0% 100%; /* White for good contrast */
-    --card-foreground: 120 25% 15%; /* Same as main foreground */
+    --card: 0 0% 100%;           /* White */
+    --card-foreground: 224 71% 4%;
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 120 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
 
-    --primary: 145 55% 42%; /* A nice, balanced green (e.g., #38A169) */
-    --primary-foreground: 145 30% 96%; /* Very light, almost white for text on primary */
+    --primary: 221 44% 45%;    /* A strong, desaturated blue */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 130 40% 92%; /* A lighter, soft green for secondary elements */
-    --secondary-foreground: 130 30% 30%; /* Darker green for text on secondary */
+    --secondary: 220 14% 94%;   /* A lighter gray-blue */
+    --secondary-foreground: 224 71% 4%;
 
-    --muted: 120 30% 94%; /* A muted, very light green-gray */
-    --muted-foreground: 120 15% 45%; /* Muted text color */
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 160 60% 35%; /* A slightly bluer, darker green for accent (e.g., #278C68) */
-    --accent-foreground: 160 20% 97%; /* Very light for text on accent */
+    --accent: 45 90% 50%;      /* A warm, rich gold */
+    --accent-foreground: 224 71% 4%;
 
-    --destructive: 0 75% 50%; /* A clear red */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 120 20% 88%; /* Subtle green-ish border */
-    --input: 120 30% 98%; /* Very light, almost white but distinct green tint */
-    --ring: 145 55% 38%; /* Primary green, slightly darker for focus rings */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 44% 45%;
 
     --radius: 0.5rem;
 
-    /* Chart colors adjusted for green theme */
-    --chart-1: 145 70% 45%; /* Primary green for charts */
-    --chart-2: 160 50% 55%; /* A lighter, tealish green */
-    --chart-3: 90 40% 50%;  /* A more yellowish green */
-    --chart-4: 140 30% 65%; /* A muted, lighter green */
-    --chart-5: 170 45% 40%; /* A darker teal/cyan green */
-
-    /* Sidebar specific colors for green theme */
-    --sidebar-background: 140 15% 18%; /* Dark green-gray */
-    --sidebar-foreground: 140 10% 85%;   /* Light gray/green */
-    --sidebar-primary: 145 55% 50%;    /* Slightly lighter primary for sidebar */
-    --sidebar-primary-foreground: 145 20% 10%; /* Dark for on sidebar primary */
-    --sidebar-accent: 160 60% 40%;     /* Slightly lighter accent for sidebar */
-    --sidebar-accent-foreground: 160 15% 95%; /* Light for on sidebar accent */
-    --sidebar-border: 140 15% 30%;
-    --sidebar-ring: 145 60% 55%;
+    /* Chart colors adjusted for the new theme */
+    --chart-1: 221 44% 50%; /* Primary Blue */
+    --chart-2: 45 90% 55%;  /* Accent Gold */
+    --chart-3: 210 30% 60%; /* Muted Blue */
+    --chart-4: 30 80% 60%;  /* Warm Orange */
+    --chart-5: 190 40% 50%; /* Teal/Cyan */
   }
 
   .dark {
-    /* Dark Green Theme Palette */
-    --background: 140 20% 10%; /* Very dark, desaturated green */
-    --foreground: 130 25% 88%; /* Light, slightly muted green-gray for text */
+    /* Deep Blue & Gold Theme - Dark Mode */
+    --background: 222 84% 5%; /* Very dark, deep blue */
+    --foreground: 210 40% 98%;
 
-    --card: 140 18% 14%; /* Slightly lighter dark green-gray for cards */
-    --card-foreground: 130 25% 88%;
+    --card: 222 84% 8%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 140 18% 14%;
-    --popover-foreground: 130 25% 88%;
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 145 50% 50%; /* Primary green, slightly brighter for dark mode */
-    --primary-foreground: 145 25% 10%; /* Very dark green/black for text on primary */
+    --primary: 217 91% 60%; /* Brighter blue for primary actions in dark mode */
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 140 15% 22%; /* Darker green-gray for secondary elements */
-    --secondary-foreground: 130 20% 90%; /* Lighter text on secondary */
-
-    --muted: 140 15% 18%; /* Muted dark green-gray */
-    --muted-foreground: 130 15% 65%; /* Muted light green-gray text */
-
-    --accent: 160 55% 45%; /* Accent green, slightly brighter for dark mode */
-    --accent-foreground: 160 20% 98%; /* Very light text on accent */
+    --secondary: 217 91% 70%;
+    --secondary-foreground: 222 47% 11%;
     
-    --destructive: 0 65% 55%; /* Slightly brighter red for dark mode */
-    --destructive-foreground: 0 0% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --border: 140 10% 25%; /* Darker green-ish border */
-    --input: 140 15% 19%; /* Dark green-gray for inputs */
-    --ring: 145 50% 45%; /* Primary green for rings */
+    --accent: 45 90% 55%;
+    --accent-foreground: 222 47% 11%;
 
-    /* Chart colors adjusted for dark green theme */
-    /* These can be the same as light or adjusted if needed, for now keeping them same as light theme's definition point */
+    --destructive: 0 63% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
   }
 }
 
@@ -94,6 +81,5 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* font-family is set by layout.tsx and tailwind.config.ts */
   }
 }

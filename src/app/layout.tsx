@@ -22,11 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" className={`${vazirmatnFont.variable}`}>
+    <html lang="fa" dir="rtl" className={`${vazirmatnFont.variable} dark`}>
       <head>
-        {/* Google Fonts links removed, next/font handles this now */}
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col">
+      <body className="font-body antialiased min-h-screen flex flex-col bg-background bg-gradient-to-br from-background via-background/95 to-primary/10">
         {children}
         <Toaster />
       </body>
