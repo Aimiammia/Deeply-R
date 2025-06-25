@@ -15,7 +15,8 @@ import {
   FileText,
   Settings,
   ListChecks,
-  FolderKanban
+  FolderKanban,
+  DownloadCloud,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -42,6 +43,28 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <Link href="/show-all-code" className="block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg group">
+            <Card className="shadow-md hover:shadow-lg border border-primary/70 hover:border-primary/90 transition-all duration-300 ease-in-out hover:scale-[1.02] cursor-pointer h-full flex flex-col bg-primary/10">
+              <CardHeader className="flex-shrink-0 p-4">
+                <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                  <DownloadCloud className="h-6 w-6 text-primary" />
+                  <CardTitle className="text-xl font-headline font-semibold text-primary">
+                    مشاهده و کپی کدها
+                  </CardTitle>
+                </div>
+                <CardDescription className="text-sm text-muted-foreground pt-1">
+                  مشاهده تمام فایل‌های پروژه برای کپی کردن
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow p-4 pt-0 text-sm text-foreground/90">
+                <p>
+                  برای مشاهده تمام کدهای پروژه در یک صفحه و کپی کردن آن‌ها، روی این کارت کلیک کنید. این قابلیت مخصوصاً برای کاربران موبایل مفید است.
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          
           {sectionsToDisplay.map((sectionNumber) => {
             const iconIndex = sectionNumber -1;
             let IconComponent = Settings; // Fallback icon
