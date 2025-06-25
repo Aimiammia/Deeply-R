@@ -1,1 +1,13 @@
-{}
+{
+  "financialSavingsGoals": [
+    {
+      "name": "لپ تاپ",
+      "targetAmount": 1000000,
+      "targetDate": "2025-07-07T20:30:00.000Z",
+      "id": "3b4d92c2-275c-4bfa-9830-1b22ab7082e6",
+      "currentAmount": 0,
+      "status": "active",
+      "createdAt": "2025-06-25T22:37:41.979Z"
+    }
+  ]
+}
