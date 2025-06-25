@@ -6,13 +6,13 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardList, Target, Loader2 } from 'lucide-react'; // Changed ChevronLeftSquare to Target
+import { ArrowLeft, ClipboardList, Target, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
 // Imports for Short-Term Planner
 import { useState, useEffect, useCallback } from 'react';
-import type { Task } from '@/types';
+import type { Task, Project } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
@@ -38,6 +38,7 @@ export default function PlannerLandingPage() {
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   
   const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
+  const [projects, , projectsLoading] = useSharedState<Project[]>('allProjects', []);
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
@@ -49,6 +50,8 @@ export default function PlannerLandingPage() {
     dueTime?: string | null,
     priority?: Task['priority'],
     category?: string | null,
+    projectId?: string | null,
+    projectName?: string | null,
     subjectId?: string | null,
     subjectName?: string | null,
     startChapter?: number | null,
@@ -64,6 +67,8 @@ export default function PlannerLandingPage() {
       dueTime: dueTime || null,
       priority: priority || null,
       category: category || null,
+      projectId: projectId || null,
+      projectName: projectName || null,
       subjectId: subjectId || null,
       subjectName: subjectName || null,
       startChapter: startChapter || null,
@@ -164,14 +169,14 @@ export default function PlannerLandingPage() {
                 <div className="p-4 rounded-md border bg-primary/10 shadow-sm">
                   <DailyPromptDisplay prompt={currentSuccessQuote} />
                 </div>
-                {tasksLoading ? (
+                {tasksLoading || projectsLoading ? (
                     <div className="space-y-4">
                         <Skeleton className="h-32 w-full" />
                         <Skeleton className="h-48 w-full" />
                     </div>
                 ) : (
                     <>
-                        <DynamicCreateTaskForm onAddTask={handleAddTask} />
+                        <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
                         <DynamicTaskList
                         tasks={tasks}
                         onToggleComplete={handleToggleComplete}
@@ -189,7 +194,7 @@ export default function PlannerLandingPage() {
                 </p>
                 <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
                   <Link href="/section/9"> 
-                     <Target className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" /> {/* Changed icon */}
+                     <Target className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
                     رفتن به صفحه اهداف
                   </Link>
                 </Button>

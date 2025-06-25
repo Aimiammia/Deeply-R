@@ -2,11 +2,11 @@
 'use client';
 
 import type { Task } from '@/types';
-import { useState, memo } from 'react'; // Added memo
-import { Button, buttonVariants } from '@/components/ui/button';
+import { useState, memo } from 'react';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy, Clock } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy, Clock, FolderKanban } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Link from 'next/link';
 
 interface TaskItemProps {
   task: Task;
@@ -164,6 +165,15 @@ const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }:
           <div className="flex items-center">
             <Tag className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
             <span>دسته‌بندی:</span> <Badge variant="outline" className="mr-1 text-xs px-1.5 py-0.5">{task.category}</Badge>
+          </div>
+        )}
+        {task.projectId && task.projectName && (
+          <div className="flex items-center">
+            <FolderKanban className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+            <span>پروژه:</span> 
+            <Link href={`/section/11#project-${task.projectId}`} passHref>
+                <Badge variant="secondary" className="mr-1 text-xs px-1.5 py-0.5 hover:bg-primary/20 cursor-pointer">{task.projectName}</Badge>
+            </Link>
           </div>
         )}
         {task.category === 'درس' && task.subjectName && (

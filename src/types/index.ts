@@ -1,5 +1,14 @@
 
 
+export interface Project {
+  id: string;
+  name: string;
+  description: string | null;
+  status: 'not-started' | 'in-progress' | 'completed' | 'on-hold';
+  dueDate: string | null; // ISO date string
+  createdAt: string; // ISO date string
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -9,6 +18,8 @@ export interface Task {
   dueTime?: string | null; // Optional time string, e.g., "14:30"
   priority?: 'low' | 'medium' | 'high' | null; // Optional
   category?: string | null; // Optional
+  projectId?: string | null; // ID of the project this task belongs to
+  projectName?: string | null; // Name of the project this task belongs to
   subjectId?: string | null; // e.g., "math_h10" from educational-data.ts
   subjectName?: string | null; // e.g., "ریاضی دهم"
   startChapter?: number | null;

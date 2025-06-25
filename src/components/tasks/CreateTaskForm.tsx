@@ -4,13 +4,13 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter, Clock } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter, Clock, FolderKanban } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import type { Task } from '@/types';
+import type { Task, Project } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubject } from '@/lib/educational-data';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 
@@ -21,12 +21,15 @@ interface CreateTaskFormProps {
     dueTime?: string | null,
     priority?: Task['priority'],
     category?: string | null,
+    projectId?: string | null,
+    projectName?: string | null,
     subjectId?: string | null,
     subjectName?: string | null,
     startChapter?: number | null,
     endChapter?: number | null,
     educationalLevelContext?: string | null
   ) => void;
+  projects: Project[];
 }
 
 const predefinedCategories = [
@@ -40,12 +43,13 @@ const predefinedCategories = [
   { value: 'متفرقه', label: 'متفرقه' },
 ];
 
-export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
+export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [dueTime, setDueTime] = useState<string>('');
   const [priority, setPriority] = useState<Task['priority'] | undefined>(undefined);
   const [category, setCategory] = useState<string | undefined>(undefined);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
 
   const [userEducationalLevel, setUserEducationalLevel] = useState<string | null>(null);
   const [isLevelConfirmed, setIsLevelConfirmed] = useState<boolean>(false);
@@ -88,32 +92,32 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      if (category === 'درس' && selectedSubject) {
-        onAddTask(
-          title.trim(),
-          dueDate ?? null,
-          dueTime || null,
-          priority ?? null,
-          category || null,
-          selectedSubject.id,
-          selectedSubject.name,
-          startChapter !== '' ? Number(startChapter) : null,
-          endChapter !== '' ? Number(endChapter) : null,
-          userEducationalLevel
-        );
-      } else {
-        onAddTask(title.trim(), dueDate ?? null, dueTime || null, priority ?? null, category || null);
-      }
+      const selectedProject = projects.find(p => p.id === selectedProjectId);
+
+      onAddTask(
+        title.trim(),
+        dueDate ?? null,
+        dueTime || null,
+        priority ?? null,
+        category || null,
+        selectedProject?.id || null,
+        selectedProject?.name || null,
+        category === 'درس' && selectedSubject ? selectedSubject.id : null,
+        category === 'درس' && selectedSubject ? selectedSubject.name : null,
+        category === 'درس' && startChapter !== '' ? Number(startChapter) : null,
+        category === 'درس' && endChapter !== '' ? Number(endChapter) : null,
+        category === 'درس' ? userEducationalLevel : null
+      );
 
       setTitle('');
       setDueDate(undefined);
       setDueTime('');
       setPriority(undefined);
       setCategory(undefined);
+      setSelectedProjectId(undefined);
       setSelectedSubject(null);
       setStartChapter('');
       setEndChapter('');
-      setAvailableSubjects([]);
     }
   };
 
@@ -175,24 +179,40 @@ export function CreateTaskForm({ onAddTask }: CreateTaskFormProps) {
             <SelectValue placeholder="میزان اهمیت" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none"><em>بدون اولویت</em></SelectItem>
+            <SelectItem value=""><em>بدون اولویت</em></SelectItem>
             <SelectItem value="low">کم</SelectItem>
             <SelectItem value="medium">متوسط</SelectItem>
             <SelectItem value="high">زیاد</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select value={category || ''} onValueChange={(value) => setCategory(value === 'none' ? undefined : value)}>
+        <Select value={category || ''} onValueChange={(value) => setCategory(value === '' ? undefined : value)}>
           <SelectTrigger className="w-full sm:flex-1" aria-label="دسته‌بندی وظیفه">
             <CategoryIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
             <SelectValue placeholder="انتخاب دسته‌بندی" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none"><em>بدون دسته‌بندی</em></SelectItem>
+            <SelectItem value=""><em>بدون دسته‌بندی</em></SelectItem>
             {predefinedCategories.map(cat => (
               <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
             ))}
           </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="projectSelect" className="mb-1 block text-xs">پروژه (اختیاری)</Label>
+        <Select value={selectedProjectId || ''} onValueChange={(value) => setSelectedProjectId(value === '' ? undefined : value)}>
+            <SelectTrigger id="projectSelect" className="w-full" aria-label="انتخاب پروژه">
+                <FolderKanban className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
+                <SelectValue placeholder="انتخاب پروژه..." />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value=""><em>بدون پروژه</em></SelectItem>
+                {projects.filter(p => p.status !== 'completed').map(proj => (
+                    <SelectItem key={proj.id} value={proj.id}>{proj.name}</SelectItem>
+                ))}
+            </SelectContent>
         </Select>
       </div>
 
