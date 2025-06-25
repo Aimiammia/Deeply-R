@@ -9,9 +9,10 @@ interface LongTermGoalListProps {
   goals: LongTermGoal[];
   onDeleteGoal: (id: string) => void;
   onUpdateGoal: (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => void;
+  onEditGoal: (goal: LongTermGoal) => void;
 }
 
-export function LongTermGoalList({ goals, onDeleteGoal, onUpdateGoal }: LongTermGoalListProps) {
+export function LongTermGoalList({ goals, onDeleteGoal, onUpdateGoal, onEditGoal }: LongTermGoalListProps) {
   if (goals.length === 0) {
     return (
       <div className="text-center py-10 text-muted-foreground border rounded-lg shadow-sm bg-card mt-6">
@@ -33,7 +34,8 @@ export function LongTermGoalList({ goals, onDeleteGoal, onUpdateGoal }: LongTerm
             key={goal.id}
             goal={goal}
             onDeleteGoal={onDeleteGoal}
-            onUpdateGoal={onUpdateGoal} // Changed from onEditGoal to onUpdateGoal
+            onUpdateGoal={onUpdateGoal}
+            onEditGoal={onEditGoal}
           />
         ))}
       </ul>

@@ -4,7 +4,7 @@
 import type { LongTermGoal, Milestone } from '@/types';
 import { useState, memo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, CalendarDays, Target, CheckCircle, Clock, XCircle, ListChecks, CheckSquare, Square } from 'lucide-react';
+import { Pencil, Trash2, CalendarDays, Target, CheckCircle, Clock, XCircle, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -20,7 +20,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CreateLongTermGoalForm } from './CreateLongTermGoalForm'; 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -28,6 +27,7 @@ interface LongTermGoalItemProps {
   goal: LongTermGoal;
   onDeleteGoal: (id: string) => void;
   onUpdateGoal: (id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => void;
+  onEditGoal: (goal: LongTermGoal) => void;
 }
 
 const statusOptions: { value: LongTermGoal['status']; label: string; icon: React.ElementType; className: string }[] = [
@@ -38,13 +38,7 @@ const statusOptions: { value: LongTermGoal['status']; label: string; icon: React
 ];
 
 
-const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal }: LongTermGoalItemProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleSaveEdit = useCallback((updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
-    onUpdateGoal(goal.id, updatedGoalData);
-    setIsEditing(false);
-  }, [goal.id, onUpdateGoal]);
+const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal, onEditGoal }: LongTermGoalItemProps) => {
 
   const handleToggleMilestone = useCallback((milestoneId: string) => {
     const updatedMilestones = goal.milestones?.map(m => 
@@ -55,23 +49,6 @@ const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal }: LongTer
 
   const currentStatusOption = statusOptions.find(s => s.value === goal.status) || statusOptions[0];
   const StatusIcon = currentStatusOption.icon;
-
-
-  if (isEditing) {
-    return (
-      <Card className="mb-4 shadow-lg">
-        <CardHeader>
-          <CardTitle>ویرایش هدف: {goal.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CreateLongTermGoalForm onSaveGoal={handleSaveEdit} existingGoal={goal} />
-        </CardContent>
-        <CardFooter>
-           <Button variant="ghost" onClick={() => setIsEditing(false)} className="w-full">لغو ویرایش</Button>
-        </CardFooter>
-      </Card>
-    );
-  }
 
   return (
     <Card className="mb-4 shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -88,7 +65,7 @@ const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal }: LongTer
                     </Badge>
                 </div>
                 <div className="flex items-center space-x-1 rtl:space-x-reverse flex-shrink-0">
-                    <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} aria-label="ویرایش هدف">
+                    <Button variant="ghost" size="icon" onClick={() => onEditGoal(goal)} aria-label="ویرایش هدف">
                         <Pencil className="h-5 w-5 text-blue-600" />
                     </Button>
                     <AlertDialog>

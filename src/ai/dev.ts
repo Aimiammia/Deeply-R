@@ -1,4 +1,8 @@
 
+
+// This file is used to configure Genkit for development.
+// It is not needed for production builds.
+
 import { config } from 'dotenv';
 config();
 

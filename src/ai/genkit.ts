@@ -1,7 +1,4 @@
 
-import { config } from 'dotenv'; // Import dotenv
-config(); // Load .env file variables at the very start
-
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
 import nextPlugin from '@genkit-ai/next';
