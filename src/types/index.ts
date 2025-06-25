@@ -171,7 +171,7 @@ export interface Book {
 
 export interface SportsActivity {
   id: string;
-  activityType: 'running' | 'walking' | 'cycling' | 'swimming' | 'gym' | 'yoga' | 'pilates' | 'hiking' | 'sports_team' | 'other';
+  activityType: string;
   date: string; // ISO date string
   durationMinutes: number;
   distanceKm?: number | null;

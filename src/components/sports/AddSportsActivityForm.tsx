@@ -35,23 +35,40 @@ const activityTypes: { value: SportsActivity['activityType']; label: string }[] 
 
 export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddSportsActivityFormProps) {
   const { toast } = useToast();
-  const [activityType, setActivityType] = useState<SportsActivity['activityType'] | undefined>(existingActivity?.activityType);
-  const [date, setDate] = useState<Date | undefined>(existingActivity ? new Date(existingActivity.date) : new Date());
-  const [durationMinutes, setDurationMinutes] = useState<number | ''>(existingActivity?.durationMinutes || '');
-  const [distanceKm, setDistanceKm] = useState<number | ''>(existingActivity?.distanceKm || '');
-  const [caloriesBurned, setCaloriesBurned] = useState<number | ''>(existingActivity?.caloriesBurned || '');
-  const [notes, setNotes] = useState(existingActivity?.notes || '');
+  
+  const [selectedActivityValue, setSelectedActivityValue] = useState<string>('');
+  const [customActivityName, setCustomActivityName] = useState('');
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [durationMinutes, setDurationMinutes] = useState<number | ''>('');
+  const [distanceKm, setDistanceKm] = useState<number | ''>('');
+  const [caloriesBurned, setCaloriesBurned] = useState<number | ''>('');
+  const [notes, setNotes] = useState('');
 
   const isEditing = !!existingActivity;
 
   useEffect(() => {
     if (isEditing && existingActivity) {
-      setActivityType(existingActivity.activityType);
+      const predefinedActivity = activityTypes.find(at => at.label === existingActivity.activityType);
+      if (predefinedActivity) {
+        setSelectedActivityValue(predefinedActivity.value);
+        setCustomActivityName('');
+      } else {
+        setSelectedActivityValue('other');
+        setCustomActivityName(existingActivity.activityType);
+      }
       setDate(new Date(existingActivity.date));
       setDurationMinutes(existingActivity.durationMinutes);
       setDistanceKm(existingActivity.distanceKm || '');
       setCaloriesBurned(existingActivity.caloriesBurned || '');
       setNotes(existingActivity.notes || '');
+    } else {
+      setSelectedActivityValue('');
+      setCustomActivityName('');
+      setDate(new Date());
+      setDurationMinutes('');
+      setDistanceKm('');
+      setCaloriesBurned('');
+      setNotes('');
     }
   }, [existingActivity, isEditing]);
 
@@ -62,9 +79,14 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
 
   const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
-    if (activityType && date && durationMinutes !== '' && Number(durationMinutes) > 0) {
+    
+    const activityTypeToSave = selectedActivityValue === 'other'
+      ? customActivityName.trim()
+      : activityTypes.find(at => at.value === selectedActivityValue)?.label || '';
+
+    if (activityTypeToSave && date && durationMinutes !== '' && Number(durationMinutes) > 0) {
       onSaveActivity({
-        activityType,
+        activityType: activityTypeToSave,
         date: date.toISOString(),
         durationMinutes: Number(durationMinutes),
         distanceKm: distanceKm !== '' ? Number(distanceKm) : null,
@@ -73,7 +95,8 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
       }, isEditing);
 
       if (!isEditing) {
-        setActivityType(undefined);
+        setSelectedActivityValue('');
+        setCustomActivityName('');
         setDate(new Date());
         setDurationMinutes('');
         setDistanceKm('');
@@ -91,7 +114,9 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
         variant: "destructive",
       });
     }
-  }, [activityType, date, durationMinutes, distanceKm, caloriesBurned, notes, isEditing, onSaveActivity, toast]);
+  }, [selectedActivityValue, customActivityName, date, durationMinutes, distanceKm, caloriesBurned, notes, isEditing, onSaveActivity, toast]);
+
+  const isSubmitDisabled = !selectedActivityValue || (selectedActivityValue === 'other' && !customActivityName.trim()) || !date || durationMinutes === '' || Number(durationMinutes) <= 0;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8">
@@ -103,7 +128,7 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="activityType" className="mb-1 block">نوع فعالیت</Label>
-          <Select value={activityType} onValueChange={(value) => setActivityType(value as SportsActivity['activityType'])} required>
+          <Select value={selectedActivityValue} onValueChange={(value) => setSelectedActivityValue(value)} required>
             <SelectTrigger id="activityType" className="w-full" aria-label="نوع فعالیت ورزشی">
               <Activity className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
               <SelectValue placeholder="انتخاب نوع فعالیت" />
@@ -134,6 +159,20 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
           </Popover>
         </div>
       </div>
+      
+      {selectedActivityValue === 'other' && (
+        <div className="pt-2">
+            <Label htmlFor="customActivityName" className="mb-1 block">نام فعالیت سفارشی</Label>
+            <Input
+            id="customActivityName"
+            type="text"
+            value={customActivityName}
+            onChange={(e) => setCustomActivityName(e.target.value)}
+            placeholder="مثلا: اسکواش، پینگ پنگ"
+            required={selectedActivityValue === 'other'}
+            />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
@@ -184,7 +223,7 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
         />
       </div>
       
-      <Button type="submit" className="w-full">
+      <Button type="submit" disabled={isSubmitDisabled} className="w-full">
         {isEditing ? <Edit3 className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" /> : <Dumbbell className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />}
         {isEditing ? 'ذخیره تغییرات' : 'ثبت فعالیت'}
       </Button>

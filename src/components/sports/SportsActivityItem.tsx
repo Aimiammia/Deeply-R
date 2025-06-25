@@ -5,7 +5,6 @@ import type { SportsActivity } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Edit3, CalendarDays, Clock, MapPin, Flame, Info, Activity as ActivityIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -29,19 +28,6 @@ interface SportsActivityItemProps {
   onEditActivity: (activity: SportsActivity) => void; 
 }
 
-const activityTypeLabels: Record<SportsActivity['activityType'], string> = {
-  running: 'دویدن',
-  walking: 'پیاده‌روی',
-  cycling: 'دوچرخه‌سواری',
-  swimming: 'شنا',
-  gym: 'باشگاه (بدنسازی)',
-  yoga: 'یوگا',
-  pilates: 'پیلاتس',
-  hiking: 'کوه‌پیمایی',
-  sports_team: 'ورزش تیمی',
-  other: 'سایر فعالیت‌ها',
-};
-
 const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivity }: SportsActivityItemProps) => {
 
   const handleEdit = useCallback(() => {
@@ -59,7 +45,7 @@ const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivit
           <div className="flex-grow">
             <CardTitle className="text-lg font-headline text-primary flex items-center">
               <ActivityIcon className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0 flex-shrink-0" />
-              {activityTypeLabels[activity.activityType] || activity.activityType}
+              {activity.activityType}
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground flex items-center mt-1">
                 <CalendarDays className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
@@ -80,7 +66,7 @@ const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivit
                 <AlertDialogHeader>
                   <AlertDialogTitle>تایید حذف فعالیت</AlertDialogTitle>
                   <AlertDialogDescription>
-                    آیا از حذف این فعالیت ورزشی ({activityTypeLabels[activity.activityType]} در تاریخ {formatJalaliDateDisplay(parseISO(activity.date), 'jYYYY/jMM/jDD')}) مطمئن هستید؟
+                    آیا از حذف این فعالیت ورزشی ({activity.activityType} در تاریخ {formatJalaliDateDisplay(parseISO(activity.date), 'jYYYY/jMM/jDD')}) مطمئن هستید؟
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
