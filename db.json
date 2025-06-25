@@ -18,5 +18,27 @@
       "status": "active",
       "createdAt": "2025-06-25T22:37:41.979Z"
     }
+  ],
+  "userSportsActivitiesDeeply": [
+    {
+      "activityType": "پیاده‌روی",
+      "date": "2025-06-25T22:57:16.369Z",
+      "durationMinutes": 30,
+      "distanceKm": 5.5,
+      "caloriesBurned": 350,
+      "notes": "می",
+      "id": "d948edb3-c858-4c87-bf0a-4f9249d1148d",
+      "createdAt": "2025-06-25T22:57:35.201Z"
+    }
+  ],
+  "activeFastDeeply": null,
+  "fastingHistoryDeeply": [
+    {
+      "id": "857fa8e0-d703-4906-be1a-d92f5006202b",
+      "startTime": "2025-06-25T22:57:53.736Z",
+      "endTime": "2025-06-25T22:58:22.753Z",
+      "durationHours": 0,
+      "notes": null
+    }
   ]
 }
