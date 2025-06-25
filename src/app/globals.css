@@ -23,8 +23,8 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 28% 45%;
 
-    --accent: 45 90% 55%;      /* A bright, warm amber/gold */
-    --accent-foreground: 215 28% 17%;
+    --accent: 142 76% 95%;      /* Light Green for hover backgrounds */
+    --accent-foreground: 142 76% 25%; /* Dark Green for hover text */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -63,8 +63,8 @@
     --muted: 217 33% 17.2%;
     --muted-foreground: 215 20% 65.1%;
 
-    --accent: 45 80% 60%;
-    --accent-foreground: 45 90% 10%;
+    --accent: 142 71% 15%; /* Dark Green for hover backgrounds */
+    --accent-foreground: 142 71% 55%; /* Bright green for hover text */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
