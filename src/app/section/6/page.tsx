@@ -6,14 +6,17 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Dumbbell, BarChart2, Target, Settings, Edit3, PlusCircle, ListChecks, Loader2 } from 'lucide-react';
+import { ArrowLeft, Dumbbell, BarChart2, Target, Settings, Edit3, PlusCircle, ListChecks, Loader2, TimerOff } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
-import type { SportsActivity } from '@/types';
+import type { SportsActivity, ActiveFast, FastingSession } from '@/types';
 import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { differenceInHours } from 'date-fns';
+
 
 const FormLoadingSkeleton = () => (
   <div className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8 animate-pulse">
@@ -48,15 +51,31 @@ const DynamicSportsActivityList = dynamic(() => import('@/components/sports/Spor
   loading: () => <ListLoadingSkeleton />
 });
 
+const DynamicFastingTracker = dynamic(() => import('@/components/sports/FastingTracker').then(mod => mod.FastingTracker), {
+    ssr: false,
+    loading: () => <Skeleton className="h-48 w-full" />
+});
+
+const DynamicFastingHistory = dynamic(() => import('@/components/sports/FastingHistory').then(mod => mod.FastingHistory), {
+    ssr: false,
+    loading: () => <ListLoadingSkeleton />
+});
+
 
 export default function SportsPage() {
   const sectionTitle = "ورزشی";
-  const sectionPageDescription = "فعالیت‌های ورزشی خود را در این بخش ثبت، پیگیری و تحلیل کنید.";
+  const sectionPageDescription = "فعالیت‌های ورزشی و روزه‌داری متناوب (فستینگ) خود را در این بخش ثبت، پیگیری و تحلیل کنید.";
   const { toast } = useToast();
 
+  // State for Sports Activities
   const [activities, setActivities] = useDebouncedLocalStorage<SportsActivity[]>('userSportsActivitiesDeeply', []);
   const [editingActivity, setEditingActivity] = useState<SportsActivity | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  // State for Fasting
+  const [activeFast, setActiveFast] = useDebouncedLocalStorage<ActiveFast | null>('activeFastDeeply', null);
+  const [fastingSessions, setFastingSessions] = useDebouncedLocalStorage<FastingSession[]>('fastingHistoryDeeply', []);
+
 
   const handleSaveActivity = useCallback((activityData: Omit<SportsActivity, 'id' | 'createdAt'>, isEditing: boolean) => {
     if (isEditing && editingActivity) {
@@ -101,7 +120,46 @@ export default function SportsPage() {
   const handleAddNew = () => {
     setEditingActivity(null);
     setShowForm(true);
-  }
+  };
+
+  // Fasting Handlers
+  const handleStartFast = useCallback(() => {
+      if (activeFast) return;
+      const newFast: ActiveFast = {
+          id: generateId(),
+          startTime: new Date().toISOString(),
+      };
+      setActiveFast(newFast);
+      toast({ title: "فستینگ شروع شد", description: "زمان شروع روزه شما ثبت شد." });
+  }, [activeFast, setActiveFast, toast]);
+
+  const handleEndFast = useCallback((notes?: string) => {
+      if (!activeFast) return;
+      const endTime = new Date();
+      const startTime = new Date(activeFast.startTime);
+      const duration = differenceInHours(endTime, startTime);
+
+      const newSession: FastingSession = {
+          id: activeFast.id,
+          startTime: activeFast.startTime,
+          endTime: endTime.toISOString(),
+          durationHours: duration,
+          notes: notes?.trim() || null,
+      };
+
+      setFastingSessions(prev => [newSession, ...prev].sort((a, b) => new Date(b.endTime).getTime() - new Date(a.endTime).getTime()));
+      setActiveFast(null);
+      toast({ title: "فستینگ پایان یافت", description: `مدت زمان: ${duration} ساعت. این جلسه به تاریخچه شما اضافه شد.` });
+  }, [activeFast, setActiveFast, setFastingSessions, toast]);
+  
+  const handleDeleteFastSession = useCallback((sessionId: string) => {
+    const sessionToDelete = fastingSessions.find(s => s.id === sessionId);
+    setFastingSessions(prev => prev.filter(s => s.id !== sessionId));
+    if (sessionToDelete) {
+        toast({ title: "جلسه فستینگ حذف شد", variant: "destructive"});
+    }
+  }, [fastingSessions, setFastingSessions, toast]);
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -123,71 +181,70 @@ export default function SportsPage() {
             {sectionPageDescription}
         </p>
 
-        <div className="space-y-8">
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                           {showForm ? (editingActivity ? <Edit3 className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" /> : <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />) : <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />}
-                            {showForm ? (editingActivity ? 'ویرایش فعالیت ورزشی' : 'افزودن فعالیت جدید') : 'فعالیت‌های ثبت شده'}
-                        </CardTitle>
-                        {!showForm && <CardDescription>برای افزودن یا ویرایش، روی دکمه مربوطه کلیک کنید.</CardDescription>}
-                    </div>
-                    <Button onClick={() => {
-                        if (showForm && editingActivity) { // If editing, cancel will hide form
-                           setShowForm(false);
-                           setEditingActivity(null);
-                        } else if (showForm && !editingActivity) { // If adding new, cancel will hide form
-                            setShowForm(false);
-                        }
-                         else { // If list is showing, button should show form for adding new
-                            handleAddNew();
-                        }
-                    }} variant={showForm ? "outline" : "default"}>
-                        {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> افزودن فعالیت جدید</>)}
-                    </Button>
-                </CardHeader>
-                <CardContent>
-                    {showForm ? (
-                        <DynamicAddSportsActivityForm 
-                            onSaveActivity={handleSaveActivity} 
-                            existingActivity={editingActivity} 
-                        />
-                    ) : (
-                         <DynamicSportsActivityList 
-                            activities={activities} 
-                            onDeleteActivity={handleDeleteActivity}
-                            onEditActivity={handleTriggerEdit} 
-                        />
-                    )}
-                </CardContent>
-            </Card>
-            
-            <div className="text-center my-8">
-                <Image
-                src="https://placehold.co/600x350.png"
-                alt="تصویر مفهومی فعالیت‌های ورزشی و سلامتی"
-                width={600}
-                height={350}
-                className="rounded-md mx-auto shadow-md"
-                data-ai-hint="sports activity health"
-                />
-            </div>
+        <Card className="shadow-lg bg-card">
+            <CardContent className="p-6">
+                <Tabs defaultValue="activities" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1 h-auto">
+                        <TabsTrigger value="activities" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                            <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
+                        </TabsTrigger>
+                        <TabsTrigger value="fasting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                           <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
+                        </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="activities" className="space-y-8">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-xl flex items-center text-foreground">
+                                    {showForm ? (editingActivity ? <Edit3 className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" /> : <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />) : <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />}
+                                        {showForm ? (editingActivity ? 'ویرایش فعالیت ورزشی' : 'افزودن فعالیت جدید') : 'فعالیت‌های ثبت شده'}
+                                    </CardTitle>
+                                    {!showForm && <CardDescription>برای افزودن یا ویرایش، روی دکمه مربوطه کلیک کنید.</CardDescription>}
+                                </div>
+                                <Button onClick={() => {
+                                    if (showForm) { 
+                                        setShowForm(false);
+                                        setEditingActivity(null);
+                                    } else {
+                                        handleAddNew();
+                                    }
+                                }} variant={showForm ? "outline" : "default"}>
+                                    {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> افزودن فعالیت جدید</>)}
+                                </Button>
+                            </CardHeader>
+                            <CardContent>
+                                {showForm ? (
+                                    <DynamicAddSportsActivityForm 
+                                        onSaveActivity={handleSaveActivity} 
+                                        existingActivity={editingActivity} 
+                                    />
+                                ) : (
+                                    <DynamicSportsActivityList 
+                                        activities={activities} 
+                                        onDeleteActivity={handleDeleteActivity}
+                                        onEditActivity={handleTriggerEdit} 
+                                    />
+                                )}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
 
-            <Card className="bg-secondary/50">
-              <CardHeader>
-                <CardTitle className="text-xl text-primary">قابلیت‌های برنامه‌ریزی شده برای بخش ورزشی</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
-                  <li className="flex items-start"><BarChart2 className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>نمایش نمودارهای پیشرفت و آمار ورزشی (مثلاً مسافت کل دویده شده در ماه، میانگین کالری سوزانده شده).</li>
-                  <li className="flex items-start"><Target className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>امکان تعریف اهداف ورزشی (مثلاً دویدن ۱۰۰ کیلومتر در ماه).</li>
-                  <li className="flex items-start"><Settings className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>ایجاد و مدیریت برنامه‌های تمرینی سفارشی.</li>
-                  <li className="flex items-start"><Image src="https://placehold.co/16x16.png" alt="wearable" width={16} height={16} className="ml-2 rtl:mr-2 mt-0.5 flex-shrink-0" data-ai-hint="wearable device"/>اتصال به دستگاه‌های پوشیدنی (اختیاری، نیازمند بررسی API‌ها).</li>
-                </ul>
-              </CardContent>
-            </Card>
-        </div>
+                    <TabsContent value="fasting" className="space-y-8">
+                        <DynamicFastingTracker 
+                            activeFast={activeFast}
+                            onStartFast={handleStartFast}
+                            onEndFast={handleEndFast}
+                        />
+                        <DynamicFastingHistory
+                            sessions={fastingSessions}
+                            onDelete={handleDeleteFastSession}
+                        />
+                    </TabsContent>
+                </Tabs>
+            </CardContent>
+        </Card>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>

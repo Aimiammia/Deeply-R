@@ -1,4 +1,5 @@
 
+
 export interface Task {
   id: string;
   title: string;
@@ -166,6 +167,19 @@ export interface SportsActivity {
   caloriesBurned?: number | null;
   notes?: string | null;
   createdAt: string; // ISO date string
+}
+
+export interface ActiveFast {
+  id: string;
+  startTime: string; // ISO date string
+}
+
+export interface FastingSession {
+  id: string;
+  startTime: string; // ISO date string
+  endTime: string; // ISO date string
+  durationHours: number;
+  notes?: string | null;
 }
 
 
