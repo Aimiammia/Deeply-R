@@ -4,74 +4,74 @@
 
 @layer base {
   :root {
-    /* Deep Blue & Gold Theme - Light Mode */
-    --background: 220 20% 98%; /* Very light, cool gray-blue */
-    --foreground: 224 71% 4%;   /* Very dark blue */
+    /* Deep Green & Amber Theme - Light Mode */
+    --background: 210 40% 98%;
+    --foreground: 215 28% 17%;
 
-    --card: 0 0% 100%;           /* White */
-    --card-foreground: 224 71% 4%;
+    --card: 210 40% 100%;
+    --card-foreground: 215 28% 17%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
+    --popover: 210 40% 100%;
+    --popover-foreground: 215 28% 17%;
 
-    --primary: 221 44% 45%;    /* A strong, desaturated blue */
+    --primary: 142 76% 36%;    /* Deep, vibrant green */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 14% 94%;   /* A lighter gray-blue */
-    --secondary-foreground: 224 71% 4%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 215 28% 17%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 28% 45%;
 
-    --accent: 45 90% 50%;      /* A warm, rich gold */
-    --accent-foreground: 224 71% 4%;
+    --accent: 45 90% 55%;      /* A bright, warm amber/gold */
+    --accent-foreground: 215 28% 17%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221 44% 45%;
+    --border: 214 32% 91.4%;
+    --input: 214 32% 91.4%;
+    --ring: 142 76% 36%;
 
     --radius: 0.5rem;
 
-    /* Chart colors adjusted for the new theme */
-    --chart-1: 221 44% 50%; /* Primary Blue */
-    --chart-2: 45 90% 55%;  /* Accent Gold */
-    --chart-3: 210 30% 60%; /* Muted Blue */
-    --chart-4: 30 80% 60%;  /* Warm Orange */
-    --chart-5: 190 40% 50%; /* Teal/Cyan */
+     /* Chart colors based on green/amber theme */
+    --chart-1: 142 70% 40%; /* Primary Green */
+    --chart-2: 45 85% 60%;  /* Accent Amber */
+    --chart-3: 150 50% 50%; /* A secondary, more muted green */
+    --chart-4: 25 70% 55%;  /* A warm orange */
+    --chart-5: 200 60% 50%; /* A cool blue to complement */
   }
 
   .dark {
-    /* Deep Blue & Gold Theme - Dark Mode */
-    --background: 222 84% 5%; /* Very dark, deep blue */
+    /* Deep Green & Amber Theme - Dark Mode */
+    --background: 222 70% 9%; /* Very dark, slightly cool slate */
     --foreground: 210 40% 98%;
 
-    --card: 222 84% 8%;
+    --card: 222 70% 12%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 84% 5%;
+    --popover: 222 70% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%; /* Brighter blue for primary actions in dark mode */
-    --primary-foreground: 222 47% 11%;
+    --primary: 142 71% 45%; /* A brighter green for dark mode */
+    --primary-foreground: 142 80% 96%;
 
-    --secondary: 217 91% 70%;
-    --secondary-foreground: 222 47% 11%;
-    
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --secondary: 217 33% 17.2%;
+    --secondary-foreground: 210 40% 98%;
 
-    --accent: 45 90% 55%;
-    --accent-foreground: 222 47% 11%;
+    --muted: 217 33% 17.2%;
+    --muted-foreground: 215 20% 65.1%;
 
-    --destructive: 0 63% 51%;
+    --accent: 45 80% 60%;
+    --accent-foreground: 45 90% 10%;
+
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 142 71% 45%;
   }
 }
 
