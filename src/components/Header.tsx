@@ -13,7 +13,7 @@ const HeaderComponent = () => {
         
         {/* Title group will be centered */}
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-          <Brain className="h-7 w-7 text-accent" /> 
+          <Brain className="h-7 w-7 text-primary" /> 
           <h1 className="text-2xl font-headline font-bold text-foreground">
             Deeply
           </h1>

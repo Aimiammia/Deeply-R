@@ -265,7 +265,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           className={cn(
             "flex flex-col items-center justify-start h-16 sm:h-20 rounded-lg border cursor-pointer transition-all duration-150 ease-in-out relative group p-1.5 text-center shadow-sm hover:shadow-md",
             isTodayCell && !isSelectedForNew && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary shadow-lg scale-105",
-            isSelectedForNew && "bg-accent text-accent-foreground ring-2 ring-offset-2 ring-accent-foreground shadow-lg scale-105",
+            isSelectedForNew && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary-foreground shadow-lg scale-105",
             !isTodayCell && !isSelectedForNew && isPublicHoliday && "bg-destructive/10 text-destructive-foreground font-medium",
             !isTodayCell && !isSelectedForNew && !isPublicHoliday && isFriday && "text-orange-600 dark:text-orange-400 bg-orange-500/10",
             !isTodayCell && !isSelectedForNew && !isPublicHoliday && !isFriday && "bg-card hover:bg-muted/60",

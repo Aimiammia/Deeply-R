@@ -108,7 +108,7 @@ export default function ReflectionsPage() {
         <p className="text-lg text-muted-foreground mb-4">
           افکار و احساسات خود را ثبت کنید و با کمک هوش مصنوعی به بینش‌های جدیدی دست یابید.
         </p>
-        <p className="text-md text-accent italic mb-8">
+        <p className="text-md text-primary italic mb-8">
             نقل قول امروز برای تأمل: {currentPrompt}
         </p>
 

@@ -114,12 +114,12 @@ export default function HomePage() {
             }
 
             return (
-              <Link href={sectionLink} key={sectionNumber} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background">
-                <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-accent/50">
+              <Link href={sectionLink} key={sectionNumber} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
+                <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50">
                   <CardHeader className="flex-shrink-0 p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <div className="bg-accent/10 p-2 rounded-lg">
-                        <IconComponent className="h-6 w-6 text-accent transition-transform duration-300 group-hover:scale-110" />
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <IconComponent className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
                       </div>
                       <CardTitle className="text-lg font-headline font-semibold text-foreground">
                         {sectionTitle}
