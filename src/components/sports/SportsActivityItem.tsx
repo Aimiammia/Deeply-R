@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { SportsActivity } from '@/types';
@@ -21,6 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { memo, useCallback } from 'react';
+import { Label } from '@/components/ui/label';
 
 interface SportsActivityItemProps {
   activity: SportsActivity;
