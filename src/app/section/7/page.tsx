@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { parseISO, format } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubjectType } from '@/lib/educational-data';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -84,15 +84,16 @@ function EducationContent({
   educationalSettings,
   setEducationalSettings,
   subjectProgress,
-  setSubjectProgress
+  setSubjectProgress,
+  dataLoading,
 }: {
   educationalSettings: EducationalLevelStorage;
   setEducationalSettings: (value: EducationalLevelStorage | ((val: EducationalLevelStorage) => EducationalLevelStorage)) => void;
   subjectProgress: EducationalSubjectUserProgress;
   setSubjectProgress: (value: EducationalSubjectUserProgress | ((val: EducationalSubjectUserProgress) => EducationalSubjectUserProgress)) => void;
+  dataLoading: boolean;
 }) {
   const { toast } = useToast();
-  const [isClient, setIsClient] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [levelToConfirm, setLevelToConfirm] = useState<string | undefined>(undefined);
   const [transientSelectedLevel, setTransientSelectedLevel] = useState<string | undefined>(educationalSettings.levelValue);
@@ -102,14 +103,10 @@ function EducationContent({
     : [];
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-  
-  useEffect(() => {
-    if (isClient) {
+    if (!dataLoading) {
       setTransientSelectedLevel(educationalSettings.levelValue);
     }
-  }, [educationalSettings.levelValue, isClient]);
+  }, [educationalSettings.levelValue, dataLoading]);
 
   const calculateAutoPromotion = useCallback((currentSettings: EducationalLevelStorage): EducationalLevelStorage | null => {
     const { levelValue, lastPromotionCheckDate: lastPromoDateISO, isConfirmed } = currentSettings;
@@ -150,7 +147,7 @@ function EducationContent({
   }, []);
 
   useEffect(() => {
-    if (isClient && educationalSettings.isConfirmed) {
+    if (!dataLoading && educationalSettings.isConfirmed) {
       const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
       const today = new Date();
       const todayDateString = format(today, 'yyyy-MM-dd');
@@ -160,7 +157,6 @@ function EducationContent({
 
       if (newSettingsFromPromotion) {
         const newPromoEffectiveDateString = format(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'yyyy-MM-dd');
-        // Check if level or the effective promotion date (ignoring time) has changed
         if (newSettingsFromPromotion.levelValue !== educationalSettings.levelValue || 
             newPromoEffectiveDateString !== currentLastPromotionCheckDateString) {
           setEducationalSettings(newSettingsFromPromotion);
@@ -170,17 +166,15 @@ function EducationContent({
             duration: 7000,
           });
         } else if (currentLastPromotionCheckDateString !== todayDateString) {
-          // Level and effective promotion date are the same as current, but last check was not today. Update last check date.
            setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
         }
       } else {
-        // No promotion occurred. Update lastPromotionCheckDate only if it's not already today.
         if (currentLastPromotionCheckDateString !== todayDateString) {
           setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
         }
       }
     }
-  }, [isClient, educationalSettings, calculateAutoPromotion, setEducationalSettings, toast]);
+  }, [dataLoading, educationalSettings, calculateAutoPromotion, setEducationalSettings, toast]);
 
 
   const handleLevelChange = (value: string) => {
@@ -259,6 +253,15 @@ function EducationContent({
   
   const currentLevelLabel = educationalLevels.find(l => l.value === educationalSettings.levelValue)?.label;
 
+  if (dataLoading) {
+     return (
+        <div className="flex justify-center items-center p-6">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <p className="text-muted-foreground mr-2">در حال بارگذاری تنظیمات تحصیلی...</p>
+        </div>
+    );
+  }
+
   return (
     <>
       <Card>
@@ -269,7 +272,7 @@ function EducationContent({
               </CardTitle>
           </CardHeader>
           <CardContent className="max-w-md mx-auto">
-              {!educationalSettings.isConfirmed && isClient && (
+              {!educationalSettings.isConfirmed && (
                   <>
                   <Label htmlFor="educationalLevelSelect" className="text-base font-semibold text-foreground mb-2 block">
                       مقطع تحصیلی فعلی خود را انتخاب کنید:
@@ -296,7 +299,7 @@ function EducationContent({
                   </>
               )}
 
-              {isClient && educationalSettings.isConfirmed && currentLevelLabel && (
+              {educationalSettings.isConfirmed && currentLevelLabel && (
                   <div className="p-4 border rounded-lg bg-secondary/30 text-center">
                   <p className="text-lg font-semibold text-foreground mb-1">
                       مقطع تحصیلی فعلی شما:
@@ -320,16 +323,10 @@ function EducationContent({
                   </Button>
                   </div>
               )}
-              {!isClient && (
-                  <div className="flex justify-center items-center p-6">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    <p className="text-muted-foreground mr-2">در حال بارگذاری تنظیمات...</p>
-                  </div>
-              )}
           </CardContent>
       </Card>
 
-      {isClient && educationalSettings.isConfirmed && currentSubjectsForLevel.length > 0 && (
+      {educationalSettings.isConfirmed && currentSubjectsForLevel.length > 0 && (
           <Card>
               <CardHeader>
                   <CardTitle className="text-xl flex items-center text-foreground">
@@ -411,12 +408,12 @@ export default function EducationPage() {
   const sectionTitle = "تحصیل و یادگیری";
   const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
   
-  const [educationalSettings, setEducationalSettings] = useDebouncedLocalStorage<EducationalLevelStorage>(
+  const [educationalSettings, setEducationalSettings, settingsLoading] = useSharedState<EducationalLevelStorage>(
     'educationalLevelSettingsDeeply', 
     initialEducationalSettings
   );
   
-  const [subjectProgress, setSubjectProgress] = useDebouncedLocalStorage<EducationalSubjectUserProgress>(
+  const [subjectProgress, setSubjectProgress, progressLoading] = useSharedState<EducationalSubjectUserProgress>(
     'educationalSubjectProgressDeeply',
     {}
   );
@@ -454,6 +451,7 @@ export default function EducationPage() {
                 setEducationalSettings={setEducationalSettings}
                 subjectProgress={subjectProgress}
                 setSubjectProgress={setSubjectProgress}
+                dataLoading={settingsLoading || progressLoading}
               />
             </ClientOnly>
             
@@ -559,5 +557,3 @@ export default function EducationPage() {
     </div>
   );
 }
-
-    

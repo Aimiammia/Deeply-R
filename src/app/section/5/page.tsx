@@ -10,10 +10,8 @@ import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags, L
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import type { Habit } from '@/types';
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { useToast } from '@/hooks/use-toast';
-// import { CreateHabitForm } from '@/components/habits/CreateHabitForm'; // Lazy loaded
-// import { HabitList } from '@/components/habits/HabitList'; // Lazy loaded
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -32,7 +30,7 @@ export default function HabitsPage() {
   const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید.";
   const { toast } = useToast();
 
-  const [habits, setHabits] = useDebouncedLocalStorage<Habit[]>('userHabitsDeeply', []);
+  const [habits, setHabits, habitsLoading] = useSharedState<Habit[]>('userHabitsDeeply', []);
 
   const handleAddHabit = useCallback((name: string) => {
     const newHabit: Habit = {
@@ -107,11 +105,15 @@ export default function HabitsPage() {
               </CardHeader>
               <CardContent>
                 <DynamicCreateHabitForm onAddHabit={handleAddHabit} />
-                <DynamicHabitList 
-                    habits={habits} 
-                    onToggleCompletion={handleToggleHabitCompletion}
-                    onDeleteHabit={handleDeleteHabit} 
-                />
+                {habitsLoading ? (
+                    <Skeleton className="h-48 w-full" />
+                ) : (
+                    <DynamicHabitList 
+                        habits={habits} 
+                        onToggleCompletion={handleToggleHabitCompletion}
+                        onDeleteHabit={handleDeleteHabit} 
+                    />
+                )}
               </CardContent>
             </Card>
             

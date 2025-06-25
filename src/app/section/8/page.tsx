@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -112,7 +112,7 @@ export default function DailyActivityLogPage() {
   const sectionTitle = "یادداشت فعالیت‌های روزانه";
   const sectionPageDescription = "فعالیت‌ها، دستاوردها و کارهایی که در طول روز انجام داده‌اید را در اینجا به صورت آیتم‌های لیست وارد و مرور کنید.";
 
-  const [logs, setLogs] = useDebouncedLocalStorage<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+  const [logs, setLogs, logsLoading] = useSharedState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -207,7 +207,11 @@ export default function DailyActivityLogPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <DynamicActivityList logs={sortedLogs} onDeleteLog={handleDeleteLog} />
+                    {logsLoading ? (
+                        <Skeleton className="h-72 w-full" />
+                    ) : (
+                        <DynamicActivityList logs={sortedLogs} onDeleteLog={handleDeleteLog} />
+                    )}
                 </CardContent>
             </Card>
         </div>

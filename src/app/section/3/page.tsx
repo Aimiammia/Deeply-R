@@ -13,7 +13,7 @@ import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment,
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, getMonth, getYear, isSameMonth, startOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { ClientOnly } from '@/components/ClientOnly';
 import { cn, formatCurrency, generateId } from '@/lib/utils'; // Ensured formatCurrency is imported
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
@@ -76,21 +76,20 @@ export default function FinancialManagementPage() {
   const sectionPageDescription = "هزینه‌ها، درآمدها، بودجه، دارایی‌ها، سرمایه‌گذاری‌ها و اهداف پس‌انداز خود را در اینجا پیگیری و مدیریت کنید.";
 
   const { toast } = useToast();
-  const [transactions, setTransactions] = useDebouncedLocalStorage<FinancialTransaction[]>('financialTransactions', []);
   
-  const [budgets, setBudgets] = useDebouncedLocalStorage<Budget[]>('financialBudgets', []);
-  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
-  
-  const [assets, setAssets] = useDebouncedLocalStorage<FinancialAsset[]>('financialAssets', []);
-  const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
+  const [transactions, setTransactions, transactionsLoading] = useSharedState<FinancialTransaction[]>('financialTransactions', []);
+  const [budgets, setBudgets, budgetsLoading] = useSharedState<Budget[]>('financialBudgets', []);
+  const [assets, setAssets, assetsLoading] = useSharedState<FinancialAsset[]>('financialAssets', []);
+  const [investments, setInvestments, investmentsLoading] = useSharedState<FinancialInvestment[]>('financialInvestments', []);
+  const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useSharedState<SavingsGoal[]>('financialSavingsGoals', []);
 
-  const [investments, setInvestments] = useDebouncedLocalStorage<FinancialInvestment[]>('financialInvestments', []);
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+  const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
   const [editingInvestment, setEditingInvestment] = useState<FinancialInvestment | null>(null);
   const [updatingPriceForId, setUpdatingPriceForId] = useState<string | null>(null);
-
-
-  const [savingsGoals, setSavingsGoals] = useDebouncedLocalStorage<SavingsGoal[]>('financialSavingsGoals', []);
   const [editingSavingsGoal, setEditingSavingsGoal] = useState<SavingsGoal | null>(null);
+
+  const pageIsLoading = transactionsLoading || budgetsLoading || assetsLoading || investmentsLoading || savingsGoalsLoading;
 
 
   const handleAddTransaction = useCallback((transactionData: Omit<FinancialTransaction, 'id' | 'createdAt'>) => {
@@ -386,185 +385,193 @@ export default function FinancialManagementPage() {
                   <PiggyBank className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف پس‌انداز
                 </TabsTrigger>
               </TabsList>
-
-              <TabsContent value="transactions" className="space-y-8">
-                <DynamicAddTransactionForm onAddTransaction={handleAddTransaction} />
-                <DynamicTransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
-                <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
-                  <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (تومان)</h4>
-                  {chartData.length > 0 ? (
-                      <div style={{ width: '100%', height: 350 }}>
-                        <ResponsiveContainer>
-                          <BarChart data={chartData} margin={{ top: 5, right: 5, left: 30, bottom: 70 }} dir="rtl">
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                            <XAxis dataKey="name" angle={-45} textAnchor="end" height={50} interval={0} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
-                            <YAxis tickFormatter={value => formatCurrency(value).replace(' تومان', '')} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
-                            <Tooltip formatter={(value: number, name: string) => [formatCurrency(value), name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
-                            <Legend formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} wrapperStyle={{direction: 'rtl', paddingTop: '10px'}} payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}/>
-                            <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
-                            <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ) : (
-                      <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
-                        <p>داده‌ای برای نمایش در نمودار وجود ندارد. لطفاً ابتدا تراکنش‌های خود را ثبت کنید.</p>
-                      </div>
-                    )
-                  }
-                  <p className="text-muted-foreground text-sm mt-4 text-center">این نمودار، درآمدها و هزینه‌های ثبت شده شما را به تفکیک ماه نمایش می‌دهد.</p>
+              
+              {pageIsLoading ? (
+                <div className="flex justify-center items-center p-20">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 </div>
-              </TabsContent>
+              ) : (
+                <>
+                  <TabsContent value="transactions" className="space-y-8">
+                    <DynamicAddTransactionForm onAddTransaction={handleAddTransaction} />
+                    <DynamicTransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
+                    <div className="mt-8 p-4 border rounded-lg bg-secondary/30">
+                      <h4 className="text-lg font-semibold text-primary mb-4 text-center">نمودار درآمد و هزینه (تومان)</h4>
+                      {chartData.length > 0 ? (
+                          <div style={{ width: '100%', height: 350 }}>
+                            <ResponsiveContainer>
+                              <BarChart data={chartData} margin={{ top: 5, right: 5, left: 30, bottom: 70 }} dir="rtl">
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis dataKey="name" angle={-45} textAnchor="end" height={50} interval={0} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
+                                <YAxis tickFormatter={value => formatCurrency(value).replace(' تومان', '')} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} stroke="hsl(var(--foreground))"/>
+                                <Tooltip formatter={(value: number, name: string) => [formatCurrency(value), name === 'درآمد' ? 'درآمد' : 'هزینه']} wrapperClassName="rounded-md shadow-lg !bg-popover !border-border" contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} itemStyle={{color: 'hsl(var(--popover-foreground))'}} labelStyle={{color: 'hsl(var(--primary))', marginBottom: '0.25rem', fontWeight: 'bold'}} cursor={{fill: 'hsl(var(--muted))'}}/>
+                                <Legend formatter={(value) => <span className="text-sm" style={{color: 'hsl(var(--foreground))'}}>{value === 'درآمد' ? 'درآمد' : 'هزینه'}</span>} wrapperStyle={{direction: 'rtl', paddingTop: '10px'}} payload={[{ value: 'درآمد', type: 'square', id: 'ID01', color: 'hsl(var(--chart-2))' }, { value: 'هزینه', type: 'square', id: 'ID02', color: 'hsl(var(--chart-1))' }]}/>
+                                <Bar dataKey="درآمد" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} name="درآمد" />
+                                <Bar dataKey="هزینه" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} name="هزینه" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        ) : (
+                          <div style={{ width: '100%', height: 350 }} className="flex items-center justify-center text-muted-foreground">
+                            <p>داده‌ای برای نمایش در نمودار وجود ندارد. لطفاً ابتدا تراکنش‌های خود را ثبت کنید.</p>
+                          </div>
+                        )
+                      }
+                      <p className="text-muted-foreground text-sm mt-4 text-center">این نمودار، درآمدها و هزینه‌های ثبت شده شما را به تفکیک ماه نمایش می‌دهد.</p>
+                    </div>
+                  </TabsContent>
 
-              <TabsContent value="budgeting" className="space-y-6">
-                 <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader className="p-6">
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                      <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                      بودجه‌بندی ماهانه
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground pt-1">بودجه ماهانه خود را برای دسته‌بندی‌های مختلف هزینه تنظیم و پیگیری کنید.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                     <DynamicCreateBudgetForm onSetBudget={handleSetBudget} existingBudget={editingBudget} />
-                     <DynamicBudgetList budgets={budgets} transactions={transactions} onDeleteBudget={handleDeleteBudget} onEditBudget={handleEditBudget} />
-                     
-                     <div className="mt-8 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                          <BarChartBig className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                          نمودار پیشرفت بودجه
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          (قابلیت آینده) در این بخش نموداری برای مقایسه بصری هزینه‌های واقعی با بودجه تعیین شده برای هر دسته‌بندی نمایش داده خواهد شد.
-                        </p>
-                      </div>
-                      <div className="mt-6 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                          <BellRing className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                          هشدارهای بودجه
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          (قابلیت آینده) سیستم هشدار برای اطلاع‌رسانی در مورد نزدیک شدن به سقف بودجه یا عبور از آن در دسته‌بندی‌های مختلف.
-                        </p>
-                      </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  <TabsContent value="budgeting" className="space-y-6">
+                    <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                      <CardHeader className="p-6">
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                          <Landmark className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                          بودجه‌بندی ماهانه
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground pt-1">بودجه ماهانه خود را برای دسته‌بندی‌های مختلف هزینه تنظیم و پیگیری کنید.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-6 pt-0">
+                        <DynamicCreateBudgetForm onSetBudget={handleSetBudget} existingBudget={editingBudget} />
+                        <DynamicBudgetList budgets={budgets} transactions={transactions} onDeleteBudget={handleDeleteBudget} onEditBudget={handleEditBudget} />
+                        
+                        <div className="mt-8 p-4 border rounded-md bg-secondary/30">
+                            <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                              <BarChartBig className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                              نمودار پیشرفت بودجه
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              (قابلیت آینده) در این بخش نموداری برای مقایسه بصری هزینه‌های واقعی با بودجه تعیین شده برای هر دسته‌بندی نمایش داده خواهد شد.
+                            </p>
+                          </div>
+                          <div className="mt-6 p-4 border rounded-md bg-secondary/30">
+                            <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                              <BellRing className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                              هشدارهای بودجه
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              (قابلیت آینده) سیستم هشدار برای اطلاع‌رسانی در مورد نزدیک شدن به سقف بودجه یا عبور از آن در دسته‌بندی‌های مختلف.
+                            </p>
+                          </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="assets" className="space-y-6">
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader className="p-6">
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                       <PackageSearch className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                      مدیریت دارایی‌ها
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground pt-1">لیست دارایی‌های خود (مانند ملک، خودرو، حساب بانکی، سهام و ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <DynamicCreateAssetForm onSaveAsset={handleSaveAsset} existingAsset={editingAsset} />
-                    <DynamicAssetList assets={assets} onDeleteAsset={handleDeleteAsset} onEditAsset={setEditingAsset} onSetEditingAsset={setEditingAsset} />
-                    
-                    <div className="mt-8 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                          <BarChartBig className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                          نمودار تغییرات ارزش کل دارایی‌ها
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          (قابلیت آینده) نمایش نموداری از تغییرات ارزش کل دارایی‌های شما در طول زمان.
-                        </p>
-                      </div>
-                      <div className="mt-6 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                          <CircleDollarSign className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                           محاسبه خالص دارایی (Net Worth)
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          (قابلیت آینده) محاسبه و نمایش خالص دارایی شما (مجموع ارزش دارایی‌ها منهای مجموع بدهی‌ها). این قابلیت نیازمند بخش مدیریت بدهی‌ها نیز خواهد بود.
-                        </p>
-                      </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  <TabsContent value="assets" className="space-y-6">
+                    <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                      <CardHeader className="p-6">
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                          <PackageSearch className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                          مدیریت دارایی‌ها
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground pt-1">لیست دارایی‌های خود (مانند ملک، خودرو، حساب بانکی، سهام و ...) را ثبت و ارزش آن‌ها را پیگیری کنید.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-6 pt-0">
+                        <DynamicCreateAssetForm onSaveAsset={handleSaveAsset} existingAsset={editingAsset} />
+                        <DynamicAssetList assets={assets} onDeleteAsset={handleDeleteAsset} onEditAsset={setEditingAsset} onSetEditingAsset={setEditingAsset} />
+                        
+                        <div className="mt-8 p-4 border rounded-md bg-secondary/30">
+                            <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                              <BarChartBig className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                              نمودار تغییرات ارزش کل دارایی‌ها
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              (قابلیت آینده) نمایش نموداری از تغییرات ارزش کل دارایی‌های شما در طول زمان.
+                            </p>
+                          </div>
+                          <div className="mt-6 p-4 border rounded-md bg-secondary/30">
+                            <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+                              <CircleDollarSign className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
+                              محاسبه خالص دارایی (Net Worth)
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              (قابلیت آینده) محاسبه و نمایش خالص دارایی شما (مجموع ارزش دارایی‌ها منهای مجموع بدهی‌ها). این قابلیت نیازمند بخش مدیریت بدهی‌ها نیز خواهد بود.
+                            </p>
+                          </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="investments" className="space-y-6">
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader className="p-6">
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                       <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                      پیگیری سرمایه‌گذاری‌ها
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground pt-1">سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید. قیمت‌ها می‌توانند به صورت دستی یا (در آینده) از طریق API به‌روز شوند.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                    <DynamicCreateInvestmentForm onSaveInvestment={handleSaveInvestment} existingInvestment={editingInvestment} />
-                    {investments.length > 0 && (
-                        <Card className="mt-6 bg-primary/10 p-4">
-                            <CardHeader className="p-2 pb-1">
-                                <CardTitle className="text-md text-primary flex items-center">
-                                    <Sigma className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/>
-                                    خلاصه پورتفوی سرمایه‌گذاری
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-2 text-sm">
-                                <p>مجموع سود/زیان کل: 
-                                    <span className={cn("font-semibold", totalInvestmentProfitLoss >= 0 ? "text-green-600" : "text-red-600")}>
-                                        {formatCurrency(totalInvestmentProfitLoss)}
-                                    </span>
-                                </p>
-                            </CardContent>
-                        </Card>
-                    )}
-                    <DynamicInvestmentList 
-                        investments={investments} 
-                        onDeleteInvestment={handleDeleteInvestment} 
-                        onEditInvestment={setEditingInvestment}
-                        onUpdatePrice={handleUpdateInvestmentPrice}
-                        updatingPriceForId={updatingPriceForId}
-                    />
-                    
-                     <div className="mt-8 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                          <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها.</li>
-                          <li className="flex items-start">
-                            <RefreshCw className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>
-                             اتصال به API واقعی برای دریافت قیمت‌های لحظه‌ای (نیاز به انتخاب و پیاده‌سازی API توسط شما).
-                          </li>
-                        </ul>
-                      </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  <TabsContent value="investments" className="space-y-6">
+                    <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                      <CardHeader className="p-6">
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                          <TrendingUp className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                          پیگیری سرمایه‌گذاری‌ها
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground pt-1">سرمایه‌گذاری‌های خود (سهام، ارز دیجیتال، طلا و ...) را ثبت و عملکرد آن‌ها را دنبال کنید. قیمت‌ها می‌توانند به صورت دستی یا (در آینده) از طریق API به‌روز شوند.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-6 pt-0">
+                        <DynamicCreateInvestmentForm onSaveInvestment={handleSaveInvestment} existingInvestment={editingInvestment} />
+                        {investments.length > 0 && (
+                            <Card className="mt-6 bg-primary/10 p-4">
+                                <CardHeader className="p-2 pb-1">
+                                    <CardTitle className="text-md text-primary flex items-center">
+                                        <Sigma className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/>
+                                        خلاصه پورتفوی سرمایه‌گذاری
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-2 text-sm">
+                                    <p>مجموع سود/زیان کل: 
+                                        <span className={cn("font-semibold", totalInvestmentProfitLoss >= 0 ? "text-green-600" : "text-red-600")}>
+                                            {formatCurrency(totalInvestmentProfitLoss)}
+                                        </span>
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
+                        <DynamicInvestmentList 
+                            investments={investments} 
+                            onDeleteInvestment={handleDeleteInvestment} 
+                            onEditInvestment={setEditingInvestment}
+                            onUpdatePrice={handleUpdateInvestmentPrice}
+                            updatingPriceForId={updatingPriceForId}
+                        />
+                        
+                        <div className="mt-8 p-4 border rounded-md bg-secondary/30">
+                            <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+                              <li>نمودار عملکرد پورتفوی سرمایه‌گذاری و مقایسه با شاخص‌ها.</li>
+                              <li className="flex items-start">
+                                <RefreshCw className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0 mt-0.5 flex-shrink-0"/>
+                                اتصال به API واقعی برای دریافت قیمت‌های لحظه‌ای (نیاز به انتخاب و پیاده‌سازی API توسط شما).
+                              </li>
+                            </ul>
+                          </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="savings" className="space-y-6">
-                <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
-                  <CardHeader className="p-6">
-                    <CardTitle className="text-xl flex items-center text-foreground">
-                       <PiggyBank className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                      اهداف پس‌انداز
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground pt-1">اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6 pt-0">
-                     <DynamicCreateSavingsGoalForm onSaveGoal={handleSaveSavingsGoal} existingGoal={editingSavingsGoal} />
-                     <DynamicSavingsGoalList 
-                        goals={savingsGoals} 
-                        onDeleteGoal={handleDeleteSavingsGoal} 
-                        onEditGoal={setEditingSavingsGoal}
-                        onAddFunds={handleAddFundsToSavingsGoal}
-                        onSetStatus={handleSetSavingsGoalStatus}
-                      />
-                    <div className="mt-8 p-4 border rounded-md bg-secondary/30">
-                        <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                          <li>اختصاص دادن بخشی از درآمد یا تراکنش‌های خاص به هر هدف (اتصال به تراکنش‌ها).</li>
-                          <li>نمودار تجسمی برای پیگیری پیشرفت اهداف پس‌انداز.</li>
-                          <li>یادآوری برای واریز به اهداف پس‌انداز.</li>
-                        </ul>
-                      </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  <TabsContent value="savings" className="space-y-6">
+                    <Card className="shadow-md hover:shadow-lg transition-shadow bg-card">
+                      <CardHeader className="p-6">
+                        <CardTitle className="text-xl flex items-center text-foreground">
+                          <PiggyBank className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                          اهداف پس‌انداز
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground pt-1">اهداف پس‌انداز خود را مشخص و پیشرفت خود را مشاهده کنید.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-6 pt-0">
+                        <DynamicCreateSavingsGoalForm onSaveGoal={handleSaveSavingsGoal} existingGoal={editingSavingsGoal} />
+                        <DynamicSavingsGoalList 
+                            goals={savingsGoals} 
+                            onDeleteGoal={handleDeleteSavingsGoal} 
+                            onEditGoal={setEditingSavingsGoal}
+                            onAddFunds={handleAddFundsToSavingsGoal}
+                            onSetStatus={handleSetSavingsGoalStatus}
+                          />
+                        <div className="mt-8 p-4 border rounded-md bg-secondary/30">
+                            <h4 className="text-lg font-semibold text-primary mb-2">قابلیت‌های آینده:</h4>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
+                              <li>اختصاص دادن بخشی از درآمد یا تراکنش‌های خاص به هر هدف (اتصال به تراکنش‌ها).</li>
+                              <li>نمودار تجسمی برای پیگیری پیشرفت اهداف پس‌انداز.</li>
+                              <li>یادآوری برای واریز به اهداف پس‌انداز.</li>
+                            </ul>
+                          </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </>
+              )}
             </Tabs>
           </CardContent>
         </Card>

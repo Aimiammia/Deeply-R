@@ -10,12 +10,8 @@ import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks, Loader2 } from 'lu
 import Image from 'next/image';
 import { useState, useCallback } from 'react'; 
 import type { LongTermGoal, Book } from '@/types'; 
-// import { CreateLongTermGoalForm } from '@/components/long-term-goals/CreateLongTermGoalForm'; // Lazy loaded
-// import { LongTermGoalList } from '@/components/long-term-goals/LongTermGoalList'; // Lazy loaded
-// import { CreateBookForm } from '@/components/books/CreateBookForm'; // Lazy loaded
-// import { BookList } from '@/components/books/BookList'; // Lazy loaded
 import { useToast } from "@/hooks/use-toast";
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton'; 
 import { generateId } from '@/lib/utils';
@@ -56,11 +52,13 @@ export default function SectionNineGoalsPage() {
   const sectionPageDescription = "اهداف بزرگ و کتاب‌های خود را در این بخش تعریف، پیگیری و مدیریت نمایید.";
   const { toast } = useToast();
   
-  const [goals, setGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
+  const [goals, setGoals, goalsLoading] = useSharedState<LongTermGoal[]>('longTermGoals', []);
   const [editingGoal, setEditingGoal] = useState<LongTermGoal | null>(null);
 
-  const [books, setBooks] = useDebouncedLocalStorage<Book[]>('userBooksDeeply', []);
+  const [books, setBooks, booksLoading] = useSharedState<Book[]>('userBooksDeeply', []);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
+
+  const pageIsLoading = goalsLoading || booksLoading;
 
 
  const handleSaveGoal = useCallback((goalData: Omit<LongTermGoal, 'id' | 'createdAt'>, isEditing: boolean) => {
@@ -194,114 +192,122 @@ export default function SectionNineGoalsPage() {
                   <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> کتاب‌ها
                 </TabsTrigger>
               </TabsList>
+              
+              {pageIsLoading ? (
+                 <div className="flex justify-center items-center p-20">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                </div>
+              ) : (
+                <>
+                  <TabsContent value="goals" className="space-y-8">
+                    <Card>
+                        <CardHeader className="pb-2"> 
+                            <CardTitle className="text-xl flex items-center text-foreground">
+                                <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                {editingGoal ? 'ویرایش هدف' : 'افزودن هدف جدید'}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <DynamicCreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-xl flex items-center text-foreground">
+                                <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                لیست اهداف شما
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <DynamicLongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
+                        </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-secondary/50">
+                        <CardHeader>
+                            <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای اهداف</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
+                                <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
+                                <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
+                                <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
+                                <li>اتصال اهداف به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
+                                <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>
+                            </ul>
+                            <Image 
+                                src="https://placehold.co/600x350.png" 
+                                alt="تصویر مفهومی برنامه‌ریزی آینده و استراتژی" 
+                                width={600} 
+                                height={350}
+                                className="rounded-md mx-auto shadow-md mt-6 opacity-70"
+                                data-ai-hint="future planning strategy"
+                            />
+                        </CardContent>
+                    </Card>
+                  </TabsContent>
 
-              <TabsContent value="goals" className="space-y-8">
-                <Card>
-                    <CardHeader className="pb-2"> 
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                            <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                            {editingGoal ? 'ویرایش هدف' : 'افزودن هدف جدید'}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DynamicCreateLongTermGoalForm onSaveGoal={handleSaveGoal} existingGoal={editingGoal} />
-                    </CardContent>
-                </Card>
-                
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                            <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                            لیست اهداف شما
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DynamicLongTermGoalList goals={goals} onDeleteGoal={handleDeleteGoal} onUpdateGoal={handleUpdateGoal} />
-                    </CardContent>
-                </Card>
-                
-                <Card className="bg-secondary/50">
-                    <CardHeader>
-                         <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای اهداف</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
-                            <li>تعریف اهداف SMART (مشخص، قابل اندازه‌گیری، قابل دستیابی، مرتبط، زمان‌بندی شده)</li>
-                            <li>نمودار پیشرفت بصری برای اهداف و نقاط عطف</li>
-                            <li>یادآوری‌ها و اعلان‌ها برای اهداف و مهلت‌ها</li>
-                            <li>اتصال اهداف به وظایف روزانه در برنامه‌ریز کوتاه‌مدت برای همسوسازی تلاش‌ها</li>
-                            <li>بخش تحلیل و بازبینی پیشرفته اهداف</li>
-                        </ul>
-                        <Image 
-                            src="https://placehold.co/600x350.png" 
-                            alt="تصویر مفهومی برنامه‌ریزی آینده و استراتژی" 
-                            width={600} 
-                            height={350}
-                            className="rounded-md mx-auto shadow-md mt-6 opacity-70"
-                            data-ai-hint="future planning strategy"
-                        />
-                    </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="books" className="space-y-8">
-                <Card>
-                     <CardHeader className="pb-2">
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                            <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                            {editingBook ? 'ویرایش کتاب' : 'افزودن کتاب جدید'}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DynamicCreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
-                    </CardContent>
-                </Card>
-                <Card>
-                     <CardHeader>
-                        <CardTitle className="text-xl flex items-center text-foreground">
-                            <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                            کتابخانه شما
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DynamicBookList 
-                            books={books} 
-                            onUpdateBook={handleUpdateBook} 
-                            onDeleteBook={handleDeleteBook}
-                            onTriggerEdit={handleTriggerEditBook} 
-                        />
-                    </CardContent>
-                </Card>
-                 <Card className="bg-secondary/50">
-                    <CardHeader>
-                        <div className="flex items-center">
-                            <BookOpen className="h-6 w-6 text-primary mr-2 rtl:ml-2 rtl:mr-0" />
-                            <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای بخش کتاب</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-foreground/90 mb-4">
-                        این بخش در حال توسعه است تا تجربه مطالعه شما را بهبود بخشد.
-                        </p>
-                        <Image 
-                            src="https://placehold.co/600x300.png" 
-                            alt="تصویر مفهومی کتاب‌ها و مطالعه" 
-                            width={600} 
-                            height={300}
-                            className="rounded-md mx-auto shadow-md mt-4 opacity-70"
-                            data-ai-hint="books reading library"
-                        />
-                        <h5 className="text-md font-semibold text-primary mt-6 mb-2">برخی از امکانات برنامه‌ریزی شده:</h5>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80">
-                            <li>دسته‌بندی کتاب‌ها بر اساس ژانر یا تگ‌های سفارشی.</li>
-                            <li>امکان جستجو و فیلتر پیشرفته در کتابخانه.</li>
-                            <li>نمایش آمار مطالعه (مثلا تعداد کتاب‌های خوانده شده در ماه/سال).</li>
-                            <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف با کمک هوش مصنوعی.</li>
-                            <li>ادغام با اهداف بلندمدت (مثلا تعریف هدف "خواندن X کتاب" و پیگیری آن از طریق این بخش).</li>
-                        </ul>
-                    </CardContent>
-                </Card>
-              </TabsContent>
+                  <TabsContent value="books" className="space-y-8">
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-xl flex items-center text-foreground">
+                                <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                {editingBook ? 'ویرایش کتاب' : 'افزودن کتاب جدید'}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <DynamicCreateBookForm onSaveBook={handleSaveBook} existingBook={editingBook} />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-xl flex items-center text-foreground">
+                                <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                کتابخانه شما
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <DynamicBookList 
+                                books={books} 
+                                onUpdateBook={handleUpdateBook} 
+                                onDeleteBook={handleDeleteBook}
+                                onTriggerEdit={handleTriggerEditBook} 
+                            />
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-secondary/50">
+                        <CardHeader>
+                            <div className="flex items-center">
+                                <BookOpen className="h-6 w-6 text-primary mr-2 rtl:ml-2 rtl:mr-0" />
+                                <CardTitle className="text-xl text-primary">قابلیت‌های آینده برای بخش کتاب</CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-foreground/90 mb-4">
+                            این بخش در حال توسعه است تا تجربه مطالعه شما را بهبود بخشد.
+                            </p>
+                            <Image 
+                                src="https://placehold.co/600x300.png" 
+                                alt="تصویر مفهومی کتاب‌ها و مطالعه" 
+                                width={600} 
+                                height={300}
+                                className="rounded-md mx-auto shadow-md mt-4 opacity-70"
+                                data-ai-hint="books reading library"
+                            />
+                            <h5 className="text-md font-semibold text-primary mt-6 mb-2">برخی از امکانات برنامه‌ریزی شده:</h5>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-foreground/80">
+                                <li>دسته‌بندی کتاب‌ها بر اساس ژانر یا تگ‌های سفارشی.</li>
+                                <li>امکان جستجو و فیلتر پیشرفته در کتابخانه.</li>
+                                <li>نمایش آمار مطالعه (مثلا تعداد کتاب‌های خوانده شده در ماه/سال).</li>
+                                <li> (اختیاری) دریافت پیشنهاد کتاب بر اساس سلیقه یا اهداف با کمک هوش مصنوعی.</li>
+                                <li>ادغام با اهداف بلندمدت (مثلا تعریف هدف "خواندن X کتاب" و پیگیری آن از طریق این بخش).</li>
+                            </ul>
+                        </CardContent>
+                    </Card>
+                  </TabsContent>
+                </>
+              )}
             </Tabs>
           </CardContent>
         </Card>

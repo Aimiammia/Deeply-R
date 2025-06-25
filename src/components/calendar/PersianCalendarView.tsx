@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   JALALI_MONTH_NAMES,
   JALALI_DAY_NAMES_LONG,
@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronLeft, ChevronRight, Gift, PlusCircle, Trash2, CalendarPlus, Edit2, CalendarCheck2, CalendarIcon, Moon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Gift, PlusCircle, Trash2, CalendarPlus, Edit2, CalendarCheck2, CalendarIcon, Moon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BirthdayEntry, CalendarEvent } from '@/types';
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { format as formatGregorian, parseISO as parseISOGregorian } from 'date-fns';
 import { faIR as faIRLocale } from 'date-fns/locale';
 import { generateId } from '@/lib/utils';
+import { useSharedState } from '@/hooks/useSharedState';
 
 
 interface PersianCalendarViewProps {
@@ -41,24 +42,25 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const [daysInMonthArray, setDaysInMonthArray] = useState<number[]>([]);
   const [firstDayOfWeekIndex, setFirstDayOfWeekIndex] = useState(0);
 
-  const [birthdays, setBirthdays] = useState<BirthdayEntry[]>([]);
+  const [birthdays, setBirthdays, birthdaysLoading] = useSharedState<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
+  const [events, setEvents, eventsLoading] = useSharedState<CalendarEvent[]>('calendarEventsDeeply', []);
+
   const [showAddBirthdayForm, setShowAddBirthdayForm] = useState(false);
   const [newBirthdayName, setNewBirthdayName] = useState('');
   const [selectedBirthdayDate, setSelectedBirthdayDate] = useState<{ year: number; month: number; day: number } | null>(null);
-  const [isInitialBirthdaysLoadComplete, setIsInitialBirthdaysLoadComplete] = useState(false);
 
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showAddEventForm, setShowAddEventForm] = useState(false);
   const [newEventName, setNewEventName] = useState('');
   const [newEventDescription, setNewEventDescription] = useState('');
   const [selectedEventDate, setSelectedEventDate] = useState<{ year: number; month: number; day: number } | null>(null);
-  const [isInitialEventsLoadComplete, setIsInitialEventsLoadComplete] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
   const [inputYear, setInputYear] = useState<string>(String(currentJalaliYear));
   const [inputMonth, setInputMonth] = useState<string>(String(currentJalaliMonth));
 
   const { toast } = useToast();
+  
+  const dataIsLoading = birthdaysLoading || eventsLoading;
 
   useEffect(() => {
     const numDays = getDaysInJalaliMonth(currentJalaliYear, currentJalaliMonth);
@@ -71,40 +73,6 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     setInputYear(String(currentJalaliYear));
     setInputMonth(String(currentJalaliMonth));
   }, [currentJalaliYear, currentJalaliMonth, showAddBirthdayForm, showAddEventForm, editingEvent]);
-
-  useEffect(() => {
-    try {
-      const storedBirthdays = localStorage.getItem('calendarBirthdaysDeeply');
-      if (storedBirthdays) setBirthdays(JSON.parse(storedBirthdays));
-    } catch (error) {
-      console.error("Failed to parse birthdays from localStorage", error);
-      localStorage.removeItem('calendarBirthdaysDeeply');
-    }
-    setIsInitialBirthdaysLoadComplete(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialBirthdaysLoadComplete) {
-      localStorage.setItem('calendarBirthdaysDeeply', JSON.stringify(birthdays));
-    }
-  }, [birthdays, isInitialBirthdaysLoadComplete]);
-
-  useEffect(() => {
-    try {
-      const storedEvents = localStorage.getItem('calendarEventsDeeply');
-      if (storedEvents) setEvents(JSON.parse(storedEvents));
-    } catch (error) {
-      console.error("Failed to parse events from localStorage", error);
-      localStorage.removeItem('calendarEventsDeeply');
-    }
-    setIsInitialEventsLoadComplete(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialEventsLoadComplete) {
-      localStorage.setItem('calendarEventsDeeply', JSON.stringify(events));
-    }
-  }, [events, isInitialEventsLoadComplete]);
 
   const handlePrevMonth = () => {
     if (currentJalaliMonth === 1) {
@@ -219,14 +187,14 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
     if (eventToDelete) toast({ title: "رویداد حذف شد", description: `رویداد "${eventToDelete.name}" حذف شد.`, variant: "destructive" });
   };
 
-  const getEventsForDay = (year: number, month: number, day: number): CalendarEvent[] => {
+  const getEventsForDay = useCallback((year: number, month: number, day: number): CalendarEvent[] => {
     return events.filter(e => e.jYear === year && e.jMonth === month && e.jDay === day);
-  };
+  }, [events]);
 
-  const getBirthdaysForDay = (year: number, month: number, day: number): BirthdayEntry[] => {
-    return birthdays.filter(b => b.jYear === year && b.jMonth === month && b.jDay === day);
-  };
-
+  const getBirthdaysForDay = useCallback((month: number, day: number): BirthdayEntry[] => {
+    return birthdays.filter(b => b.jMonth === month && b.jDay === day);
+  }, [birthdays]);
+  
   const handleGoToInputDate = () => {
     const year = parseInt(inputYear);
     const month = parseInt(inputMonth);
@@ -250,7 +218,6 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       const gregStartDate = new Date(firstJalaliDayGregorianParts.gy, firstJalaliDayGregorianParts.gm - 1, firstJalaliDayGregorianParts.gd);
       const gregEndDate = new Date(lastJalaliDayGregorianParts.gy, lastJalaliDayGregorianParts.gm - 1, lastJalaliDayGregorianParts.gd);
       
-      // Format using date-fns for consistent Gregorian display in Persian
       const startStr = formatGregorian(gregStartDate, "d MMMM yyyy", {locale: faIRLocale});
       const endStr = formatGregorian(gregEndDate, "d MMMM yyyy", {locale: faIRLocale});
       
@@ -278,7 +245,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       const holidayInfo = getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day);
       const isPublicHoliday = holidayInfo?.isPublicHoliday || false;
       
-      const dayBirthdays = getBirthdaysForDay(currentJalaliYear, currentJalaliMonth, day);
+      const dayBirthdays = getBirthdaysForDay(currentJalaliMonth, day);
       const dayEvents = getEventsForDay(currentJalaliYear, currentJalaliMonth, day);
       const hasBirthday = dayBirthdays.length > 0;
       const hasEvent = dayEvents.length > 0;
@@ -327,6 +294,18 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const currentMonthOfficialHolidays = daysInMonthArray
     .map(day => getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day))
     .filter(Boolean) as { occasion: string, isPublicHoliday: boolean, day: number }[];
+
+  const birthdaysInCurrentMonth = useMemo(() => birthdays.filter(b => b.jMonth === currentJalaliMonth).sort((a,b) => a.jDay - b.jDay), [birthdays, currentJalaliMonth]);
+  const eventsInCurrentMonth = useMemo(() => events.filter(e => e.jYear === currentJalaliYear && e.jMonth === currentJalaliMonth).sort((a,b) => a.jDay - b.jDay), [events, currentJalaliYear, currentJalaliMonth]);
+
+
+  if (dataIsLoading) {
+    return (
+        <div className="flex justify-center items-center min-h-[500px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-lg shadow-xl border">

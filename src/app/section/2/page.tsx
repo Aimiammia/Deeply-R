@@ -8,14 +8,11 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain, History, Edit3, BookHeart, Loader2 } from 'lucide-react';
-// import { ReflectionForm } from '@/components/ReflectionForm'; // Lazy loaded
-// import { ReflectionHistoryList } from '@/components/ReflectionHistoryList'; // Lazy loaded
-// import { ReflectionInsightsDisplay } from '@/components/ReflectionInsightsDisplay'; // Lazy loaded
 import { useToast } from '@/hooks/use-toast';
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { analyzeUserReflections, type AnalyzeUserReflectionsInput, type AnalyzeUserReflectionsOutput } from '@/ai/flows/analyze-user-reflections';
 import type { ReflectionEntry } from '@/types';
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -37,7 +34,7 @@ export default function ReflectionsPage() {
   const { toast } = useToast();
   const currentPrompt = getDailySuccessQuote();
 
-  const [reflections, setReflections] = useDebouncedLocalStorage<ReflectionEntry[]>('dailyReflections', []);
+  const [reflections, setReflections, reflectionsLoading] = useSharedState<ReflectionEntry[]>('dailyReflections', []);
   const [selectedReflection, setSelectedReflection] = useState<ReflectionEntry | null>(null);
   const [insights, setInsights] = useState<AnalyzeUserReflectionsOutput | undefined>(undefined);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
@@ -150,11 +147,15 @@ export default function ReflectionsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <DynamicReflectionHistoryList 
-                    reflections={sortedReflections} 
-                    onSelectReflection={handleSelectReflection}
-                    selectedReflectionId={selectedReflection?.id}
-                />
+                {reflectionsLoading ? (
+                    <Skeleton className="h-64 w-full" />
+                ) : (
+                    <DynamicReflectionHistoryList 
+                        reflections={sortedReflections} 
+                        onSelectReflection={handleSelectReflection}
+                        selectedReflectionId={selectedReflection?.id}
+                    />
+                )}
               </CardContent>
             </Card>
         </div>

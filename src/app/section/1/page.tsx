@@ -16,7 +16,7 @@ import type { Task } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -37,7 +37,7 @@ export default function PlannerLandingPage() {
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   
-  const [tasks, setTasks] = useDebouncedLocalStorage<Task[]>('dailyTasksPlanner', []);
+  const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
@@ -164,13 +164,22 @@ export default function PlannerLandingPage() {
                 <div className="p-4 rounded-md border bg-primary/10 shadow-sm">
                   <DailyPromptDisplay prompt={currentSuccessQuote} />
                 </div>
-                <DynamicCreateTaskForm onAddTask={handleAddTask} />
-                <DynamicTaskList
-                  tasks={tasks}
-                  onToggleComplete={handleToggleComplete}
-                  onDeleteTask={handleDeleteTask}
-                  onEditTask={handleEditTask}
-                />
+                {tasksLoading ? (
+                    <div className="space-y-4">
+                        <Skeleton className="h-32 w-full" />
+                        <Skeleton className="h-48 w-full" />
+                    </div>
+                ) : (
+                    <>
+                        <DynamicCreateTaskForm onAddTask={handleAddTask} />
+                        <DynamicTaskList
+                        tasks={tasks}
+                        onToggleComplete={handleToggleComplete}
+                        onDeleteTask={handleDeleteTask}
+                        onEditTask={handleEditTask}
+                        />
+                    </>
+                )}
               </TabsContent>
               <TabsContent value="long-term" className="space-y-6 text-center py-8">
                 <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />

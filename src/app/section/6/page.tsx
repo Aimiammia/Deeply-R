@@ -10,7 +10,7 @@ import { ArrowLeft, Dumbbell, BarChart2, Target, Settings, Edit3, PlusCircle, Li
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import type { SportsActivity, ActiveFast, FastingSession } from '@/types';
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -68,14 +68,15 @@ export default function SportsPage() {
   const { toast } = useToast();
 
   // State for Sports Activities
-  const [activities, setActivities] = useDebouncedLocalStorage<SportsActivity[]>('userSportsActivitiesDeeply', []);
+  const [activities, setActivities, activitiesLoading] = useSharedState<SportsActivity[]>('userSportsActivitiesDeeply', []);
   const [editingActivity, setEditingActivity] = useState<SportsActivity | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   // State for Fasting
-  const [activeFast, setActiveFast] = useDebouncedLocalStorage<ActiveFast | null>('activeFastDeeply', null);
-  const [fastingSessions, setFastingSessions] = useDebouncedLocalStorage<FastingSession[]>('fastingHistoryDeeply', []);
-
+  const [activeFast, setActiveFast, activeFastLoading] = useSharedState<ActiveFast | null>('activeFastDeeply', null);
+  const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useSharedState<FastingSession[]>('fastingHistoryDeeply', []);
+  
+  const pageIsLoading = activitiesLoading || activeFastLoading || fastingSessionsLoading;
 
   const handleSaveActivity = useCallback((activityData: Omit<SportsActivity, 'id' | 'createdAt'>, isEditing: boolean) => {
     if (isEditing && editingActivity) {
@@ -194,53 +195,59 @@ export default function SportsPage() {
                     </TabsList>
                     
                     <TabsContent value="activities" className="space-y-8">
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-xl flex items-center text-foreground">
-                                    {showForm ? (editingActivity ? <Edit3 className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" /> : <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />) : <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />}
-                                        {showForm ? (editingActivity ? 'ویرایش فعالیت ورزشی' : 'افزودن فعالیت جدید') : 'فعالیت‌های ثبت شده'}
-                                    </CardTitle>
-                                    {!showForm && <CardDescription>برای افزودن یا ویرایش، روی دکمه مربوطه کلیک کنید.</CardDescription>}
-                                </div>
-                                <Button onClick={() => {
-                                    if (showForm) { 
-                                        setShowForm(false);
-                                        setEditingActivity(null);
-                                    } else {
-                                        handleAddNew();
-                                    }
-                                }} variant={showForm ? "outline" : "default"}>
-                                    {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> افزودن فعالیت جدید</>)}
-                                </Button>
-                            </CardHeader>
-                            <CardContent>
-                                {showForm ? (
-                                    <DynamicAddSportsActivityForm 
-                                        onSaveActivity={handleSaveActivity} 
-                                        existingActivity={editingActivity} 
-                                    />
-                                ) : (
-                                    <DynamicSportsActivityList 
-                                        activities={activities} 
-                                        onDeleteActivity={handleDeleteActivity}
-                                        onEditActivity={handleTriggerEdit} 
-                                    />
-                                )}
-                            </CardContent>
-                        </Card>
+                        {activitiesLoading ? <ListLoadingSkeleton /> : (
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between">
+                                    <div>
+                                        <CardTitle className="text-xl flex items-center text-foreground">
+                                        {showForm ? (editingActivity ? <Edit3 className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" /> : <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />) : <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />}
+                                            {showForm ? (editingActivity ? 'ویرایش فعالیت ورزشی' : 'افزودن فعالیت جدید') : 'فعالیت‌های ثبت شده'}
+                                        </CardTitle>
+                                        {!showForm && <CardDescription>برای افزودن یا ویرایش، روی دکمه مربوطه کلیک کنید.</CardDescription>}
+                                    </div>
+                                    <Button onClick={() => {
+                                        if (showForm) { 
+                                            setShowForm(false);
+                                            setEditingActivity(null);
+                                        } else {
+                                            handleAddNew();
+                                        }
+                                    }} variant={showForm ? "outline" : "default"}>
+                                        {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:mr-0"/> افزودن فعالیت جدید</>)}
+                                    </Button>
+                                </CardHeader>
+                                <CardContent>
+                                    {showForm ? (
+                                        <DynamicAddSportsActivityForm 
+                                            onSaveActivity={handleSaveActivity} 
+                                            existingActivity={editingActivity} 
+                                        />
+                                    ) : (
+                                        <DynamicSportsActivityList 
+                                            activities={activities} 
+                                            onDeleteActivity={handleDeleteActivity}
+                                            onEditActivity={handleTriggerEdit} 
+                                        />
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )}
                     </TabsContent>
 
                     <TabsContent value="fasting" className="space-y-8">
-                        <DynamicFastingTracker 
-                            activeFast={activeFast}
-                            onStartFast={handleStartFast}
-                            onEndFast={handleEndFast}
-                        />
-                        <DynamicFastingHistory
-                            sessions={fastingSessions}
-                            onDelete={handleDeleteFastSession}
-                        />
+                        {pageIsLoading ? <ListLoadingSkeleton /> : (
+                            <>
+                                <DynamicFastingTracker 
+                                    activeFast={activeFast}
+                                    onStartFast={handleStartFast}
+                                    onEndFast={handleEndFast}
+                                />
+                                <DynamicFastingHistory
+                                    sessions={fastingSessions}
+                                    onDelete={handleDeleteFastSession}
+                                />
+                            </>
+                        )}
                     </TabsContent>
                 </Tabs>
             </CardContent>

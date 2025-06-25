@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
 import { ClientOnly } from '@/components/ClientOnly';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDebouncedLocalStorage } from '@/hooks/useDebouncedLocalStorage';
+import { useSharedState } from '@/hooks/useSharedState';
 import { formatCurrency, generateId } from '@/lib/utils';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 
@@ -55,13 +55,14 @@ export default function IntelligentAnalysisPage() {
   const sectionPageDescription = "مرکز تحلیل داده‌های برنامه شما با پیش‌نمایش از بخش‌های کلیدی، بینش‌های هوشمند و خلاصه‌های فعالیت.";
   const { toast } = useToast();
 
-  const [tasks, setTasks] = useDebouncedLocalStorage<Task[]>('dailyTasksPlanner', []);
-  const [longTermGoals, setLongTermGoals] = useDebouncedLocalStorage<LongTermGoal[]>('longTermGoals', []);
-  const [activityLogs, setActivityLogs] = useDebouncedLocalStorage<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
-  const [reflections, setReflections] = useDebouncedLocalStorage<ReflectionEntry[]>('dailyReflections', []);
-  const [transactions, setTransactions] = useDebouncedLocalStorage<FinancialTransaction[]>('financialTransactions', []);
-  const [budgets, setBudgets] = useDebouncedLocalStorage<Budget[]>('financialBudgets', []);
-  const [isInitialLoadComplete, setIsInitialLoadComplete] = useState(false);
+  const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
+  const [longTermGoals, setLongTermGoals, goalsLoading] = useSharedState<LongTermGoal[]>('longTermGoals', []);
+  const [activityLogs, setActivityLogs, logsLoading] = useSharedState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+  const [reflections, setReflections, reflectionsLoading] = useSharedState<ReflectionEntry[]>('dailyReflections', []);
+  const [transactions, setTransactions, transactionsLoading] = useSharedState<FinancialTransaction[]>('financialTransactions', []);
+  const [budgets, setBudgets, budgetsLoading] = useSharedState<Budget[]>('financialBudgets', []);
+  
+  const isInitialLoadComplete = !tasksLoading && !goalsLoading && !logsLoading && !reflectionsLoading && !transactionsLoading && !budgetsLoading;
 
   // State for Goal Assessment
   const [goalAssessment, setGoalAssessment] = useState<string | null>(null);
@@ -87,11 +88,6 @@ export default function IntelligentAnalysisPage() {
   const [overallReport, setOverallReport] = useState<string | null>(null);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
-
-
-  useEffect(() => {
-    setIsInitialLoadComplete(true);
-  }, []);
 
   const commonErrorHandler = (error: any, defaultMessage: string, toastTitle: string) => {
     console.error(`${toastTitle} Error:`, error);
