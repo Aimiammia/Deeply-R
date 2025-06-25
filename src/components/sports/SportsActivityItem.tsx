@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { memo } from 'react'; // Added memo
+import { memo, useCallback } from 'react';
 
 interface SportsActivityItemProps {
   activity: SportsActivity;
@@ -43,6 +43,15 @@ const activityTypeLabels: Record<SportsActivity['activityType'], string> = {
 };
 
 const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivity }: SportsActivityItemProps) => {
+
+  const handleEdit = useCallback(() => {
+    onEditActivity(activity);
+  }, [activity, onEditActivity]);
+
+  const handleDelete = useCallback(() => {
+    onDeleteActivity(activity.id);
+  }, [activity.id, onDeleteActivity]);
+
   return (
     <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -58,7 +67,7 @@ const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivit
             </CardDescription>
           </div>
           <div className="flex items-center space-x-1 rtl:space-x-reverse flex-shrink-0">
-            <Button variant="ghost" size="icon" onClick={() => onEditActivity(activity)} aria-label="ویرایش فعالیت">
+            <Button variant="ghost" size="icon" onClick={handleEdit} aria-label="ویرایش فعالیت">
               <Edit3 className="h-4 w-4 text-blue-500" />
             </Button>
             <AlertDialog>
@@ -76,7 +85,7 @@ const SportsActivityItemComponent = ({ activity, onDeleteActivity, onEditActivit
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>لغو</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDeleteActivity(activity.id)} variant="destructive">حذف</AlertDialogAction>
+                  <AlertDialogAction onClick={handleDelete} variant="destructive">حذف</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 interface FastingHistoryItemProps {
   session: FastingSession;
@@ -28,6 +28,10 @@ interface FastingHistoryItemProps {
 const FastingHistoryItemComponent = ({ session, onDelete }: FastingHistoryItemProps) => {
   const startTime = parseISO(session.startTime);
   const endTime = parseISO(session.endTime);
+
+  const handleDelete = useCallback(() => {
+    onDelete(session.id);
+  }, [onDelete, session.id]);
 
   return (
     <li className="p-4 border rounded-lg shadow-sm bg-card transition-shadow hover:shadow-md">
@@ -56,7 +60,7 @@ const FastingHistoryItemComponent = ({ session, onDelete }: FastingHistoryItemPr
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>لغو</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDelete(session.id)} variant="destructive">حذف</AlertDialogAction>
+              <AlertDialogAction onClick={handleDelete} variant="destructive">حذف</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

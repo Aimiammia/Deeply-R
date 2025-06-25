@@ -28,6 +28,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ClientOnly } from '@/components/ClientOnly';
 
 const DynamicActivityForm = dynamic(() => Promise.resolve(({ onSubmit, currentLogText, setCurrentLogText, isSaving }: any) => (
   <form onSubmit={onSubmit} className="space-y-4">
@@ -161,6 +162,7 @@ export default function DailyActivityLogPage() {
   const sortedLogs = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
+    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -220,5 +222,6 @@ export default function DailyActivityLogPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
+    </ClientOnly>
   );
 }

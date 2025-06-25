@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -51,7 +51,7 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
     }
   }, [existingBook]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
       const bookData: Omit<Book, 'id' | 'addedAt' | 'finishedAt'> = {
@@ -82,7 +82,7 @@ export function CreateBookForm({ onSaveBook, existingBook }: CreateBookFormProps
         description: `کتاب "${title.trim()}" با موفقیت ${isEditing ? 'ویرایش' : 'ذخیره'} شد.`,
       });
     }
-  };
+  }, [title, author, genre, publisher, totalPages, status, currentPage, rating, isEditing, existingBook, onSaveBook, toast]);
   
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

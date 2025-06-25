@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -50,18 +50,18 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
     }
   }, [existingGoal]);
 
-  const handleAddMilestone = () => {
+  const handleAddMilestone = useCallback(() => {
     if (newMilestoneName.trim()) {
       setMilestones([...milestones, { id: generateId(), name: newMilestoneName.trim(), completed: false }]);
       setNewMilestoneName('');
     }
-  };
+  }, [newMilestoneName, milestones]);
 
-  const handleRemoveMilestone = (id: string) => {
+  const handleRemoveMilestone = useCallback((id: string) => {
     setMilestones(milestones.filter(m => m.id !== id));
-  };
+  }, [milestones]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
       onSaveGoal({
@@ -88,7 +88,7 @@ export function CreateLongTermGoalForm({ onSaveGoal, existingGoal }: CreateLongT
           description: `هدف بلندمدت "${title.trim()}" با موفقیت ${isEditing ? 'ویرایش' : 'ذخیره'} شد.`,
         });
     }
-  };
+  }, [title, description, targetDate, status, successCriteria, milestones, isEditing, existingGoal, onSaveGoal, toast]);
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8">

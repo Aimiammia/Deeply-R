@@ -2,18 +2,19 @@
 'use client';
 
 import type { Project, Task } from '@/types';
-import { useState, useMemo, memo } from 'react';
+import { useState, useMemo, memo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { TaskItem } from '@/components/tasks/TaskItem';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { FolderKanban, Edit3, Trash2, CalendarDays, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { FolderKanban, Edit3, Trash2, CalendarDays, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, ListChecks } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
+import { Label } from '@/components/ui/label';
 
 interface ProjectItemProps {
   project: Project;
@@ -39,13 +40,19 @@ const ProjectItemComponent = ({ project, tasks, onDeleteProject, onEditProject, 
   
   const { completedTasksCount, totalTasks, progress } = useMemo(() => {
     const total = projectTasks.length;
-    if (total === 0) return { completedTasksCount: 0, totalTasks: 0, progress: 0 };
+    if (total === 0) return { completedTasksCount: 0, totalTasks: 0, progress: project.status === 'completed' ? 100 : 0 };
     const completed = projectTasks.filter(t => t.completed).length;
     return { completedTasksCount: completed, totalTasks: total, progress: (completed / total) * 100 };
-  }, [projectTasks]);
+  }, [projectTasks, project.status]);
 
   const currentStatusOption = statusOptions.find(s => s.value === project.status) || statusOptions[0];
   const StatusIcon = currentStatusOption.icon;
+
+  const handleEdit = useCallback(() => {
+    onEditProject(project);
+    const element = document.getElementById(`project-form`);
+    if(element) element.scrollIntoView({ behavior: 'smooth' });
+  }, [onEditProject, project]);
 
   return (
     <Card id={`project-${project.id}`} className="mb-4 shadow-md hover:shadow-lg transition-shadow duration-300 scroll-mt-20">
@@ -70,7 +77,7 @@ const ProjectItemComponent = ({ project, tasks, onDeleteProject, onEditProject, 
                     </div>
                 </div>
                 <div className="flex items-center space-x-1 rtl:space-x-reverse flex-shrink-0">
-                    <Button variant="ghost" size="icon" onClick={() => onEditProject(project)} aria-label="ویرایش پروژه">
+                    <Button variant="ghost" size="icon" onClick={handleEdit} aria-label="ویرایش پروژه">
                         <Edit3 className="h-5 w-5 text-blue-600" />
                     </Button>
                     <AlertDialog>
@@ -83,7 +90,7 @@ const ProjectItemComponent = ({ project, tasks, onDeleteProject, onEditProject, 
                         <AlertDialogHeader>
                             <AlertDialogTitle>تایید حذف پروژه</AlertDialogTitle>
                             <AlertDialogDescription>
-                                آیا از حذف پروژه "{project.name}" و تمام وظایف مرتبط با آن مطمئن هستید؟ این عمل قابل بازگشت نیست.
+                                آیا از حذف پروژه "{project.name}" مطمئن هستید؟ وظایف مرتبط با این پروژه حذف نخواهند شد، بلکه ارتباطشان با این پروژه قطع می‌شود. این عمل قابل بازگشت نیست.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -110,7 +117,10 @@ const ProjectItemComponent = ({ project, tasks, onDeleteProject, onEditProject, 
             </div>
             {isExpanded && (
                 <div className="pt-4 border-t">
-                    <h4 className="text-md font-semibold text-foreground mb-2">وظایف پروژه</h4>
+                    <h4 className="text-md font-semibold text-foreground mb-2 flex items-center">
+                        <ListChecks className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0 text-primary" />
+                        وظایف پروژه
+                    </h4>
                     {projectTasks.length > 0 ? (
                         <ul className="border rounded-md">
                             {projectTasks.map(task => (
@@ -125,7 +135,7 @@ const ProjectItemComponent = ({ project, tasks, onDeleteProject, onEditProject, 
                         </ul>
                     ) : (
                         <p className="text-sm text-muted-foreground text-center p-4 bg-muted rounded-md">
-                            هنوز وظیفه‌ای برای این پروژه تعریف نشده است. می‌توانید از بخش «برنامه‌ریز روزانه» وظایف جدیدی به این پروژه اضافه کنید.
+                            هنوز وظیفه‌ای برای این پروژه تعریف نشده است. می‌توانید از بخش «برنامه‌ریز روزانه» وظایf جدیدی به این پروژه اضافه کنید.
                         </p>
                     )}
                 </div>

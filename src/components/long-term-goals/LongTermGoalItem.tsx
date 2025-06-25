@@ -2,7 +2,7 @@
 'use client';
 
 import type { LongTermGoal, Milestone } from '@/types';
-import { useState, memo } from 'react'; // Added memo
+import { useState, memo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, CalendarDays, Target, CheckCircle, Clock, XCircle, ListChecks, CheckSquare, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -41,17 +41,17 @@ const statusOptions: { value: LongTermGoal['status']; label: string; icon: React
 const LongTermGoalItemComponent = ({ goal, onDeleteGoal, onUpdateGoal }: LongTermGoalItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSaveEdit = (updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
+  const handleSaveEdit = useCallback((updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
     onUpdateGoal(goal.id, updatedGoalData);
     setIsEditing(false);
-  };
+  }, [goal.id, onUpdateGoal]);
 
-  const handleToggleMilestone = (milestoneId: string) => {
+  const handleToggleMilestone = useCallback((milestoneId: string) => {
     const updatedMilestones = goal.milestones?.map(m => 
       m.id === milestoneId ? { ...m, completed: !m.completed } : m
     ) || [];
     onUpdateGoal(goal.id, { ...goal, milestones: updatedMilestones });
-  };
+  }, [goal, onUpdateGoal]);
 
   const currentStatusOption = statusOptions.find(s => s.value === goal.status) || statusOptions[0];
   const StatusIcon = currentStatusOption.icon;

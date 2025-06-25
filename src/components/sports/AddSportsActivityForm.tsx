@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -44,12 +44,23 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
 
   const isEditing = !!existingActivity;
 
+  useEffect(() => {
+    if (isEditing && existingActivity) {
+      setActivityType(existingActivity.activityType);
+      setDate(new Date(existingActivity.date));
+      setDurationMinutes(existingActivity.durationMinutes);
+      setDistanceKm(existingActivity.distanceKm || '');
+      setCaloriesBurned(existingActivity.caloriesBurned || '');
+      setNotes(existingActivity.notes || '');
+    }
+  }, [existingActivity, isEditing]);
+
   const handleNumericInputChange = (setter: React.Dispatch<React.SetStateAction<number | ''>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setter(value === '' ? '' : parseFloat(value) || '');
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = useCallback((e: FormEvent) => {
     e.preventDefault();
     if (activityType && date && durationMinutes !== '' && Number(durationMinutes) > 0) {
       onSaveActivity({
@@ -80,7 +91,7 @@ export function AddSportsActivityForm({ onSaveActivity, existingActivity }: AddS
         variant: "destructive",
       });
     }
-  };
+  }, [activityType, date, durationMinutes, distanceKm, caloriesBurned, notes, isEditing, onSaveActivity, toast]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8">

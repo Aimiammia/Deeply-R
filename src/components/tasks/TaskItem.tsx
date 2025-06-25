@@ -2,7 +2,7 @@
 'use client';
 
 import type { Task } from '@/types';
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -35,21 +35,21 @@ const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }:
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.title);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setIsEditing(false);
     setEditText(task.title);
-  };
+  }, [task.title]);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = useCallback(() => {
     if (editText.trim()) {
       onEditTask(task.id, editText.trim());
       setIsEditing(false);
     }
-  };
+  }, [editText, onEditTask, task.id]);
 
   const getPriorityBadgeVariant = (priority: Task['priority']) => {
     switch (priority) {

@@ -19,6 +19,7 @@ import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
 import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ClientOnly } from '@/components/ClientOnly';
 
 const DynamicCreateTaskForm = dynamic(() => import('@/components/tasks/CreateTaskForm').then(mod => mod.CreateTaskForm), {
   loading: () => <Skeleton className="h-48 w-full" />,
@@ -169,22 +170,29 @@ export default function PlannerLandingPage() {
                 <div className="p-4 rounded-md border bg-primary/10 shadow-sm">
                   <DailyPromptDisplay prompt={currentSuccessQuote} />
                 </div>
-                {tasksLoading || projectsLoading ? (
+                 <ClientOnly fallback={
                     <div className="space-y-4">
                         <Skeleton className="h-32 w-full" />
                         <Skeleton className="h-48 w-full" />
                     </div>
-                ) : (
-                    <>
-                        <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
-                        <DynamicTaskList
-                        tasks={tasks}
-                        onToggleComplete={handleToggleComplete}
-                        onDeleteTask={handleDeleteTask}
-                        onEditTask={handleEditTask}
-                        />
-                    </>
-                )}
+                  }>
+                    {tasksLoading || projectsLoading ? (
+                        <div className="space-y-4">
+                            <Skeleton className="h-32 w-full" />
+                            <Skeleton className="h-48 w-full" />
+                        </div>
+                    ) : (
+                        <>
+                            <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
+                            <DynamicTaskList
+                            tasks={tasks}
+                            onToggleComplete={handleToggleComplete}
+                            onDeleteTask={handleDeleteTask}
+                            onEditTask={handleEditTask}
+                            />
+                        </>
+                    )}
+                </ClientOnly>
               </TabsContent>
               <TabsContent value="long-term" className="space-y-6 text-center py-8">
                 <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />

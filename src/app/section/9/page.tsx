@@ -15,6 +15,7 @@ import { useSharedState } from '@/hooks/useSharedState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton'; 
 import { generateId } from '@/lib/utils';
+import { ClientOnly } from '@/components/ClientOnly';
 
 const FormLoadingSkeleton = () => (
   <div className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8 animate-pulse">
@@ -78,7 +79,7 @@ export default function SectionNineGoalsPage() {
         };
         setGoals(prevGoals => [newGoal, ...prevGoals].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-  }, [setGoals, editingGoal, toast]); 
+  }, [setGoals, editingGoal]); 
 
   const handleDeleteGoal = useCallback((id: string) => {
     const goalToDelete = goals.find(g => g.id === id);
@@ -129,7 +130,7 @@ export default function SectionNineGoalsPage() {
       };
       setBooks(prevBooks => [newBook, ...prevBooks].sort((a,b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()));
     }
-  }, [setBooks, editingBook, toast]);
+  }, [setBooks, editingBook]);
 
   const handleUpdateBook = useCallback((updatedBook: Book) => {
     setBooks(prevBooks => prevBooks.map(b => b.id === updatedBook.id ? updatedBook : b));
@@ -156,6 +157,7 @@ export default function SectionNineGoalsPage() {
 
 
   return (
+    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -316,5 +318,6 @@ export default function SectionNineGoalsPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
+    </ClientOnly>
   );
 }

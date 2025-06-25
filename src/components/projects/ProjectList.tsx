@@ -10,9 +10,12 @@ interface ProjectListProps {
   tasks: Task[];
   onDeleteProject: (id: string) => void;
   onEditProject: (project: Project) => void;
+  onToggleTask: (id: string) => void;
+  onDeleteTask: (id: string) => void;
+  onEditTask: (id: string, newTitle: string) => void;
 }
 
-export function ProjectList({ projects, tasks, onDeleteProject, onEditProject }: ProjectListProps) {
+export function ProjectList({ projects, tasks, onDeleteProject, onEditProject, onToggleTask, onDeleteTask, onEditTask }: ProjectListProps) {
   if (projects.length === 0) {
     return (
       <div className="text-center py-10 text-muted-foreground border rounded-lg shadow-sm bg-card mt-6">
@@ -25,11 +28,6 @@ export function ProjectList({ projects, tasks, onDeleteProject, onEditProject }:
 
   const sortedProjects = [...projects].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  // Dummy functions for task actions since ProjectItem needs them but they are managed in Section 1
-  const handleDummyTaskAction = () => {
-    console.warn("Task actions should be handled in the main planner view (Section 1).");
-  };
-
   return (
     <div className="mt-8">
       <ul className="space-y-4">
@@ -40,9 +38,9 @@ export function ProjectList({ projects, tasks, onDeleteProject, onEditProject }:
             tasks={tasks}
             onDeleteProject={onDeleteProject}
             onEditProject={onEditProject}
-            onToggleTask={handleDummyTaskAction}
-            onDeleteTask={handleDummyTaskAction}
-            onEditTask={() => handleDummyTaskAction()}
+            onToggleTask={onToggleTask}
+            onDeleteTask={onDeleteTask}
+            onEditTask={onEditTask}
           />
         ))}
       </ul>
