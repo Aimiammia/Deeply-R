@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
@@ -173,26 +172,26 @@ export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
         )}
       </div>
       <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-        <Select value={priority || ''} onValueChange={(value) => setPriority(value as Task['priority'])}>
+        <Select value={priority || ''} onValueChange={(value) => setPriority(value === '_none_' ? undefined : value as Task['priority'])}>
           <SelectTrigger className="w-full sm:flex-1" aria-label="میزان اهمیت وظیفه">
             <ListFilter className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
             <SelectValue placeholder="میزان اهمیت" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value=""><em>بدون اولویت</em></SelectItem>
+            <SelectItem value="_none_"><em>بدون اولویت</em></SelectItem>
             <SelectItem value="low">کم</SelectItem>
             <SelectItem value="medium">متوسط</SelectItem>
             <SelectItem value="high">زیاد</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select value={category || ''} onValueChange={(value) => setCategory(value === '' ? undefined : value)}>
+        <Select value={category || ''} onValueChange={(value) => setCategory(value === '_none_' ? undefined : value)}>
           <SelectTrigger className="w-full sm:flex-1" aria-label="دسته‌بندی وظیفه">
             <CategoryIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
             <SelectValue placeholder="انتخاب دسته‌بندی" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value=""><em>بدون دسته‌بندی</em></SelectItem>
+            <SelectItem value="_none_"><em>بدون دسته‌بندی</em></SelectItem>
             {predefinedCategories.map(cat => (
               <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
             ))}
@@ -202,13 +201,13 @@ export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
 
       <div>
         <Label htmlFor="projectSelect" className="mb-1 block text-xs">پروژه (اختیاری)</Label>
-        <Select value={selectedProjectId || ''} onValueChange={(value) => setSelectedProjectId(value === '' ? undefined : value)}>
+        <Select value={selectedProjectId || ''} onValueChange={(value) => setSelectedProjectId(value === '_none_' ? undefined : value)}>
             <SelectTrigger id="projectSelect" className="w-full" aria-label="انتخاب پروژه">
                 <FolderKanban className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
                 <SelectValue placeholder="انتخاب پروژه..." />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value=""><em>بدون پروژه</em></SelectItem>
+                <SelectItem value="_none_"><em>بدون پروژه</em></SelectItem>
                 {projects.filter(p => p.status !== 'completed').map(proj => (
                     <SelectItem key={proj.id} value={proj.id}>{proj.name}</SelectItem>
                 ))}
