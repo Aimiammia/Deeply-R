@@ -7,7 +7,6 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ClipboardList, Target, Loader2 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 
 // Imports for Short-Term Planner
@@ -33,7 +32,7 @@ const DynamicTaskList = dynamic(() => import('@/components/tasks/TaskList').then
 
 export default function PlannerLandingPage() {
   const sectionTitle = "برنامه‌ریز";
-  const sectionPageDescription = "برنامه‌های کوتاه مدت و اهداف خود را مدیریت کنید.";
+  const sectionPageDescription = "برنامه‌های کوتاه مدت و وظایف روزانه خود را اینجا مدیریت کنید.";
 
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
@@ -149,75 +148,64 @@ export default function PlannerLandingPage() {
           {sectionPageDescription}
         </p>
 
-        <Card className="shadow-lg bg-card">
-          <CardContent className="p-6">
-            <Tabs defaultValue="short-term" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1">
-                <TabsTrigger
-                  value="short-term"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
-                  <ClipboardList className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> برنامه‌ریزی کوتاه مدت
-                </TabsTrigger>
-                <TabsTrigger
-                  value="long-term"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
-                >
-                  <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="short-term" className="space-y-6">
-                <div className="p-4 rounded-md border bg-primary/10 shadow-sm">
-                  <DailyPromptDisplay prompt={currentSuccessQuote} />
-                </div>
-                 <ClientOnly fallback={
-                    <div className="space-y-4">
-                        <Skeleton className="h-32 w-full" />
-                        <Skeleton className="h-48 w-full" />
-                    </div>
-                  }>
-                    {tasksLoading || projectsLoading ? (
-                        <div className="space-y-4">
-                            <Skeleton className="h-32 w-full" />
-                            <Skeleton className="h-48 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-6">
+                 <Card className="shadow-lg bg-card">
+                    <CardContent className="p-6">
+                        <div className="p-4 rounded-md border bg-primary/10 shadow-sm mb-6">
+                            <DailyPromptDisplay prompt={currentSuccessQuote} />
                         </div>
-                    ) : (
-                        <>
-                            <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
-                            <DynamicTaskList
-                            tasks={tasks}
-                            onToggleComplete={handleToggleComplete}
-                            onDeleteTask={handleDeleteTask}
-                            onEditTask={handleEditTask}
-                            />
-                        </>
-                    )}
-                </ClientOnly>
-              </TabsContent>
-              <TabsContent value="long-term" className="space-y-6 text-center py-8">
-                <Target className="mx-auto h-16 w-16 text-primary/70 mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">مدیریت اهداف</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  اهداف بزرگ و برنامه‌های خود را در صفحه اختصاصی اهداف (بخش ۹) تعریف، پیگیری و مدیریت کنید.
-                </p>
-                <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-shadow">
-                  <Link href="/section/9"> 
-                     <Target className="mr-2 h-5 w-5 rtl:ml-2 rtl:mr-0" />
-                    رفتن به صفحه اهداف
-                  </Link>
-                </Button>
-                 <div className="mt-10 p-4 border rounded-md bg-secondary/30 max-w-lg mx-auto">
-                    <h4 className="text-lg font-semibold text-primary mb-2">در صفحه اهداف شما می‌توانید:</h4>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-left rtl:text-right text-foreground/80">
-                      <li>اهداف خود را با عنوان، توضیحات، تاریخ هدف، معیار موفقیت و نقاط عطف تعریف کنید.</li>
-                      <li>لیست اهداف خود را مشاهده، ویرایش و حذف نمایید.</li>
-                      <li>وضعیت هر هدف و نقاط عطف آن را مشخص کنید.</li>
-                    </ul>
-                  </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                        <ClientOnly fallback={
+                            <div className="space-y-4">
+                                <Skeleton className="h-32 w-full" />
+                                <Skeleton className="h-48 w-full" />
+                            </div>
+                        }>
+                            {tasksLoading || projectsLoading ? (
+                                <div className="space-y-4">
+                                    <Skeleton className="h-32 w-full" />
+                                    <Skeleton className="h-48 w-full" />
+                                </div>
+                            ) : (
+                                <>
+                                    <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
+                                    <DynamicTaskList
+                                    tasks={tasks}
+                                    onToggleComplete={handleToggleComplete}
+                                    onDeleteTask={handleDeleteTask}
+                                    onEditTask={handleEditTask}
+                                    />
+                                </>
+                            )}
+                        </ClientOnly>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="md:col-span-1 space-y-6">
+                 <Card className="shadow-lg bg-card/70 border-primary/20 hover:border-primary/50 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-primary">
+                            <Target className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />
+                            اهداف بلندمدت
+                        </CardTitle>
+                        <CardDescription>
+                            اهداف بزرگ و برنامه‌های آینده خود را تعریف و پیگیری کنید.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                           برای مدیریت اهداف بلندمدت، نقاط عطف و معیارهای موفقیت، به صفحه اختصاصی اهداف بروید.
+                        </p>
+                        <Button asChild size="sm" className="w-full">
+                            <Link href="/section/9">
+                                <Target className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                                مدیریت اهداف
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -196,14 +197,14 @@ export default function SportsPage() {
                         </TabsList>
                         
                         <TabsContent value="activities" className="space-y-8">
-                            <Card>
+                             <Card id="activity-form-card" className="scroll-mt-20">
                                 <CardHeader className="flex flex-row items-center justify-between">
                                     <div>
-                                        <CardTitle className="text-xl flex items-center text-foreground">
-                                        {showForm ? (editingActivity ? <Edit3 className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" /> : <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />) : <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />}
-                                            {showForm ? (editingActivity ? 'ویرایش فعالیت ورزشی' : 'افزودن فعالیت جدید') : 'فعالیت‌های ثبت شده'}
-                                        </CardTitle>
-                                        {!showForm && <CardDescription>برای افزودن یا ویرایش، روی دکمه مربوطه کلیک کنید.</CardDescription>}
+                                    <CardTitle className="text-xl flex items-center text-foreground">
+                                        <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                        {showForm ? (editingActivity ? 'ویرایش فعالیت' : 'افزودن فعالیت جدید') : 'افزودن فعالیت جدید'}
+                                    </CardTitle>
+                                    {!showForm && <CardDescription>برای افزودن فعالیت جدید روی دکمه کلیک کنید.</CardDescription>}
                                     </div>
                                     <Button onClick={() => {
                                         if (showForm) { 
@@ -213,22 +214,32 @@ export default function SportsPage() {
                                             handleAddNew();
                                         }
                                     }} variant={showForm ? "outline" : "default"}>
-                                        {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:mr-0"/> افزودن فعالیت جدید</>)}
+                                        {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:mr-0"/> افزودن</>)}
                                     </Button>
                                 </CardHeader>
-                                <CardContent>
-                                    {showForm ? (
+                                {showForm && (
+                                    <CardContent>
                                         <DynamicAddSportsActivityForm 
                                             onSaveActivity={handleSaveActivity} 
                                             existingActivity={editingActivity} 
                                         />
-                                    ) : (
-                                        <DynamicSportsActivityList 
-                                            activities={activities} 
-                                            onDeleteActivity={handleDeleteActivity}
-                                            onEditActivity={handleTriggerEdit} 
-                                        />
-                                    )}
+                                    </CardContent>
+                                )}
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-xl flex items-center text-foreground">
+                                        <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                        لیست فعالیت‌های ثبت شده
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                     <DynamicSportsActivityList 
+                                        activities={activities} 
+                                        onDeleteActivity={handleDeleteActivity}
+                                        onEditActivity={handleTriggerEdit} 
+                                    />
                                 </CardContent>
                             </Card>
                         </TabsContent>

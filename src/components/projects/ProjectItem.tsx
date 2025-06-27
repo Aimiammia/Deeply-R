@@ -50,14 +50,6 @@ const ProjectItemComponent = ({ project, tasks, onDeleteProject, onEditProject, 
 
   const handleEdit = useCallback(() => {
     onEditProject(project);
-    // Find the form element and scroll to it. Assumes form has a consistent parent or ID.
-    // The form is in the parent component `ProjectsPage`. We need a way to reference it.
-    // A simple way is to give the card containing the form an ID.
-    // Let's assume the CreateProjectForm is inside a Card with id="project-form-card"
-    const formCard = document.getElementById('project-form-card');
-    if (formCard) {
-      formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }, [onEditProject, project]);
 
   return (

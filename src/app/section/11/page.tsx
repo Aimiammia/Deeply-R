@@ -82,6 +82,10 @@ export default function ProjectsPage() {
   const handleEditProject = (project: Project) => {
     setEditingProject(project);
     setShowForm(true);
+    const formCard = document.getElementById('project-form-card');
+    if (formCard) {
+      formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
   
   const handleAddNew = () => {
