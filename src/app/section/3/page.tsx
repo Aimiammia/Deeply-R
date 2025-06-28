@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Header } from '@/components/Header';
@@ -11,7 +12,7 @@ import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment,
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { ClientOnly } from '@/components/ClientOnly';
 import { cn, formatCurrency, generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton'; 
@@ -70,11 +71,11 @@ export default function FinancialManagementPage() {
 
   const { toast } = useToast();
   
-  const [transactions, setTransactions, transactionsLoading] = useSharedState<FinancialTransaction[]>('financialTransactions', []);
-  const [budgets, setBudgets, budgetsLoading] = useSharedState<Budget[]>('financialBudgets', []);
-  const [assets, setAssets, assetsLoading] = useSharedState<FinancialAsset[]>('financialAssets', []);
-  const [investments, setInvestments, investmentsLoading] = useSharedState<FinancialInvestment[]>('financialInvestments', []);
-  const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useSharedState<SavingsGoal[]>('financialSavingsGoals', []);
+  const [transactions, setTransactions, transactionsLoading] = useLocalStorageState<FinancialTransaction[]>('financialTransactions', []);
+  const [budgets, setBudgets, budgetsLoading] = useLocalStorageState<Budget[]>('financialBudgets', []);
+  const [assets, setAssets, assetsLoading] = useLocalStorageState<FinancialAsset[]>('financialAssets', []);
+  const [investments, setInvestments, investmentsLoading] = useLocalStorageState<FinancialInvestment[]>('financialInvestments', []);
+  const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useLocalStorageState<SavingsGoal[]>('financialSavingsGoals', []);
 
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);

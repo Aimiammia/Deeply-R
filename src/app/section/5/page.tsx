@@ -10,7 +10,7 @@ import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags, L
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import type { Habit } from '@/types';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,7 +31,7 @@ export default function HabitsPage() {
   const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید.";
   const { toast } = useToast();
 
-  const [habits, setHabits, habitsLoading] = useSharedState<Habit[]>('userHabitsDeeply', []);
+  const [habits, setHabits, habitsLoading] = useLocalStorageState<Habit[]>('userHabitsDeeply', []);
 
   const handleAddHabit = useCallback((name: string) => {
     const newHabit: Habit = {
@@ -119,17 +119,6 @@ export default function HabitsPage() {
               </CardContent>
             </Card>
             
-            <div className="text-center my-8">
-                <Image
-                src="https://placehold.co/600x350.png"
-                alt="تصویر مفهومی پیگیری عادت‌ها و پیشرفت"
-                width={600}
-                height={350}
-                className="rounded-md mx-auto shadow-md"
-                data-ai-hint="habit tracking progress"
-                />
-            </div>
-
             <Card className="bg-secondary/50">
               <CardHeader>
                 <CardTitle className="text-xl text-primary">قابلیت‌های برنامه‌ریزی شده برای ردیاب عادت‌ها</CardTitle>

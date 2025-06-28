@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -113,7 +113,7 @@ export default function DailyActivityLogPage() {
   const sectionTitle = "یادداشت فعالیت‌های روزانه";
   const sectionPageDescription = "فعالیت‌ها، دستاوردها و کارهایی که در طول روز انجام داده‌اید را در اینجا به صورت آیتم‌های لیست وارد و مرور کنید.";
 
-  const [logs, setLogs, logsLoading] = useSharedState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+  const [logs, setLogs, logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { parseISO, format } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubjectType } from '@/lib/educational-data';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -470,12 +470,12 @@ export default function EducationPage() {
   const sectionTitle = "تحصیل و یادگیری";
   const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
   
-  const [educationalSettings, setEducationalSettings, settingsLoading] = useSharedState<EducationalLevelStorage>(
+  const [educationalSettings, setEducationalSettings, settingsLoading] = useLocalStorageState<EducationalLevelStorage>(
     'educationalLevelSettingsDeeply', 
     initialEducationalSettings
   );
   
-  const [subjectProgress, setSubjectProgress, progressLoading] = useSharedState<EducationalSubjectUserProgress>(
+  const [subjectProgress, setSubjectProgress, progressLoading] = useLocalStorageState<EducationalSubjectUserProgress>(
     'educationalSubjectProgressDeeply',
     {}
   );
@@ -602,14 +602,6 @@ export default function EducationPage() {
                 <p className="text-muted-foreground text-sm">
                 ما به طور مداوم در حال کار بر روی افزودن و بهبود قابلیت‌های این بخش هستیم تا تجربه یادگیری شما را غنی‌تر کنیم.
                 </p>
-                <Image
-                src="https://placehold.co/500x300.png"
-                alt="تصویر مفهومی تحصیل، یادگیری و مطالعه"
-                width={500}
-                height={300}
-                className="rounded-md mx-auto shadow-md mt-6 opacity-80"
-                data-ai-hint="education learning study"
-                />
             </div>
         </div>
       </main>

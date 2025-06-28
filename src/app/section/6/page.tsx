@@ -10,7 +10,7 @@ import { ArrowLeft, Dumbbell, BarChart2, Target, Settings, Edit3, PlusCircle, Li
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import type { SportsActivity, ActiveFast, FastingSession } from '@/types';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,13 +69,13 @@ export default function SportsPage() {
   const { toast } = useToast();
 
   // State for Sports Activities
-  const [activities, setActivities, activitiesLoading] = useSharedState<SportsActivity[]>('userSportsActivitiesDeeply', []);
+  const [activities, setActivities, activitiesLoading] = useLocalStorageState<SportsActivity[]>('userSportsActivitiesDeeply', []);
   const [editingActivity, setEditingActivity] = useState<SportsActivity | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   // State for Fasting
-  const [activeFast, setActiveFast, activeFastLoading] = useSharedState<ActiveFast | null>('activeFastDeeply', null);
-  const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useSharedState<FastingSession[]>('fastingHistoryDeeply', []);
+  const [activeFast, setActiveFast, activeFastLoading] = useLocalStorageState<ActiveFast | null>('activeFastDeeply', null);
+  const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useLocalStorageState<FastingSession[]>('fastingHistoryDeeply', []);
   
   const pageIsLoading = activitiesLoading || activeFastLoading || fastingSessionsLoading;
 
