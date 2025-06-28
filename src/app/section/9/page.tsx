@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -190,16 +191,16 @@ export default function SectionNineGoalsPage() {
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6">
             <Tabs defaultValue="goals" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1">
+              <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1 h-auto">
                 <TabsTrigger
                   value="goals"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5"
                 >
                   <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف
                 </TabsTrigger>
                 <TabsTrigger
                   value="books"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5"
                 >
                   <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> کتاب‌ها
                 </TabsTrigger>
