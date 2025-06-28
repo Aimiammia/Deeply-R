@@ -20,6 +20,7 @@ const ALL_APP_KEYS = [
 ];
 
 interface AuthContextType {
+  isLoading: boolean;
   isLocked: boolean;
   isPasswordSet: boolean;
   setPassword: (password: string) => void;
@@ -32,6 +33,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isLoading, setIsLoading] = useState(true);
   const [isLocked, setIsLocked] = useState(true);
   const [isPasswordSet, setIsPasswordSet] = useState(false);
   const passwordKeyRef = useRef<string | null>(null);
@@ -51,12 +53,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [lock]);
 
   useEffect(() => {
-    // This effect runs on mount to check if a password has been set previously.
-    // It should NOT unlock the app; it only sets up the state for the LockScreen component.
-    const checkValue = localStorage.getItem(PASSWORD_CHECK_KEY);
-    setIsPasswordSet(!!checkValue);
-    // The 'isLocked' state is true by default and should only be set to false
-    // after a successful `unlock` or `setPassword` action.
+    // This effect now determines the initial state and then signals loading is complete.
+    try {
+      const checkValue = localStorage.getItem(PASSWORD_CHECK_KEY);
+      setIsPasswordSet(!!checkValue);
+    } catch (e) {
+      console.error("Error accessing localStorage during auth check", e);
+      setIsPasswordSet(false);
+    } finally {
+      setIsLoading(false); // Signal that we are done loading.
+    }
   }, []);
 
   useEffect(() => {
@@ -127,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [toast]);
 
   return (
-    <AuthContext.Provider value={{ isLocked, isPasswordSet, setPassword, unlock, lock, getEncryptionKey, resetApp }}>
+    <AuthContext.Provider value={{ isLoading, isLocked, isPasswordSet, setPassword, unlock, lock, getEncryptionKey, resetApp }}>
       {children}
     </AuthContext.Provider>
   );
