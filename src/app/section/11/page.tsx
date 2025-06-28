@@ -6,14 +6,15 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, FolderKanban, PlusCircle, ListChecks, Loader2 } from 'lucide-react';
+import { ArrowLeft, FolderKanban, PlusCircle, ListChecks, Loader2, CopyPlus } from 'lucide-react';
 import { useState, useCallback } from 'react';
-import type { Project, Task } from '@/types';
+import type { Project, Task, ProjectTemplate } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { generateId } from '@/lib/utils';
 import { ClientOnly } from '@/components/ClientOnly';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const FormLoadingSkeleton = () => (
   <div className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8 animate-pulse">
@@ -49,9 +50,11 @@ export default function ProjectsPage() {
 
   const [projects, setProjects, projectsLoading] = useLocalStorageState<Project[]>('allProjects', []);
   const [tasks, setTasks, tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
+  const [templates, , templatesLoading] = useLocalStorageState<ProjectTemplate[]>('projectTemplates', []);
   
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
 
   const pageIsLoading = projectsLoading || tasksLoading;
 
@@ -117,6 +120,36 @@ export default function ProjectsPage() {
     );
   }, [setTasks]);
 
+  const handleUseTemplate = useCallback((template: ProjectTemplate) => {
+    const newProjectId = generateId();
+    const newProject: Project = {
+        id: newProjectId,
+        name: template.name,
+        description: template.projectDescription,
+        status: 'not-started',
+        dueDate: null,
+        createdAt: new Date().toISOString(),
+    };
+
+    const newTasks: Task[] = template.tasks.map(taskTemplate => ({
+        id: generateId(),
+        title: taskTemplate.title,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        projectId: newProjectId,
+        projectName: newProject.name,
+    }));
+
+    setProjects(prev => [newProject, ...prev]);
+    setTasks(prev => [...newTasks, ...prev]);
+
+    toast({
+        title: "پروژه از قالب ایجاد شد",
+        description: `پروژه "${newProject.name}" با ${newTasks.length.toLocaleString('fa-IR')} وظیفه ایجاد شد.`,
+    });
+    setIsTemplateDialogOpen(false);
+  }, [setProjects, setTasks, toast]);
+
 
   return (
     <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
@@ -169,10 +202,15 @@ export default function ProjectsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl flex items-center text-foreground">
-                  <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                  لیست پروژه‌های شما
-                </CardTitle>
+                <div className="flex justify-between items-center">
+                    <CardTitle className="text-xl flex items-center text-foreground">
+                        <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                        لیست پروژه‌های شما
+                    </CardTitle>
+                    <Button onClick={() => setIsTemplateDialogOpen(true)} variant="secondary" disabled={templatesLoading || templates.length === 0}>
+                        <CopyPlus className="ml-2 h-4 w-4 rtl:mr-2 rtl:mr-0"/> استفاده از قالب
+                    </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {pageIsLoading ? (
@@ -196,6 +234,45 @@ export default function ProjectsPage() {
           <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
         </footer>
       </div>
+
+        <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>استفاده از قالب پروژه</DialogTitle>
+                    <DialogDescription>
+                        یک قالب را برای ایجاد پروژه جدید انتخاب کنید.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    {templatesLoading ? <Loader2 className="animate-spin" /> : (
+                        <ul className="space-y-2 max-h-[400px] overflow-y-auto">
+                            {templates.map(template => (
+                                <li key={template.id}>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-between h-auto py-2"
+                                        onClick={() => handleUseTemplate(template)}
+                                    >
+                                        <div className="text-right">
+                                            <p className="font-semibold">{template.name}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {template.tasks.length.toLocaleString('fa-IR')} وظیفه
+                                            </p>
+                                        </div>
+                                        <PlusCircle className="h-5 w-5 text-primary" />
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {(!templatesLoading && templates.length === 0) && (
+                        <p className="text-center text-muted-foreground p-4">
+                            هیچ قالبی برای استفاده وجود ندارد. ابتدا از بخش «مدیریت قالب‌ها» یک قالب بسازید.
+                        </p>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
     </ClientOnly>
   );
 }

@@ -31,6 +31,8 @@ const LOCALSTORAGE_KEYS_TO_BACKUP = [
   'fastingHistoryDeeply',
   'educationalLevelSettingsDeeply',
   'educationalSubjectProgressDeeply',
+  'knowledgeBasePages',
+  'projectTemplates',
   'theme'
 ];
 

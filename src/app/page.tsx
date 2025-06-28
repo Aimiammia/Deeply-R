@@ -16,6 +16,7 @@ import {
   ListChecks,
   FolderKanban,
   BrainCircuit,
+  CopyPlus,
   type LucideIcon
 } from 'lucide-react';
 
@@ -116,6 +117,14 @@ const sections: Section[] = [
         title: "پایگاه دانش شخصی",
         description: "یادداشت‌ها، خلاصه‌ها و دانش خود را در یک ویکی شخصی سازماندهی کنید.",
         content: "یک مکان متمرکز برای ساختن پایگاه دانش خود و اتصال ایده‌ها به یکدیگر."
+    },
+    {
+        key: '13',
+        link: '/section/templates',
+        icon: CopyPlus,
+        title: "مدیریت قالب‌ها",
+        description: "قالب‌هایی برای پروژه‌ها و وظایف تکراری خود بسازید.",
+        content: "برای کارهای تکراری مانند راه‌اندازی پروژه جدید، قالب بسازید و در زمان خود صرفه‌جویی کنید."
     },
     {
         key: 'settings',

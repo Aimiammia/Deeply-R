@@ -201,3 +201,16 @@ export interface KnowledgePage {
   createdAt: string; // ISO date string
   updatedAt:string; // ISO date string
 }
+
+export interface TemplateTask {
+  id: string;
+  title: string;
+}
+
+export interface ProjectTemplate {
+  id: string;
+  name: string; // Template name, e.g., "New Website Launch"
+  projectDescription: string | null;
+  tasks: TemplateTask[]; // A list of tasks for the project
+  createdAt: string; // ISO date string
+}
