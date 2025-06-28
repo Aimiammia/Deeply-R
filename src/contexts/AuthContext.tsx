@@ -1,12 +1,13 @@
 
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode, useRef } from 'react';
 import { encrypt, decrypt } from '@/lib/crypto';
 import { useToast } from '@/hooks/use-toast';
 
 const PASSWORD_CHECK_KEY = 'deeply-auth-check';
 const PASSWORD_CHECK_VALUE = 'deeply-password-is-correct';
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
 interface AuthContextType {
   isLocked: boolean;
@@ -24,6 +25,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isPasswordSet, setIsPasswordSet] = useState(false);
   const [passwordKey, setPasswordKey] = useState<string | null>(null);
   const { toast } = useToast();
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const lock = useCallback(() => {
+    setPasswordKey(null);
+    setIsLocked(true);
+  }, []);
+
+  const resetInactivityTimer = useCallback(() => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    inactivityTimerRef.current = setTimeout(lock, INACTIVITY_TIMEOUT);
+  }, [lock]);
 
   useEffect(() => {
     // Check if a password has been set on initial load
@@ -31,6 +45,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsPasswordSet(!!checkValue);
     setIsLocked(!!checkValue); // Lock if password is set
   }, []);
+
+  useEffect(() => {
+    if (!isLocked && isPasswordSet) {
+      const events: (keyof WindowEventMap)[] = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+      
+      // Start the timer when the app is unlocked
+      resetInactivityTimer();
+      
+      events.forEach(event => window.addEventListener(event, resetInactivityTimer));
+      
+      // Cleanup function
+      return () => {
+        if (inactivityTimerRef.current) {
+          clearTimeout(inactivityTimerRef.current);
+        }
+        events.forEach(event => window.removeEventListener(event, resetInactivityTimer));
+      };
+    }
+  }, [isLocked, isPasswordSet, resetInactivityTimer]);
 
   const setPassword = useCallback((password: string) => {
     if (password.length < 6) {
@@ -63,11 +96,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true;
     }
     return false;
-  }, []);
-
-  const lock = useCallback(() => {
-    setPasswordKey(null);
-    setIsLocked(true);
   }, []);
 
   return (
