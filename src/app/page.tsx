@@ -30,12 +30,12 @@ const sectionIcons: LucideIcon[] = [
   BookOpen,         // Section 7 (Education/Study)
   FileText,         // Section 8 (Daily Activity Log)
   Target,           // Section 9 (Goals)
-  PieChart,         // Section 10 (Data Analysis and Reports)
-  FolderKanban,     // Section 11 (Projects)
+  FolderKanban,     // Section 11 (Projects) - Note index is 9 now
+  PieChart,         // Section 10 is removed, this won't be used
 ];
 
 export default function HomePage() {
-  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 10];
+  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -52,7 +52,14 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sectionsToDisplay.map((sectionNumber) => {
-            const iconIndex = sectionNumber -1;
+            
+            let iconIndex;
+            if (sectionNumber === 11) {
+                iconIndex = 9; // Project icon
+            } else {
+                iconIndex = sectionNumber -1;
+            }
+
             let IconComponent = Settings; // Fallback icon
 
             if (iconIndex >= 0 && iconIndex < sectionIcons.length) {
@@ -71,8 +78,8 @@ export default function HomePage() {
               sectionContent = "وظایف امروز خود را اینجا برنامه‌ریزی کنید.";
             } else if (sectionNumber === 2) {
               sectionTitle = "تأملات روزانه";
-              sectionDescription = "افکار و احساسات خود را ثبت و تحلیل کنید";
-              sectionContent = "بینش‌های جدیدی در مورد خودتان با کمک هوش مصنوعی کشف کنید.";
+              sectionDescription = "افکار و احساسات خود را ثبت و مرور کنید";
+              sectionContent = "نوشته‌های روزانه خود را برای بازبینی ذخیره کنید.";
             } else if (sectionNumber === 3) {
               sectionTitle = "مدیریت مالی";
               sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
@@ -88,7 +95,7 @@ export default function HomePage() {
             } else if (sectionNumber === 6) {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
-              sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید. (بخش آینده)";
+              sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
             } else if (sectionNumber === 7) {
               sectionTitle = "تحصیل";
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
@@ -98,14 +105,10 @@ export default function HomePage() {
               sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
               sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
             } else if (sectionNumber === 9) {
-              sectionTitle = "اهداف";
-              sectionDescription = "اهداف بزرگ و برنامه‌های خود را تعریف و پیگیری کنید.";
-              sectionContent = "اهداف آینده خود را اینجا برنامه‌ریزی و مدیریت نمایید.";
+              sectionTitle = "اهداف و کتاب‌ها";
+              sectionDescription = "اهداف بزرگ و کتاب‌های خود را تعریف و پیگیری کنید.";
+              sectionContent = "اهداف آینده و لیست کتاب‌های خود را اینجا مدیریت نمایید.";
               sectionLink = `/section/9`;
-            } else if (sectionNumber === 10) {
-              sectionTitle = "تحلیل هوشمند و گزارش جامع";
-              sectionDescription = "مرکز تحلیل داده‌های برنامه با استفاده از هوش مصنوعی.";
-              sectionContent = "در این بخش، گزارشات تحلیلی، نمودارها و بینش‌های هوشمند از تمام داده‌های شما ارائه می‌شود.";
             } else if (sectionNumber === 11) {
               sectionTitle = "مدیریت پروژه‌ها";
               sectionDescription = "پروژه‌های خود را با وظایف، مهلت‌ها و تیم مدیریت کنید.";
