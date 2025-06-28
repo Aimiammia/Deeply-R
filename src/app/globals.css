@@ -164,6 +164,138 @@
     --chart-1: 25 90% 70%;
     --chart-2: 327 78% 80%;
   }
+
+  .theme-ocean {
+    --background: 195 53% 96%;
+    --foreground: 200 30% 15%;
+    --card: 195 53% 100%;
+    --card-foreground: 200 30% 15%;
+    --popover: 195 53% 100%;
+    --popover-foreground: 200 30% 15%;
+    --primary: 200 85% 45%;
+    --primary-foreground: 200 85% 98%;
+    --secondary: 195 40% 93%;
+    --secondary-foreground: 200 30% 15%;
+    --muted: 195 40% 93%;
+    --muted-foreground: 200 20% 45%;
+    --accent: 195 85% 92%;
+    --accent-foreground: 200 85% 35%;
+    --border: 195 30% 88%;
+    --input: 195 30% 88%;
+    --ring: 200 85% 45%;
+    --chart-1: 200 85% 45%;
+    --chart-2: 175 60% 50%;
+  }
+
+  .dark.theme-ocean {
+    --background: 200 50% 10%;
+    --foreground: 200 15% 90%;
+    --card: 200 50% 14%;
+    --card-foreground: 200 15% 90%;
+    --popover: 200 50% 10%;
+    --popover-foreground: 200 15% 90%;
+    --primary: 190 80% 65%;
+    --primary-foreground: 190 80% 10%;
+    --secondary: 200 40% 17%;
+    --secondary-foreground: 200 15% 90%;
+    --muted: 200 40% 17%;
+    --muted-foreground: 200 15% 65%;
+    --accent: 200 50% 25%;
+    --accent-foreground: 200 15% 90%;
+    --border: 200 40% 25%;
+    --input: 200 40% 25%;
+    --ring: 190 80% 65%;
+    --chart-1: 190 80% 65%;
+    --chart-2: 175 50% 75%;
+  }
+
+  .theme-crimson {
+    --background: 0 0% 98%;
+    --foreground: 0 30% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 30% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 30% 10%;
+    --primary: 350 80% 55%;
+    --primary-foreground: 350 80% 98%;
+    --secondary: 0 10% 94%;
+    --secondary-foreground: 0 30% 10%;
+    --muted: 0 10% 94%;
+    --muted-foreground: 0 10% 45%;
+    --accent: 350 80% 94%;
+    --accent-foreground: 350 80% 40%;
+    --border: 0 10% 89%;
+    --input: 0 10% 89%;
+    --ring: 350 80% 55%;
+    --chart-1: 350 80% 55%;
+    --chart-2: 0 40% 60%;
+  }
+
+  .dark.theme-crimson {
+    --background: 0 10% 8%;
+    --foreground: 0 5% 90%;
+    --card: 0 10% 12%;
+    --card-foreground: 0 5% 90%;
+    --popover: 0 10% 8%;
+    --popover-foreground: 0 5% 90%;
+    --primary: 355 90% 65%;
+    --primary-foreground: 355 90% 10%;
+    --secondary: 0 15% 15%;
+    --secondary-foreground: 0 5% 90%;
+    --muted: 0 15% 15%;
+    --muted-foreground: 0 5% 65%;
+    --accent: 0 20% 20%;
+    --accent-foreground: 0 5% 90%;
+    --border: 0 15% 25%;
+    --input: 0 15% 25%;
+    --ring: 355 90% 65%;
+    --chart-1: 355 90% 65%;
+    --chart-2: 0 30% 75%;
+  }
+
+  .theme-cyberpunk {
+    --background: 270 30% 97%;
+    --foreground: 270 50% 15%;
+    --card: 270 30% 100%;
+    --card-foreground: 270 50% 15%;
+    --popover: 270 30% 100%;
+    --popover-foreground: 270 50% 15%;
+    --primary: 320 100% 55%;
+    --primary-foreground: 320 100% 98%;
+    --secondary: 270 20% 94%;
+    --secondary-foreground: 270 50% 15%;
+    --muted: 270 20% 94%;
+    --muted-foreground: 270 30% 45%;
+    --accent: 180 90% 92%;
+    --accent-foreground: 180 90% 40%;
+    --border: 270 20% 89%;
+    --input: 270 20% 89%;
+    --ring: 320 100% 55%;
+    --chart-1: 320 100% 55%;
+    --chart-2: 180 90% 50%;
+  }
+
+  .dark.theme-cyberpunk {
+    --background: 265 60% 8%;
+    --foreground: 265 20% 90%;
+    --card: 265 60% 12%;
+    --card-foreground: 265 20% 90%;
+    --popover: 265 60% 8%;
+    --popover-foreground: 265 20% 90%;
+    --primary: 320 100% 65%;
+    --primary-foreground: 320 100% 10%;
+    --secondary: 265 50% 16%;
+    --secondary-foreground: 265 20% 90%;
+    --muted: 265 50% 16%;
+    --muted-foreground: 265 15% 65%;
+    --accent: 180 90% 45%;
+    --accent-foreground: 180 10% 95%;
+    --border: 265 50% 25%;
+    --input: 265 50% 25%;
+    --ring: 320 100% 65%;
+    --chart-1: 320 100% 65%;
+    --chart-2: 180 90% 60%;
+  }
 }
 
 @layer base {
