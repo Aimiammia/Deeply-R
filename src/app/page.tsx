@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -12,32 +11,115 @@ import {
   Target,
   Dumbbell,
   BookOpen,
-  PieChart,
   FileText,
   Settings,
   ListChecks,
   FolderKanban,
+  type LucideIcon
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
-// Helper array for icons
-const sectionIcons: LucideIcon[] = [
-  CalendarCheck2,   // Section 1 (Tasks/Planner)
-  BookHeart,        // Section 2 (Daily Reflections)
-  CircleDollarSign, // Section 3 (Financial Management)
-  CalendarDays,     // Section 4 (Calendar)
-  ListChecks,       // Section 5 (Habits)
-  Dumbbell,         // Section 6 (Sports/Exercise)
-  BookOpen,         // Section 7 (Education/Study)
-  FileText,         // Section 8 (Daily Activity Log / Inbox)
-  Target,           // Section 9 (Goals)
-  FolderKanban,     // Section 11 (Projects) - Note index is 9 now
-  PieChart,         // Section 10 is removed, this won't be used
+interface Section {
+  key: string;
+  link: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  content: string;
+}
+
+const sections: Section[] = [
+    {
+        key: '1',
+        link: '/section/1',
+        icon: CalendarCheck2,
+        title: "برنامه‌ریز روزانه",
+        description: "برنامه‌ریزی و مدیریت کارهای روزانه",
+        content: "وظایف امروز خود را اینجا برنامه‌ریزی کنید."
+    },
+    {
+        key: '2',
+        link: '/section/2',
+        icon: BookHeart,
+        title: "تأملات روزانه",
+        description: "افکار و احساسات خود را ثبت و مرور کنید",
+        content: "نوشته‌های روزانه خود را برای بازبینی ذخیره کنید."
+    },
+    {
+        key: '3',
+        link: '/section/3',
+        icon: CircleDollarSign,
+        title: "مدیریت مالی",
+        description: "هزینه‌ها و درآمدهای خود را پیگیری کنید",
+        content: "وضعیت مالی خود را بررسی و بودجه‌بندی کنید."
+    },
+    {
+        key: '4',
+        link: '/section/4',
+        icon: CalendarDays,
+        title: "تقویم و رویدادها",
+        description: "تقویم شمسی، رویدادها و مناسبت‌ها",
+        content: "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید."
+    },
+    {
+        key: '5',
+        link: '/section/5',
+        icon: ListChecks,
+        title: "ردیاب عادت‌ها",
+        description: "عادت‌های مثبت خود را ایجاد و پیگیری کنید",
+        content: "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."
+    },
+    {
+        key: '6',
+        link: '/section/6',
+        icon: Dumbbell,
+        title: "ورزشی",
+        description: "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید",
+        content: "برنامه‌های تمرینی، فستینگ و سایر فعالیت‌های بدنی خود را مدیریت کنید."
+    },
+    {
+        key: '7',
+        link: '/section/7',
+        icon: BookOpen,
+        title: "تحصیل",
+        description: "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی",
+        content: "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید."
+    },
+    {
+        key: '8',
+        link: '/section/8',
+        icon: FileText,
+        title: "صندوق ورودی و یادداشت سریع",
+        description: "افکار، ایده‌ها و کارهای ناگهانی خود را سریع ثبت کنید.",
+        content: "یک مکان برای خالی کردن ذهن و ثبت سریع یادداشت‌ها قبل از فراموشی."
+    },
+    {
+        key: '9',
+        link: '/section/9',
+        icon: Target,
+        title: "اهداف و کتاب‌ها",
+        description: "اهداف بزرگ و کتاب‌های خود را تعریف و پیگیری کنید.",
+        content: "اهداف آینده و لیست کتاب‌های خود را اینجا مدیریت نمایید."
+    },
+    {
+        key: '11',
+        link: '/section/11',
+        icon: FolderKanban,
+        title: "مدیریت پروژه‌ها",
+        description: "پروژه‌های خود را با وظایف، مهلت‌ها و تیم مدیریت کنید.",
+        content: "یک فضای متمرکز برای پیگیری پیشرفت پروژه‌های شخصی و کاری شما."
+    },
+    {
+        key: 'settings',
+        link: '/section/settings',
+        icon: Settings,
+        title: 'تنظیمات',
+        description: 'پشتیبان‌گیری، بازیابی و سایر تنظیمات برنامه',
+        content: 'از اطلاعات خود فایل پشتیبان تهیه کنید یا اطلاعات قبلی را بازیابی نمایید.'
+    },
 ];
 
-export default function HomePage() {
-  const sectionsToDisplay = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11];
 
+export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -52,73 +134,10 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sectionsToDisplay.map((sectionNumber) => {
-            
-            let iconIndex;
-            if (sectionNumber === 11) {
-                iconIndex = 9; // Project icon
-            } else {
-                iconIndex = sectionNumber -1;
-            }
-
-            let IconComponent = Settings; // Fallback icon
-
-            if (iconIndex >= 0 && iconIndex < sectionIcons.length) {
-              IconComponent = sectionIcons[iconIndex];
-            }
-
-
-            let sectionTitle = `بخش ${sectionNumber}`;
-            let sectionDescription = `جزئیات بخش ${sectionNumber}`;
-            let sectionContent = `محتوای بخش ${sectionNumber} در اینجا قرار خواهد گرفت.`;
-            let sectionLink = `/section/${sectionNumber}`;
-
-            if (sectionNumber === 1) {
-              sectionTitle = "برنامه‌ریز روزانه";
-              sectionDescription = "برنامه‌ریزی و مدیریت کارهای روزانه";
-              sectionContent = "وظایف امروز خود را اینجا برنامه‌ریزی کنید.";
-            } else if (sectionNumber === 2) {
-              sectionTitle = "تأملات روزانه";
-              sectionDescription = "افکار و احساسات خود را ثبت و مرور کنید";
-              sectionContent = "نوشته‌های روزانه خود را برای بازبینی ذخیره کنید.";
-            } else if (sectionNumber === 3) {
-              sectionTitle = "مدیریت مالی";
-              sectionDescription = "هزینه‌ها و درآمدهای خود را پیگیری کنید";
-              sectionContent = "وضعیت مالی خود را بررسی و بودجه‌بندی کنید.";
-            } else if (sectionNumber === 4) {
-              sectionTitle = "تقویم و رویدادها";
-              sectionDescription = "تقویم شمسی، رویدادها و مناسبت‌ها";
-              sectionContent = "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید.";
-            } else if (sectionNumber === 5) {
-              sectionTitle = "ردیاب عادت‌ها";
-              sectionDescription = "عادت‌های مثبت خود را ایجاد و پیگیری کنید";
-              sectionContent = "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید.";
-            } else if (sectionNumber === 6) {
-              sectionTitle = "ورزشی";
-              sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
-              sectionContent = "برنامه‌های تمرینی، فستینگ و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
-            } else if (sectionNumber === 7) {
-              sectionTitle = "تحصیل";
-              sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
-              sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
-            } else if (sectionNumber === 8) {
-              sectionTitle = "صندوق ورودی و یادداشت سریع";
-              sectionDescription = "افکار، ایده‌ها و کارهای ناگهانی خود را سریع ثبت کنید.";
-              sectionContent = "یک مکان برای خالی کردن ذهن و ثبت سریع یادداشت‌ها قبل از فراموشی.";
-            } else if (sectionNumber === 9) {
-              sectionTitle = "اهداف و کتاب‌ها";
-              sectionDescription = "اهداف بزرگ و کتاب‌های خود را تعریف و پیگیری کنید.";
-              sectionContent = "اهداف آینده و لیست کتاب‌های خود را اینجا مدیریت نمایید.";
-              sectionLink = `/section/9`;
-            } else if (sectionNumber === 11) {
-              sectionTitle = "مدیریت پروژه‌ها";
-              sectionDescription = "پروژه‌های خود را با وظایف، مهلت‌ها و تیم مدیریت کنید.";
-              sectionContent = "یک فضای متمرکز برای پیگیری پیشرفت پروژه‌های شخصی و کاری شما.";
-              sectionLink = `/section/11`;
-            }
-
+          {sections.map((section) => {
+            const IconComponent = section.icon;
             return (
-              <Link href={sectionLink} key={sectionNumber} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
+              <Link href={section.link} key={section.key} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
                 <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50">
                   <CardHeader className="flex-shrink-0 p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -126,16 +145,16 @@ export default function HomePage() {
                         <IconComponent className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
                       </div>
                       <CardTitle className="text-lg font-headline font-semibold text-foreground">
-                        {sectionTitle}
+                        {section.title}
                       </CardTitle>
                     </div>
                     <CardDescription className="text-sm text-muted-foreground pt-1">
-                      {sectionDescription}
+                      {section.description}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex-grow p-4 pt-0 text-sm text-foreground/90">
                     <p>
-                      {sectionContent}
+                      {section.content}
                     </p>
                   </CardContent>
                 </Card>
