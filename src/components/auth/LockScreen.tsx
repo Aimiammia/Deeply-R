@@ -3,25 +3,32 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Brain, KeyRound, ShieldCheck } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Brain, KeyRound, ShieldCheck, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function LockScreen() {
-  const { isPasswordSet, setPassword, unlock } = useAuth();
+  const { isPasswordSet, setPassword, unlock, resetApp } = useAuth();
   const [inputPassword, setInputPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const { toast } = useToast();
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (unlock(inputPassword)) {
-      // Success, component will unmount
-    } else {
-      setError('رمز عبور اشتباه است.');
+    if (!unlock(inputPassword)) {
+      setError('رمز عبور اشتباه است. لطفاً دوباره تلاش کنید.');
       setInputPassword('');
     }
   };
@@ -37,7 +44,6 @@ export function LockScreen() {
       return;
     }
     setPassword(inputPassword);
-    // Success, component will unmount
   };
 
   return (
@@ -99,6 +105,37 @@ export function LockScreen() {
           )}
           {error && <p className="text-sm text-center text-destructive mt-4">{error}</p>}
         </CardContent>
+        {isPasswordSet && (
+          <CardFooter className="flex justify-center">
+             <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="link" className="text-xs text-muted-foreground">
+                        رمز عبور خود را فراموش کرده‌اید؟
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent dir="rtl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center">
+                            <AlertTriangle className="ml-2 h-5 w-5 text-destructive"/>
+                            هشدار: بازنشانی برنامه
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            آیا کاملا مطمئن هستید؟ بازیابی رمز عبور در این برنامه آفلاین امکان‌پذیر نیست.
+                            تنها راه، پاک کردن کامل تمام اطلاعات و شروع مجدد است.
+                            <strong className="block mt-2">این عمل تمام داده‌های شما (وظایف، یادداشت‌ها، اطلاعات مالی و...) را برای همیشه حذف می‌کند و قابل بازگشت نیست.</strong>
+                            اگر فایل پشتیبان دارید، می‌توانید بعداً آن را بازیابی کنید.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>لغو</AlertDialogCancel>
+                        <AlertDialogAction onClick={resetApp} variant="destructive">
+                            بله، همه چیز را پاک کن
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+          </CardFooter>
+        )}
       </Card>
     </div>
   );

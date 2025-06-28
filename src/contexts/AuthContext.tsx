@@ -9,13 +9,24 @@ const PASSWORD_CHECK_KEY = 'deeply-auth-check';
 const PASSWORD_CHECK_VALUE = 'deeply-password-is-correct';
 const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
+const ALL_APP_KEYS = [
+  'dailyTasksPlanner', 'allProjects', 'dailyReflections', 'financialTransactions',
+  'financialBudgets', 'financialAssets', 'financialInvestments', 'financialSavingsGoals',
+  'calendarBirthdaysDeeply', 'calendarEventsDeeply', 'userHabitsDeeply', 'dailyActivityLogsDeeply',
+  'longTermGoals', 'userBooksDeeply', 'userSportsActivitiesDeeply', 'activeFastDeeply',
+  'fastingHistoryDeeply', 'educationalLevelSettingsDeeply', 'educationalSubjectProgressDeeply',
+  'knowledgeBasePages', 'projectTemplates', 'thirtyDayChallenges',
+  'theme', 'color-theme', 'deeply-auth-check'
+];
+
 interface AuthContextType {
   isLocked: boolean;
   isPasswordSet: boolean;
-  passwordKey: string | null;
   setPassword: (password: string) => void;
   unlock: (password: string) => boolean;
   lock: () => void;
+  getEncryptionKey: () => string | null;
+  resetApp: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,12 +34,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLocked, setIsLocked] = useState(true);
   const [isPasswordSet, setIsPasswordSet] = useState(false);
-  const [passwordKey, setPasswordKey] = useState<string | null>(null);
+  const passwordKeyRef = useRef<string | null>(null);
   const { toast } = useToast();
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const lock = useCallback(() => {
-    setPasswordKey(null);
+    passwordKeyRef.current = null;
     setIsLocked(true);
   }, []);
 
@@ -40,22 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [lock]);
 
   useEffect(() => {
-    // Check if a password has been set on initial load
     const checkValue = localStorage.getItem(PASSWORD_CHECK_KEY);
     setIsPasswordSet(!!checkValue);
-    setIsLocked(!!checkValue); // Lock if password is set
+    setIsLocked(!!checkValue); 
   }, []);
 
   useEffect(() => {
     if (!isLocked && isPasswordSet) {
       const events: (keyof WindowEventMap)[] = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
       
-      // Start the timer when the app is unlocked
       resetInactivityTimer();
       
       events.forEach(event => window.addEventListener(event, resetInactivityTimer));
       
-      // Cleanup function
       return () => {
         if (inactivityTimerRef.current) {
           clearTimeout(inactivityTimerRef.current);
@@ -64,6 +72,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
   }, [isLocked, isPasswordSet, resetInactivityTimer]);
+
+  const getEncryptionKey = useCallback(() => {
+    return passwordKeyRef.current;
+  }, []);
 
   const setPassword = useCallback((password: string) => {
     if (password.length < 6) {
@@ -76,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const encryptedCheck = encrypt(PASSWORD_CHECK_VALUE, password);
     localStorage.setItem(PASSWORD_CHECK_KEY, encryptedCheck);
-    setPasswordKey(password);
+    passwordKeyRef.current = password;
     setIsPasswordSet(true);
     setIsLocked(false);
     toast({
@@ -91,15 +103,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const decryptedCheck = decrypt(checkValue, password);
     if (decryptedCheck === PASSWORD_CHECK_VALUE) {
-      setPasswordKey(password);
+      passwordKeyRef.current = password;
       setIsLocked(false);
       return true;
     }
     return false;
   }, []);
 
+  const resetApp = useCallback(() => {
+    ALL_APP_KEYS.forEach(key => {
+        localStorage.removeItem(key);
+    });
+    toast({
+        title: "برنامه بازنشانی شد",
+        description: "تمام اطلاعات محلی شما پاک شد. لطفاً یک رمز عبور جدید تنظیم کنید.",
+        variant: "destructive"
+    });
+    // Reload the page to start from scratch
+    window.location.reload();
+  }, [toast]);
+
   return (
-    <AuthContext.Provider value={{ isLocked, isPasswordSet, passwordKey, setPassword, unlock, lock }}>
+    <AuthContext.Provider value={{ isLocked, isPasswordSet, setPassword, unlock, lock, getEncryptionKey, resetApp }}>
       {children}
     </AuthContext.Provider>
   );
