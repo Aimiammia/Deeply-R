@@ -51,9 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [lock]);
 
   useEffect(() => {
+    // This effect runs on mount to check if a password has been set previously.
+    // It should NOT unlock the app; it only sets up the state for the LockScreen component.
     const checkValue = localStorage.getItem(PASSWORD_CHECK_KEY);
     setIsPasswordSet(!!checkValue);
-    setIsLocked(!!checkValue); 
+    // The 'isLocked' state is true by default and should only be set to false
+    // after a successful `unlock` or `setPassword` action.
   }, []);
 
   useEffect(() => {
