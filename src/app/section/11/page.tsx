@@ -98,9 +98,13 @@ export default function ProjectsPage() {
   
   const handleToggleTask = useCallback((id: string) => {
     setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+      prevTasks.map(task => {
+        if (task.id === id) {
+          const isCompleted = !task.completed;
+          return { ...task, completed: isCompleted, completedAt: isCompleted ? new Date().toISOString() : null };
+        }
+        return task;
+      })
     );
   }, [setTasks]);
 
@@ -223,7 +227,7 @@ export default function ProjectsPage() {
                         onEditProject={handleEditProject}
                         onToggleTask={handleToggleTask}
                         onDeleteTask={handleDeleteTask}
-                        onEditTask={onEditTask}
+                        onEditTask={handleEditTask}
                     />
                 )}
               </CardContent>

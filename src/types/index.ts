@@ -14,6 +14,7 @@ export interface Task {
   title: string;
   completed: boolean;
   createdAt: string; // ISO date string
+  completedAt?: string | null; // ISO date string, set when completed is true
   dueDate?: string | null; // ISO date string, optional
   dueTime?: string | null; // Optional time string, e.g., "14:30"
   priority?: 'low' | 'medium' | 'high' | null; // Optional

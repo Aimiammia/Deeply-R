@@ -95,7 +95,7 @@ export default function PlannerLandingPage() {
         if (task.id === id) {
           taskTitle = task.title;
           isCompleted = !task.completed;
-          return { ...task, completed: isCompleted };
+          return { ...task, completed: isCompleted, completedAt: isCompleted ? new Date().toISOString() : null };
         }
         return task;
       })

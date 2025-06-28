@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -17,6 +18,7 @@ import {
   FolderKanban,
   BrainCircuit,
   CopyPlus,
+  AreaChart,
   type LucideIcon
 } from 'lucide-react';
 
@@ -125,6 +127,14 @@ const sections: Section[] = [
         title: "مدیریت قالب‌ها",
         description: "قالب‌هایی برای پروژه‌ها و وظایف تکراری خود بسازید.",
         content: "برای کارهای تکراری مانند راه‌اندازی پروژه جدید، قالب بسازید و در زمان خود صرفه‌جویی کنید."
+    },
+    {
+        key: '14',
+        link: '/section/review',
+        icon: AreaChart,
+        title: "مرور و گزارش‌گیری",
+        description: "عملکرد خود را با گزارش‌های دوره‌ای تحلیل کنید",
+        content: "نمودار وظایف، خلاصه‌های مالی و پیشرفت عادت‌های خود را در بازه‌های زمانی مختلف مشاهده کنید."
     },
     {
         key: 'settings',
