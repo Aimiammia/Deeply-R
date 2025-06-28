@@ -71,6 +71,99 @@
     --input: 217 33% 25%;
     --ring: 210 90% 65%;
   }
+
+  /* New Themes */
+  .theme-jungle {
+    /* Jungle Light Mode */
+    --background: 45 33% 95%; /* beige */
+    --foreground: 140 30% 15%;
+    --card: 45 33% 100%;
+    --card-foreground: 140 30% 15%;
+    --popover: 45 33% 100%;
+    --popover-foreground: 140 30% 15%;
+    --primary: 142 76% 36%; /* deep green */
+    --primary-foreground: 142 76% 98%;
+    --secondary: 45 25% 92%;
+    --secondary-foreground: 140 30% 15%;
+    --muted: 45 25% 92%;
+    --muted-foreground: 140 20% 45%;
+    --accent: 142 76% 90%; /* light green */
+    --accent-foreground: 142 76% 25%;
+    --border: 45 20% 88%;
+    --input: 45 20% 88%;
+    --ring: 142 76% 36%;
+    --chart-1: 142 76% 36%;
+    --chart-2: 88 50% 50%;
+  }
+
+  .dark.theme-jungle {
+    /* Jungle Dark Mode */
+    --background: 142 50% 10%; /* very dark green */
+    --foreground: 142 15% 90%;
+    --card: 142 50% 14%;
+    --card-foreground: 142 15% 90%;
+    --popover: 142 50% 10%;
+    --popover-foreground: 142 15% 90%;
+    --primary: 142 60% 60%; /* brighter green */
+    --primary-foreground: 142 60% 10%;
+    --secondary: 142 40% 17%;
+    --secondary-foreground: 142 15% 90%;
+    --muted: 142 40% 17%;
+    --muted-foreground: 142 15% 65%;
+    --accent: 142 50% 25%; /* dark green accent */
+    --accent-foreground: 142 15% 90%;
+    --border: 142 40% 25%;
+    --input: 142 40% 25%;
+    --ring: 142 60% 60%;
+    --chart-1: 142 60% 60%;
+    --chart-2: 88 40% 70%;
+  }
+  
+  .theme-sunset {
+    /* Sunset Light Mode */
+    --background: 25 100% 98%; /* light cream */
+    --foreground: 25 20% 15%;
+    --card: 25 100% 100%;
+    --card-foreground: 25 20% 15%;
+    --popover: 25 100% 100%;
+    --popover-foreground: 25 20% 15%;
+    --primary: 25 95% 53%; /* bright orange */
+    --primary-foreground: 25 95% 98%;
+    --secondary: 25 50% 94%;
+    --secondary-foreground: 25 20% 15%;
+    --muted: 25 50% 94%;
+    --muted-foreground: 25 10% 45%;
+    --accent: 25 95% 92%; /* light orange */
+    --accent-foreground: 25 95% 40%;
+    --border: 25 30% 89%;
+    --input: 25 30% 89%;
+    --ring: 25 95% 53%;
+    --chart-1: 25 95% 53%;
+    --chart-2: 327 88% 68%;
+  }
+
+  .dark.theme-sunset {
+    /* Sunset Dark Mode */
+    --background: 259 40% 12%; /* dark purple */
+    --foreground: 259 15% 90%;
+    --card: 259 40% 16%;
+    --card-foreground: 259 15% 90%;
+    --popover: 259 40% 12%;
+    --popover-foreground: 259 15% 90%;
+    --primary: 25 90% 70%; /* brighter orange */
+    --primary-foreground: 25 90% 10%;
+    --secondary: 259 30% 20%;
+    --secondary-foreground: 259 15% 90%;
+    --muted: 259 30% 20%;
+    --muted-foreground: 259 10% 65%;
+    --accent: 259 40% 25%; /* purple accent */
+    --accent-foreground: 259 15% 90%;
+    --border: 259 30% 25%;
+    --input: 259 30% 25%;
+    --ring: 25 90% 70%;
+    --chart-1: 25 90% 70%;
+    --chart-2: 327 78% 80%;
+  }
 }
 
 @layer base {

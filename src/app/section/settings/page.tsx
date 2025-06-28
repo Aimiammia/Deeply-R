@@ -6,10 +6,13 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Download, Upload, AlertTriangle, Loader2, Settings } from 'lucide-react';
+import { ArrowLeft, Download, Upload, AlertTriangle, Loader2, Settings, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
+import { useColorTheme } from '@/components/ThemeManager';
+import { cn } from '@/lib/utils';
+import { ClientOnly } from '@/components/ClientOnly';
 
 const LOCALSTORAGE_KEYS_TO_BACKUP = [
   'dailyTasksPlanner',
@@ -33,7 +36,8 @@ const LOCALSTORAGE_KEYS_TO_BACKUP = [
   'educationalSubjectProgressDeeply',
   'knowledgeBasePages',
   'projectTemplates',
-  'theme'
+  'theme',
+  'color-theme' // Added color theme
 ];
 
 export default function SettingsPage() {
@@ -42,6 +46,7 @@ export default function SettingsPage() {
     const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
     const [restoreFile, setRestoreFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [colorTheme, setColorTheme, isThemeLoading] = useColorTheme();
 
     const handleBackup = useCallback(() => {
         try {
@@ -52,7 +57,12 @@ export default function SettingsPage() {
                     try {
                       backupData[key] = JSON.parse(item);
                     } catch (e) {
-                      console.warn(`Could not parse localStorage item: ${key}`, e);
+                      // Also handle cases where the value is a plain string, like the theme
+                      if (typeof item === 'string') {
+                          backupData[key] = item;
+                      } else {
+                         console.warn(`Could not parse localStorage item: ${key}`, e);
+                      }
                     }
                 }
             });
@@ -119,7 +129,10 @@ export default function SettingsPage() {
 
                 Object.keys(dataToRestore).forEach(key => {
                     if (LOCALSTORAGE_KEYS_TO_BACKUP.includes(key)) {
-                        localStorage.setItem(key, JSON.stringify(dataToRestore[key]));
+                        const value = dataToRestore[key];
+                        // Some values (like themes) might not be JSON objects
+                        const valueToStore = typeof value === 'object' ? JSON.stringify(value) : value;
+                        localStorage.setItem(key, valueToStore);
                     }
                 });
 
@@ -177,40 +190,91 @@ export default function SettingsPage() {
                         مدیریت پشتیبان‌گیری، بازیابی و سایر تنظیمات برنامه.
                     </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center"><Download className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />پشتیبان‌گیری</CardTitle>
-                            <CardDescription>از تمام اطلاعات خود یک فایل پشتیبان با فرمت JSON تهیه کنید تا در آینده بتوانید آن را بازیابی نمایید.</CardDescription>
+                            <CardTitle className="flex items-center"><Palette className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />انتخاب پوسته برنامه</CardTitle>
+                            <CardDescription>ظاهر و رنگ‌بندی کلی برنامه را به سلیقه خود تغییر دهید.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button onClick={handleBackup} className="w-full">
-                                <Download className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                                تهیه فایل پشتیبان (.json)
-                            </Button>
+                            <ClientOnly fallback={<div className="flex justify-center"><Loader2 className="animate-spin"/></div>}>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                <Button
+                                    variant={colorTheme === 'default' ? 'default' : 'outline'}
+                                    onClick={() => setColorTheme('default')}
+                                    className="h-auto p-4 flex flex-col gap-2"
+                                >
+                                    <div className="flex gap-1">
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(217,91%,60%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(220,13%,94%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(210,90%,65%)] border-2 border-background shadow-md"></div>
+                                    </div>
+                                    پیش‌فرض (آبی)
+                                </Button>
+                                <Button
+                                    variant={colorTheme === 'theme-jungle' ? 'default' : 'outline'}
+                                    onClick={() => setColorTheme('theme-jungle')}
+                                    className="h-auto p-4 flex flex-col gap-2"
+                                >
+                                    <div className="flex gap-1">
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(142,76%,36%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(45,33%,95%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(142,60%,60%)] border-2 border-background shadow-md"></div>
+                                    </div>
+                                    جنگل (سبز)
+                                </Button>
+                                <Button
+                                    variant={colorTheme === 'theme-sunset' ? 'default' : 'outline'}
+                                    onClick={() => setColorTheme('theme-sunset')}
+                                    className="h-auto p-4 flex flex-col gap-2"
+                                >
+                                    <div className="flex gap-1">
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(25,95%,53%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(259,40%,12%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(25,90%,70%)] border-2 border-background shadow-md"></div>
+                                    </div>
+                                    غروب (نارنجی)
+                                </Button>
+                                </div>
+                            </ClientOnly>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center"><Upload className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />بازیابی اطلاعات</CardTitle>
-                            <CardDescription>یک فایل پشتیبان (.json) را برای بازگرداندن اطلاعات خود انتخاب کنید. این کار اطلاعات فعلی شما را بازنویسی می‌کند.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                             <Input
-                                ref={fileInputRef}
-                                type="file"
-                                accept=".json"
-                                onChange={handleFileSelect}
-                                className="hidden"
-                                id="restore-input"
-                            />
-                             <Button onClick={() => fileInputRef.current?.click()} className="w-full" variant="destructive">
-                                <Upload className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-                                انتخاب فایل پشتیبان و بازیابی
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center"><Download className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />پشتیبان‌گیری</CardTitle>
+                                <CardDescription>از تمام اطلاعات خود یک فایل پشتیبان با فرمت JSON تهیه کنید تا در آینده بتوانید آن را بازیابی نمایید.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Button onClick={handleBackup} className="w-full">
+                                    <Download className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+                                    تهیه فایل پشتیبان (.json)
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center"><Upload className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />بازیابی اطلاعات</CardTitle>
+                                <CardDescription>یک فایل پشتیبان (.json) را برای بازگرداندن اطلاعات خود انتخاب کنید. این کار اطلاعات فعلی شما را بازنویسی می‌کند.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".json"
+                                    onChange={handleFileSelect}
+                                    className="hidden"
+                                    id="restore-input"
+                                />
+                                <Button onClick={() => fileInputRef.current?.click()} className="w-full" variant="destructive">
+                                    <Upload className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+                                    انتخاب فایل پشتیبان و بازیابی
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </main>
              <footer className="text-center py-4 text-sm text-muted-foreground">
