@@ -36,10 +36,10 @@ const DynamicActivityForm = dynamic(() => Promise.resolve(({ onSubmit, currentLo
       type="text"
       value={currentLogText}
       onChange={(e) => setCurrentLogText(e.target.value)}
-      placeholder="یک فعالیت انجام شده را وارد کنید (مثلا: مطالعه فصل ۲ کتاب فیزیک)"
+      placeholder="یک فکر، ایده یا فعالیت انجام شده را وارد کنید..."
       className="text-base"
       disabled={isSaving}
-      aria-label="متن فعالیت روزانه"
+      aria-label="متن ورودی"
     />
     <Button type="submit" disabled={isSaving || !currentLogText.trim()} className="w-full sm:w-auto">
       {isSaving ? (
@@ -60,7 +60,7 @@ const DynamicActivityForm = dynamic(() => Promise.resolve(({ onSubmit, currentLo
 
 const DynamicActivityList = dynamic(() => Promise.resolve(({ logs, onDeleteLog }: any) => (
   logs.length === 0 ? (
-    <p className="text-muted-foreground text-center py-6">هنوز هیچ فعالیتی ثبت نشده است. اولین فعالیت خود را اضافه کنید!</p>
+    <p className="text-muted-foreground text-center py-6">هنوز هیچ ورودی‌ای ثبت نشده است. اولین مورد را اضافه کنید!</p>
   ) : (
     <ScrollArea className="h-[400px] pr-3 rtl:pl-3">
       <div className="space-y-4">
@@ -79,9 +79,9 @@ const DynamicActivityList = dynamic(() => Promise.resolve(({ logs, onDeleteLog }
                   </AlertDialogTrigger>
                   <AlertDialogContent dir="rtl">
                     <AlertDialogHeader>
-                      <AlertDialogTitle>تایید حذف فعالیت</AlertDialogTitle>
+                      <AlertDialogTitle>تایید حذف ورودی</AlertDialogTitle>
                       <AlertDialogDescription>
-                        آیا از حذف این فعالیت: "{log.text}" مطمئن هستید؟ این عمل قابل بازگشت نیست.
+                        آیا از حذف این مورد: "{log.text}" مطمئن هستید؟ این عمل قابل بازگشت نیست.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -110,8 +110,8 @@ const DynamicActivityList = dynamic(() => Promise.resolve(({ logs, onDeleteLog }
 
 export default function DailyActivityLogPage() {
   const { toast } = useToast();
-  const sectionTitle = "یادداشت فعالیت‌های روزانه";
-  const sectionPageDescription = "فعالیت‌ها، دستاوردها و کارهایی که در طول روز انجام داده‌اید را در اینجا به صورت آیتم‌های لیست وارد و مرور کنید.";
+  const sectionTitle = "صندوق ورودی و یادداشت سریع";
+  const sectionPageDescription = "افکار، ایده‌ها، کارها و هرچیز دیگری که به ذهنتان می‌رسد را سریعاً در اینجا ثبت کنید تا بعداً به آن‌ها رسیدگی کنید.";
 
   const [logs, setLogs, logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
@@ -123,7 +123,7 @@ export default function DailyActivityLogPage() {
     if (!currentLogText.trim()) {
       toast({
         title: "متن خالی",
-        description: "لطفاً فعالیتی برای ثبت وارد کنید.",
+        description: "لطفاً موردی برای ثبت وارد کنید.",
         variant: "destructive",
       });
       return;
@@ -142,8 +142,8 @@ export default function DailyActivityLogPage() {
     setCurrentLogText('');
     setIsSaving(false);
     toast({
-      title: "فعالیت ثبت شد",
-      description: "فعالیت شما با موفقیت در لیست ثبت شد.",
+      title: "مورد ثبت شد",
+      description: "یادداشت شما با موفقیت در لیست ثبت شد.",
     });
   }, [currentLogText, setLogs, toast]);
 
@@ -152,8 +152,8 @@ export default function DailyActivityLogPage() {
     setLogs(prevLogs => prevLogs.filter(log => log.id !== logId));
     if (logToDelete) {
         toast({
-        title: "فعالیت حذف شد",
-        description: "فعالیت انتخاب شده با موفقیت حذف شد.",
+        title: "مورد حذف شد",
+        description: "مورد انتخاب شده با موفقیت حذف شد.",
         variant: "destructive",
         });
     }
@@ -188,7 +188,7 @@ export default function DailyActivityLogPage() {
                 <CardHeader>
                     <CardTitle className="text-xl flex items-center text-foreground">
                         <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                        ثبت فعالیت جدید
+                        ثبت ورودی جدید
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -205,7 +205,7 @@ export default function DailyActivityLogPage() {
                 <CardHeader>
                     <CardTitle className="text-xl flex items-center text-foreground">
                         <ListChecks className="mr-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                        لیست فعالیت‌ها
+                        لیست ورودی‌ها
                     </CardTitle>
                 </CardHeader>
                 <CardContent>

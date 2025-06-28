@@ -132,5 +132,3 @@ const HabitItemComponent = ({ habit, onToggleCompletion, onDeleteHabit }: HabitI
 };
 
 export const HabitItem = memo(HabitItemComponent);
-// Removed React.memo wrapper as it's already applied to HabitItemComponent
-// export { HabitItem };

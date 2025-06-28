@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -28,7 +29,7 @@ const sectionIcons: LucideIcon[] = [
   ListChecks,       // Section 5 (Habits)
   Dumbbell,         // Section 6 (Sports/Exercise)
   BookOpen,         // Section 7 (Education/Study)
-  FileText,         // Section 8 (Daily Activity Log)
+  FileText,         // Section 8 (Daily Activity Log / Inbox)
   Target,           // Section 9 (Goals)
   FolderKanban,     // Section 11 (Projects) - Note index is 9 now
   PieChart,         // Section 10 is removed, this won't be used
@@ -95,15 +96,15 @@ export default function HomePage() {
             } else if (sectionNumber === 6) {
               sectionTitle = "ورزشی";
               sectionDescription = "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید";
-              sectionContent = "برنامه‌های تمرینی، دویدن، یوگا و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
+              sectionContent = "برنامه‌های تمرینی، فستینگ و سایر فعالیت‌های بدنی خود را مدیریت کنید.";
             } else if (sectionNumber === 7) {
               sectionTitle = "تحصیل";
               sectionDescription = "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی";
               sectionContent = "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید.";
             } else if (sectionNumber === 8) {
-              sectionTitle = "یادداشت فعالیت‌های روزانه";
-              sectionDescription = "فعالیت‌ها و کارهایی که در طول روز انجام داده‌اید را ثبت کنید.";
-              sectionContent = "گزارشی از فعالیت‌های روزانه خود را در اینجا بنویسید و مرور کنید.";
+              sectionTitle = "صندوق ورودی و یادداشت سریع";
+              sectionDescription = "افکار، ایده‌ها و کارهای ناگهانی خود را سریع ثبت کنید.";
+              sectionContent = "یک مکان برای خالی کردن ذهن و ثبت سریع یادداشت‌ها قبل از فراموشی.";
             } else if (sectionNumber === 9) {
               sectionTitle = "اهداف و کتاب‌ها";
               sectionDescription = "اهداف بزرگ و کتاب‌های خود را تعریف و پیگیری کنید.";
