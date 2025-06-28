@@ -15,6 +15,7 @@ import {
   Settings,
   ListChecks,
   FolderKanban,
+  BrainCircuit,
   type LucideIcon
 } from 'lucide-react';
 
@@ -107,6 +108,14 @@ const sections: Section[] = [
         title: "مدیریت پروژه‌ها",
         description: "پروژه‌های خود را با وظایف، مهلت‌ها و تیم مدیریت کنید.",
         content: "یک فضای متمرکز برای پیگیری پیشرفت پروژه‌های شخصی و کاری شما."
+    },
+    {
+        key: '12',
+        link: '/section/12',
+        icon: BrainCircuit,
+        title: "پایگاه دانش شخصی",
+        description: "یادداشت‌ها، خلاصه‌ها و دانش خود را در یک ویکی شخصی سازماندهی کنید.",
+        content: "یک مکان متمرکز برای ساختن پایگاه دانش خود و اتصال ایده‌ها به یکدیگر."
     },
     {
         key: 'settings',

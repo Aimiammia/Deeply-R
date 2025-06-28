@@ -158,9 +158,9 @@ export interface Book {
   id: string;
   title: string;
   author?: string | null;
+  status: 'to-read' | 'reading' | 'read';
   genre?: string | null;
   publisher?: string | null;
-  status: 'to-read' | 'reading' | 'read';
   currentPage?: number | null;
   totalPages?: number | null;
   notes?: string | null;
@@ -191,4 +191,13 @@ export interface FastingSession {
   endTime: string; // ISO date string
   durationHours: number;
   notes?: string | null;
+}
+
+export interface KnowledgePage {
+  id: string;
+  title: string;
+  content: string; // Raw text content, can be interpreted as Markdown by a renderer
+  tags: string[];
+  createdAt: string; // ISO date string
+  updatedAt:string; // ISO date string
 }
