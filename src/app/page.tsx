@@ -19,6 +19,7 @@ import {
   BrainCircuit,
   CopyPlus,
   AreaChart,
+  History,
   type LucideIcon
 } from 'lucide-react';
 
@@ -135,6 +136,14 @@ const sections: Section[] = [
         title: "مرور و گزارش‌گیری",
         description: "عملکرد خود را با گزارش‌های دوره‌ای تحلیل کنید",
         content: "نمودار وظایف، خلاصه‌های مالی و پیشرفت عادت‌های خود را در بازه‌های زمانی مختلف مشاهده کنید."
+    },
+    {
+        key: '15',
+        link: '/section/memories',
+        icon: History,
+        title: "یادآوری خاطرات",
+        description: "مرور کنید در این روز در سال‌های گذشته چه می‌کردید",
+        content: "خاطرات، وظایف تکمیل شده و رویدادهای ثبت شده خود را در یک نمای تایم‌لاین مشاهده کنید."
     },
     {
         key: 'settings',
