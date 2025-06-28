@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardList, Target, Loader2 } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Target, Loader2, Timer } from 'lucide-react';
 import Image from 'next/image';
 
 // Imports for Short-Term Planner
@@ -25,6 +25,10 @@ const DynamicCreateTaskForm = dynamic(() => import('@/components/tasks/CreateTas
   ssr: false
 });
 const DynamicTaskList = dynamic(() => import('@/components/tasks/TaskList').then(mod => mod.TaskList), {
+  loading: () => <Skeleton className="h-64 w-full" />,
+  ssr: false
+});
+const DynamicPomodoroTimer = dynamic(() => import('@/components/tasks/PomodoroTimer').then(mod => mod.PomodoroTimer), {
   loading: () => <Skeleton className="h-64 w-full" />,
   ssr: false
 });
@@ -182,6 +186,9 @@ export default function PlannerLandingPage() {
                 </Card>
             </div>
             <div className="md:col-span-1 space-y-6">
+                <ClientOnly fallback={<Skeleton className="h-64 w-full" />}>
+                    <DynamicPomodoroTimer />
+                </ClientOnly>
                  <Card className="shadow-lg bg-card/70 border-primary/20 hover:border-primary/50 transition-colors">
                     <CardHeader>
                         <CardTitle className="flex items-center text-primary">
