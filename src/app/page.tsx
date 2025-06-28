@@ -20,6 +20,7 @@ import {
   CopyPlus,
   AreaChart,
   History,
+  Trophy,
   type LucideIcon
 } from 'lucide-react';
 
@@ -72,6 +73,14 @@ const sections: Section[] = [
         title: "ردیاب عادت‌ها",
         description: "عادت‌های مثبت خود را ایجاد و پیگیری کنید",
         content: "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."
+    },
+    {
+        key: '10',
+        link: '/section/challenges',
+        icon: Trophy,
+        title: "چالش‌های ۳۰ روزه",
+        description: "خود را با چالش‌های ۳۰ روزه به چالش بکشید.",
+        content: "پیشرفت خود را در چالش‌هایی مانند ورزش روزانه، یادگیری مهارت جدید یا مدیتیشن پیگیری کنید."
     },
     {
         key: '6',

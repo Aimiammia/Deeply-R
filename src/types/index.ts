@@ -215,3 +215,11 @@ export interface ProjectTemplate {
   tasks: TemplateTask[]; // A list of tasks for the project
   createdAt: string; // ISO date string
 }
+
+export interface Challenge {
+  id: string;
+  name: string;
+  description: string | null;
+  startDate: string; // ISO Date string
+  completions: { [day: number]: boolean }; // e.g., { 1: true, 2: false, 3: true }
+}
