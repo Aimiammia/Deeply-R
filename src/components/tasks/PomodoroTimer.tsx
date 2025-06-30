@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -110,7 +109,7 @@ export function PomodoroTimer({ tasks, onPomodoroComplete }: PomodoroTimerProps)
   const seconds = time % 60;
 
   const modeStyles: Record<Mode, { card: string, timer: string, progress: string }> = {
-    pomodoro: { card: 'border-primary bg-primary/5', timer: 'text-primary', progress: 'stroke-primary' },
+    pomodoro: { card: 'border-destructive bg-destructive/5', timer: 'text-destructive', progress: 'stroke-destructive' },
     shortBreak: { card: 'border-green-500 bg-green-500/5', timer: 'text-green-600', progress: 'stroke-green-500' },
     longBreak: { card: 'border-blue-500 bg-blue-500/5', timer: 'text-blue-500', progress: 'stroke-blue-500' },
   };
