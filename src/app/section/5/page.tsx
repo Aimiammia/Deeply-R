@@ -10,7 +10,7 @@ import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags, L
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import type { Habit } from '@/types';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,7 +31,7 @@ export default function HabitsPage() {
   const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید.";
   const { toast } = useToast();
 
-  const [habits, setHabits, habitsLoading] = useLocalStorageState<Habit[]>('userHabitsDeeply', []);
+  const [habits, setHabits, habitsLoading] = useSharedState<Habit[]>('userHabitsDeeply', []);
 
   const handleAddHabit = useCallback((name: string) => {
     const newHabit: Habit = {

@@ -10,7 +10,7 @@ import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks, Loader2 } from 'lu
 import { useState, useCallback } from 'react'; 
 import type { LongTermGoal, Book } from '@/types'; 
 import { useToast } from "@/hooks/use-toast";
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton'; 
 import { generateId } from '@/lib/utils';
@@ -52,10 +52,10 @@ export default function SectionNineGoalsPage() {
   const sectionPageDescription = "اهداف بزرگ و کتاب‌های خود را در این بخش تعریف، پیگیری و مدیریت نمایید.";
   const { toast } = useToast();
   
-  const [goals, setGoals, goalsLoading] = useLocalStorageState<LongTermGoal[]>('longTermGoals', []);
+  const [goals, setGoals, goalsLoading] = useSharedState<LongTermGoal[]>('longTermGoals', []);
   const [editingGoal, setEditingGoal] = useState<LongTermGoal | null>(null);
 
-  const [books, setBooks, booksLoading] = useLocalStorageState<Book[]>('userBooksDeeply', []);
+  const [books, setBooks, booksLoading] = useSharedState<Book[]>('userBooksDeeply', []);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
 
   const pageIsLoading = goalsLoading || booksLoading;

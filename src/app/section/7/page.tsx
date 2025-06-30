@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { parseISO, format } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubjectType } from '@/lib/educational-data';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -470,12 +470,12 @@ export default function EducationPage() {
   const sectionTitle = "تحصیل و یادگیری";
   const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
   
-  const [educationalSettings, setEducationalSettings, settingsLoading] = useLocalStorageState<EducationalLevelStorage>(
+  const [educationalSettings, setEducationalSettings, settingsLoading] = useSharedState<EducationalLevelStorage>(
     'educationalLevelSettingsDeeply', 
     initialEducationalSettings
   );
   
-  const [subjectProgress, setSubjectProgress, progressLoading] = useLocalStorageState<EducationalSubjectUserProgress>(
+  const [subjectProgress, setSubjectProgress, progressLoading] = useSharedState<EducationalSubjectUserProgress>(
     'educationalSubjectProgressDeeply',
     {}
   );

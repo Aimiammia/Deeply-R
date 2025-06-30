@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, CopyPlus, Edit3, ListChecks, PlusCircle, Save, Trash2, X } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import { useToast } from '@/hooks/use-toast';
 import type { ProjectTemplate, TemplateTask } from '@/types';
 import { generateId } from '@/lib/utils';
@@ -22,7 +22,7 @@ export default function TemplatesPage() {
     const sectionPageDescription = "برای پروژه‌های تکراری خود قالب بسازید تا با یک کلیک بتوانید آن‌ها را ایجاد کنید.";
 
     const { toast } = useToast();
-    const [templates, setTemplates, templatesLoading] = useLocalStorageState<ProjectTemplate[]>('projectTemplates', []);
+    const [templates, setTemplates, templatesLoading] = useSharedState<ProjectTemplate[]>('projectTemplates', []);
     const [editingTemplate, setEditingTemplate] = useState<ProjectTemplate | null>(null);
 
     // Form state
@@ -148,7 +148,7 @@ export default function TemplatesPage() {
                                         </div>
                                         <div className="flex gap-2 mt-2">
                                             <Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} placeholder="عنوان وظیفه جدید" onKeyDown={e => {if(e.key === 'Enter'){ e.preventDefault(); handleAddTask();}}}/>
-                                            <Button type="button" variant="outline" onClick={handleAddTask}><PlusCircle className="h-4 w-4" /></Button>
+                                            <Button type="button" variant="outline" onClick={handleAddToken}><PlusCircle className="h-4 w-4" /></Button>
                                         </div>
                                     </div>
                                     <Button type="submit" className="w-full">

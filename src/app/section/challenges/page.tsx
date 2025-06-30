@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Trophy, PlusCircle, Loader2 } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import { useToast } from '@/hooks/use-toast';
 import type { Challenge } from '@/types';
 import { generateId } from '@/lib/utils';
@@ -22,7 +22,7 @@ export default function ChallengesPage() {
     const sectionPageDescription = "با شروع چالش‌های یک ماهه، خود را به سمت پیشرفت و ایجاد عادت‌های جدید سوق دهید.";
 
     const { toast } = useToast();
-    const [challenges, setChallenges, challengesLoading] = useLocalStorageState<Challenge[]>('thirtyDayChallenges', []);
+    const [challenges, setChallenges, challengesLoading] = useSharedState<Challenge[]>('thirtyDayChallenges', []);
     
     // Form state for new challenge
     const [challengeName, setChallengeName] = useState('');

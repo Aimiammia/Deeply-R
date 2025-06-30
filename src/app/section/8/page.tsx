@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -113,7 +113,7 @@ export default function DailyActivityLogPage() {
   const sectionTitle = "صندوق ورودی و یادداشت سریع";
   const sectionPageDescription = "افکار، ایده‌ها، کارها و هرچیز دیگری که به ذهنتان می‌رسد را سریعاً در اینجا ثبت کنید تا بعداً به آن‌ها رسیدگی کنید.";
 
-  const [logs, setLogs, logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+  const [logs, setLogs, logsLoading] = useSharedState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 

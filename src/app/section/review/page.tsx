@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaChart, ArrowLeft, BarChart as BarChartIcon, BookHeart, Calendar, CheckCircle, CircleDollarSign, ListChecks, Loader2 } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSharedState } from '@/hooks/useSharedState';
 import { ClientOnly } from '@/components/ClientOnly';
 import type { Task, FinancialTransaction, Habit, ReflectionEntry } from '@/types';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -33,10 +33,10 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: string |
 export default function ReviewPage() {
     const [timeRange, setTimeRange] = useState<TimeRange>('7d');
 
-    const [tasks, , tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
-    const [transactions, , transactionsLoading] = useLocalStorageState<FinancialTransaction[]>('financialTransactions', []);
-    const [habits, , habitsLoading] = useLocalStorageState<Habit[]>('userHabitsDeeply', []);
-    const [reflections, , reflectionsLoading] = useLocalStorageState<ReflectionEntry[]>('dailyReflections', []);
+    const [tasks, , tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
+    const [transactions, , transactionsLoading] = useSharedState<FinancialTransaction[]>('financialTransactions', []);
+    const [habits, , habitsLoading] = useSharedState<Habit[]>('userHabitsDeeply', []);
+    const [reflections, , reflectionsLoading] = useSharedState<ReflectionEntry[]>('dailyReflections', []);
 
     const isLoading = tasksLoading || transactionsLoading || habitsLoading || reflectionsLoading;
 
@@ -221,4 +221,3 @@ export default function ReviewPage() {
         </ClientOnly>
     );
 }
-
