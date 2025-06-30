@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, type FormEvent, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter, Clock, FolderKanban } from 'lucide-react';
+import { PlusCircle, Calendar as CalendarIcon, Tag as CategoryIcon, BookOpen, ListFilter, Clock, FolderKanban, Timer } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { DynamicJalaliDatePicker } from '@/components/calendar/DynamicJalaliDatePicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -26,7 +27,8 @@ interface CreateTaskFormProps {
     subjectName?: string | null,
     startChapter?: number | null,
     endChapter?: number | null,
-    educationalLevelContext?: string | null
+    educationalLevelContext?: string | null,
+    estimatedMinutes?: number | null
   ) => void;
   projects: Project[];
 }
@@ -49,6 +51,8 @@ export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
   const [priority, setPriority] = useState<Task['priority'] | undefined>(undefined);
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(undefined);
+  const [estimatedMinutes, setEstimatedMinutes] = useState<number | ''>('');
+
 
   const [userEducationalLevel, setUserEducationalLevel] = useState<string | null>(null);
   const [isLevelConfirmed, setIsLevelConfirmed] = useState<boolean>(false);
@@ -105,7 +109,8 @@ export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
         category === 'درس' && selectedSubject ? selectedSubject.name : null,
         category === 'درس' && startChapter !== '' ? Number(startChapter) : null,
         category === 'درس' && endChapter !== '' ? Number(endChapter) : null,
-        category === 'درس' ? userEducationalLevel : null
+        category === 'درس' ? userEducationalLevel : null,
+        estimatedMinutes !== '' ? Number(estimatedMinutes) : null
       );
 
       setTitle('');
@@ -117,6 +122,7 @@ export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
       setSelectedSubject(null);
       setStartChapter('');
       setEndChapter('');
+      setEstimatedMinutes('');
     }
   };
 
@@ -199,20 +205,37 @@ export function CreateTaskForm({ onAddTask, projects }: CreateTaskFormProps) {
         </Select>
       </div>
 
-      <div>
-        <Label htmlFor="projectSelect" className="mb-1 block text-xs">پروژه (اختیاری)</Label>
-        <Select value={selectedProjectId || ''} onValueChange={(value) => setSelectedProjectId(value === '_none_' ? undefined : value)}>
-            <SelectTrigger id="projectSelect" className="w-full" aria-label="انتخاب پروژه">
-                <FolderKanban className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
-                <SelectValue placeholder="انتخاب پروژه..." />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="_none_"><em>بدون پروژه</em></SelectItem>
-                {projects.filter(p => p.status !== 'completed').map(proj => (
-                    <SelectItem key={proj.id} value={proj.id}>{proj.name}</SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <Label htmlFor="projectSelect" className="mb-1 block text-xs">پروژه (اختیاری)</Label>
+            <Select value={selectedProjectId || ''} onValueChange={(value) => setSelectedProjectId(value === '_none_' ? undefined : value)}>
+                <SelectTrigger id="projectSelect" className="w-full" aria-label="انتخاب پروژه">
+                    <FolderKanban className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0 text-muted-foreground" />
+                    <SelectValue placeholder="انتخاب پروژه..." />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="_none_"><em>بدون پروژه</em></SelectItem>
+                    {projects.filter(p => p.status !== 'completed').map(proj => (
+                        <SelectItem key={proj.id} value={proj.id}>{proj.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+        <div>
+            <Label htmlFor="estimatedTime" className="mb-1 block text-xs">تخمین زمان (دقیقه)</Label>
+            <div className="relative">
+                <Timer className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground rtl:right-2.5 rtl:left-auto" />
+                <Input
+                id="estimatedTime"
+                type="number"
+                value={estimatedMinutes}
+                onChange={(e) => setEstimatedMinutes(e.target.value === '' ? '' : parseInt(e.target.value))}
+                placeholder="مثلا: 50"
+                min="0"
+                className="pl-8 rtl:pr-8"
+                />
+            </div>
+        </div>
       </div>
 
       {category === 'درس' && isLevelConfirmed && userEducationalLevel && (

@@ -1,11 +1,12 @@
+
 'use client';
 
 import type { Task } from '@/types';
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy, Clock, FolderKanban, ChevronDown, ChevronUp } from 'lucide-react';
+import { Pencil, Trash2, Save, X, CalendarDays, AlertTriangle, Tag, BookCopy, Clock, FolderKanban, ChevronDown, ChevronUp, Timer } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { faIR } from 'date-fns/locale';
@@ -34,6 +35,10 @@ const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }:
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.title);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const totalPomodoros = useMemo(() => {
+    return task.estimatedMinutes ? Math.ceil(task.estimatedMinutes / 25) : 0;
+  }, [task.estimatedMinutes]);
 
   const handleEdit = useCallback(() => {
     setIsEditing(true);
@@ -77,7 +82,7 @@ const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }:
     }
   };
   
-  const hasDetails = task.dueDate || task.priority || task.category || task.projectId || task.subjectName;
+  const hasDetails = task.dueDate || task.priority || task.category || task.projectId || task.subjectName || task.estimatedMinutes;
 
   return (
     <li className="flex flex-col p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
@@ -184,6 +189,15 @@ const TaskItemComponent = ({ task, onToggleComplete, onDeleteTask, onEditTask }:
                 <Link href={`/section/11#project-${task.projectId}`} passHref>
                     <Badge variant="secondary" className="mr-1 text-xs px-1.5 py-0.5 hover:bg-primary/20 cursor-pointer">{task.projectName}</Badge>
                 </Link>
+              </div>
+            )}
+             {task.estimatedMinutes && totalPomodoros > 0 && (
+              <div className="flex items-center">
+                <Timer className="ml-1 h-3.5 w-3.5 rtl:mr-1 rtl:ml-0" />
+                <span>پومودورو:</span>
+                <Badge variant="secondary" className="mr-1 text-xs px-1.5 py-0.5">
+                    🍅 {task.pomodorosCompleted?.toLocaleString('fa-IR') || '۰'} / {totalPomodoros.toLocaleString('fa-IR')}
+                </Badge>
               </div>
             )}
             {task.category === 'درس' && task.subjectName && (

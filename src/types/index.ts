@@ -26,6 +26,8 @@ export interface Task {
   startChapter?: number | null;
   endChapter?: number | null;
   educationalLevelContext?: string | null; // Educational level value at time of task creation e.g. "high_10"
+  estimatedMinutes?: number | null; // User's estimate in minutes
+  pomodorosCompleted?: number; // Number of pomodoros completed for this task
 }
 
 export interface ReflectionEntry {

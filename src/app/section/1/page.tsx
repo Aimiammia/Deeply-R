@@ -60,7 +60,8 @@ export default function PlannerLandingPage() {
     subjectName?: string | null,
     startChapter?: number | null,
     endChapter?: number | null,
-    educationalLevelContext?: string | null
+    educationalLevelContext?: string | null,
+    estimatedMinutes?: number | null
   ) => {
     const newTask: Task = {
       id: generateId(),
@@ -78,13 +79,24 @@ export default function PlannerLandingPage() {
       startChapter: startChapter || null,
       endChapter: endChapter || null,
       educationalLevelContext: educationalLevelContext || null,
+      estimatedMinutes: estimatedMinutes || null,
+      pomodorosCompleted: 0,
     };
     setTasks(prevTasks => [newTask, ...prevTasks]);
-    toast({
-      title: "کار اضافه شد",
-      description: `"${title}" با موفقیت به برنامه شما اضافه شد.`,
-      variant: "default",
-    });
+
+    if (estimatedMinutes && estimatedMinutes > 0) {
+        const pomodorosNeeded = Math.ceil(estimatedMinutes / 25);
+        toast({
+            title: "وظیفه با تخمین زمان ثبت شد",
+            description: `این وظیفه به حدود ${pomodorosNeeded.toLocaleString('fa-IR')} جلسه پومودورو نیاز دارد.`,
+        });
+    } else {
+        toast({
+            title: "کار اضافه شد",
+            description: `"${title}" با موفقیت به برنامه شما اضافه شد.`,
+            variant: "default",
+        });
+    }
   }, [setTasks, toast]);
 
   const handleToggleComplete = useCallback((id: string) => {
@@ -128,6 +140,27 @@ export default function PlannerLandingPage() {
      toast({
       title: "کار ویرایش شد",
       description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
+    });
+  }, [setTasks, toast]);
+
+  const handlePomodoroComplete = useCallback((taskId: string) => {
+    let taskTitle = "";
+    setTasks(prevTasks =>
+        prevTasks.map(task => {
+            if (task.id === taskId) {
+                taskTitle = task.title;
+                return {
+                    ...task,
+                    pomodorosCompleted: (task.pomodorosCompleted || 0) + 1,
+                };
+            }
+            return task;
+        })
+    );
+    toast({
+        title: "یک پومودورو تکمیل شد!",
+        description: `یک جلسه پومودورو برای وظیفه "${taskTitle}" ثبت شد.`,
+        variant: "default",
     });
   }, [setTasks, toast]);
 
@@ -187,7 +220,10 @@ export default function PlannerLandingPage() {
             </div>
             <div className="md:col-span-1 space-y-6">
                 <ClientOnly fallback={<Skeleton className="h-64 w-full" />}>
-                    <DynamicPomodoroTimer />
+                    <DynamicPomodoroTimer 
+                        tasks={tasks}
+                        onPomodoroComplete={handlePomodoroComplete}
+                    />
                 </ClientOnly>
                  <Card className="shadow-lg bg-card/70 border-primary/20 hover:border-primary/50 transition-colors">
                     <CardHeader>
