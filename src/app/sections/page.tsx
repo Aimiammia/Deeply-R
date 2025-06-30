@@ -1,237 +1,167 @@
 'use client';
 
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import {
-  CalendarCheck2,
-  BookHeart,
-  CircleDollarSign,
-  CalendarDays,
-  Target,
-  Dumbbell,
-  BookOpen,
-  FileText,
-  Settings,
-  ListChecks,
-  FolderKanban,
-  BrainCircuit,
-  CopyPlus,
-  AreaChart,
-  History,
-  Trophy,
-  Home,
-  type LucideIcon
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useSharedState } from '@/hooks/useSharedState';
+import { isSameDay, parseISO, startOfDay } from 'date-fns';
+import type { Task, Habit, CalendarEvent, BirthdayEntry } from '@/types';
+import { ClientOnly } from '@/components/ClientOnly';
+import { Loader2, ArrowRight, BookHeart, CalendarCheck, ClipboardList, Clock, Sparkle, LayoutGrid } from 'lucide-react';
+import { TodayTasks } from '@/components/dashboard/TodayTasks';
+import { TodayHabits } from '@/components/dashboard/TodayHabits';
+import { TodayEvents } from '@/components/dashboard/TodayEvents';
+import { getDailySuccessQuote } from '@/lib/prompts';
 
+export default function TodayDashboardPage() {
+  const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
+  const [habits, setHabits, habitsLoading] = useSharedState<Habit[]>('userHabitsDeeply', []);
+  const [events, , eventsLoading] = useSharedState<CalendarEvent[]>('calendarEventsDeeply', []);
+  const [birthdays, , birthdaysLoading] = useSharedState<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
+  
+  const isLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
 
-interface Section {
-  key: string;
-  link: string;
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  content: string;
-}
+  const today = startOfDay(new Date());
 
-const sections: Section[] = [
-    {
-        key: 'home',
-        link: '/',
-        icon: Home,
-        title: "داشبورد امروز",
-        description: "نمای کلی از وظایف، عادت‌ها و رویدادهای امروز شما.",
-        content: "به داشبورد اصلی خود بازگردید تا روی امروز تمرکز کنید."
-    },
-    {
-        key: '1',
-        link: '/section/1',
-        icon: CalendarCheck2,
-        title: "برنامه‌ریز روزانه",
-        description: "برنامه‌ریزی و مدیریت کارهای روزانه",
-        content: "وظایف امروز خود را اینجا برنامه‌ریزی کنید."
-    },
-    {
-        key: '2',
-        link: '/section/2',
-        icon: BookHeart,
-        title: "تأملات روزانه",
-        description: "افکار و احساسات خود را ثبت و مرور کنید",
-        content: "نوشته‌های روزانه خود را برای بازبینی ذخیره کنید."
-    },
-    {
-        key: '3',
-        link: '/section/3',
-        icon: CircleDollarSign,
-        title: "مدیریت مالی",
-        description: "هزینه‌ها و درآمدهای خود را پیگیری کنید",
-        content: "وضعیت مالی خود را بررسی و بودجه‌بندی کنید."
-    },
-    {
-        key: '4',
-        link: '/section/4',
-        icon: CalendarDays,
-        title: "تقویم و رویدادها",
-        description: "تقویم شمسی، رویدادها و مناسبت‌ها",
-        content: "رویدادها، تولدها و مناسبت‌های مهم خود را در تقویم شمسی مدیریت کنید."
-    },
-    {
-        key: '5',
-        link: '/section/5',
-        icon: ListChecks,
-        title: "ردیاب عادت‌ها",
-        description: "عادت‌های مثبت خود را ایجاد و پیگیری کنید",
-        content: "پیشرفت خود را در ساختن عادت‌های پایدار دنبال کنید."
-    },
-    {
-        key: 'challenges',
-        link: '/section/challenges',
-        icon: Trophy,
-        title: "چالش‌های ۳۰ روزه",
-        description: "خود را با چالش‌های ۳۰ روزه به چالش بکشید.",
-        content: "پیشرفت خود را در چالش‌هایی مانند ورزش روزانه، یادگیری مهارت جدید یا مدیتیشن پیگیری کنید."
-    },
-    {
-        key: '6',
-        link: '/section/6',
-        icon: Dumbbell,
-        title: "ورزشی",
-        description: "فعالیت‌های ورزشی خود را ثبت و پیگیری کنید",
-        content: "برنامه‌های تمرینی، فستینگ و سایر فعالیت‌های بدنی خود را مدیریت کنید."
-    },
-    {
-        key: '7',
-        link: '/section/7',
-        icon: BookOpen,
-        title: "تحصیل",
-        description: "برنامه‌های درسی، یادداشت‌ها و پیشرفت تحصیلی",
-        content: "مطالب درسی خود را سازماندهی کنید، یادداشت بردارید و پیشرفت تحصیلی خود را پیگیری نمایید."
-    },
-    {
-        key: '8',
-        link: '/section/8',
-        icon: FileText,
-        title: "صندوق ورودی و یادداشت سریع",
-        description: "افکار، ایده‌ها و کارهای ناگهانی خود را سریع ثبت کنید.",
-        content: "یک مکان برای خالی کردن ذهن و ثبت سریع یادداشت‌ها قبل از فراموشی."
-    },
-    {
-        key: '9',
-        link: '/section/9',
-        icon: Target,
-        title: "اهداف و کتاب‌ها",
-        description: "اهداف بزرگ و کتاب‌های خود را تعریف و پیگیری کنید.",
-        content: "اهداف آینده و لیست کتاب‌های خود را اینجا مدیریت نمایید."
-    },
-    {
-        key: '11',
-        link: '/section/11',
-        icon: FolderKanban,
-        title: "مدیریت پروژه‌ها",
-        description: "پروژه‌های خود را با وظایف، مهلت‌ها و تیم مدیریت کنید.",
-        content: "یک فضای متمرکز برای پیگیری پیشرفت پروژه‌های شخصی و کاری شما."
-    },
-    {
-        key: '12',
-        link: '/section/12',
-        icon: BrainCircuit,
-        title: "پایگاه دانش شخصی",
-        description: "یادداشت‌ها، خلاصه‌ها و دانش خود را در یک ویکی شخصی سازماندهی کنید.",
-        content: "یک مکان متمرکز برای ساختن پایگاه دانش خود و اتصال ایده‌ها به یکدیگر."
-    },
-    {
-        key: '13',
-        link: '/section/templates',
-        icon: CopyPlus,
-        title: "مدیریت قالب‌ها",
-        description: "قالب‌هایی برای پروژه‌ها و وظایف تکراری خود بسازید.",
-        content: "برای کارهای تکراری مانند راه‌اندازی پروژه جدید، قالب بسازید و در زمان خود صرفه‌جویی کنید."
-    },
-    {
-        key: '14',
-        link: '/section/review',
-        icon: AreaChart,
-        title: "مرور و گزارش‌گیری",
-        description: "عملکرد خود را با گزارش‌های دوره‌ای تحلیل کنید",
-        content: "نمودار وظایف، خلاصه‌های مالی و پیشرفت عادت‌های خود را در بازه‌های زمانی مختلف مشاهده کنید."
-    },
-    {
-        key: '15',
-        link: '/section/memories',
-        icon: History,
-        title: "یادآوری خاطرات",
-        description: "مرور کنید در این روز در سال‌های گذشته چه می‌کردید",
-        content: "خاطرات، وظایف تکمیل شده و رویدادهای ثبت شده خود را در یک نمای تایم‌لاین مشاهده کنید."
-    },
-    {
-        key: 'settings',
-        link: '/section/settings',
-        icon: Settings,
-        title: 'تنظیمات',
-        description: 'پشتیبان‌گیری، بازیابی و سایر تنظیمات برنامه',
-        content: 'از اطلاعات خود فایل پشتیبان تهیه کنید یا اطلاعات قبلی را بازیابی نمایید.'
-    },
-];
+  const todaysTasks = useMemo(() => {
+    return tasks.filter(task => !task.completed && task.dueDate && isSameDay(parseISO(task.dueDate), today));
+  }, [tasks, today]);
 
+  const todaysHabits = useMemo(() => {
+    const todayISOString = today.toISOString().split('T')[0];
+    return habits.filter(habit => !(habit.completions || []).includes(todayISOString));
+  }, [habits, today]);
 
-export default function SectionsPage() {
+  const todaysEventsAndBirthdays = useMemo(() => {
+    const todaysEvents = events.filter(event => isSameDay(parseISO(event.gDate), today));
+    const todaysBirthdays = birthdays.filter(bday => {
+        const bdayDate = parseISO(bday.gDate);
+        return bdayDate.getMonth() === today.getMonth() && bdayDate.getDate() === today.getDate();
+    });
+
+    const combined = [
+        ...todaysEvents.map(e => ({ type: 'event' as const, name: e.name })),
+        ...todaysBirthdays.map(b => ({ type: 'birthday' as const, name: `تولد ${b.name}` }))
+    ];
+    return combined;
+  }, [events, birthdays, today]);
+  
+  const dailyQuote = getDailySuccessQuote();
+
+  const handleToggleTask = (id: string) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task => 
+        task.id === id ? { ...task, completed: !task.completed, completedAt: !task.completed ? new Date().toISOString() : null } : task
+      )
+    );
+  };
+  
+  const handleToggleHabit = (id: string) => {
+    const todayISOString = today.toISOString().split('T')[0];
+    setHabits(prevHabits =>
+        prevHabits.map(habit => {
+            if (habit.id === id) {
+                const completions = habit.completions || [];
+                const isCompleted = completions.includes(todayISOString);
+                return {
+                    ...habit,
+                    completions: isCompleted
+                        ? completions.filter(c => c !== todayISOString)
+                        : [...completions, todayISOString]
+                };
+            }
+            return habit;
+        })
+    );
+  };
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-12 sm:py-16">
-        <div className="text-center mb-12">
+    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <div className="mb-8 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                بخش‌های برنامه
+              داشبورد امروز
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
-                تمام ابزارهای شما برای رشد و تأمل در یک مکان.
+            <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl italic">
+              {dailyQuote}
             </p>
-        </div>
-        
-        <div className="mb-8 flex justify-center">
-             <Button asChild variant="outline">
-                <Link href="/">
-                    <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-                    بازگشت به داشبورد امروز
-                </Link>
-            </Button>
-        </div>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.map((section) => {
-            const IconComponent = section.icon;
-            return (
-              <Link href={section.link} key={section.key} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
-                <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50">
-                  <CardHeader className="flex-shrink-0 p-4">
-                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <div className="bg-primary/10 p-2 rounded-lg">
-                        <IconComponent className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
-                      </div>
-                      <CardTitle className="text-lg font-headline font-semibold text-foreground">
-                        {section.title}
-                      </CardTitle>
-                    </div>
-                    <CardDescription className="text-sm text-muted-foreground pt-1">
-                      {section.description}
-                    </CardDescription>
+          {isLoading ? (
+            <div className="flex justify-center items-center p-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-primary"><ClipboardList className="ml-2 h-5 w-5" /> وظایف امروز</CardTitle>
+                    <CardDescription>کارهایی که باید امروز انجام دهید.</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-grow p-4 pt-0 text-sm text-foreground/90">
-                    <p>
-                      {section.content}
-                    </p>
+                  <CardContent>
+                    <TodayTasks tasks={todaysTasks} onToggleTask={handleToggleTask} />
                   </CardContent>
                 </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </main>
-      <footer className="text-center py-6 mt-8 border-t border-border/10 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-      </footer>
-    </div>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-primary"><Sparkle className="ml-2 h-5 w-5" /> عادت‌های امروز</CardTitle>
+                        <CardDescription>عادت‌هایی که برای امروز باقی مانده‌اند.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <TodayHabits habits={todaysHabits} onToggleHabit={handleToggleHabit} />
+                    </CardContent>
+                </Card>
+              </div>
+
+              <div className="lg:col-span-1 space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-primary"><CalendarCheck className="ml-2 h-5 w-5" /> رویدادهای امروز</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <TodayEvents events={todaysEventsAndBirthdays} />
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-card/50 backdrop-blur-sm border-border/20">
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-primary"><LayoutGrid className="ml-2 h-5 w-5" /> دسترسی به بخش‌ها</CardTitle>
+                        <CardDescription>برای مشاهده تمام قابلیت‌ها به صفحه اصلی بروید.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       <Button asChild className="w-full">
+                            <Link href="/">
+                                مشاهده تمام بخش‌ها
+                                <ArrowRight className="mr-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+                 <Card className="bg-card/50 backdrop-blur-sm border-border/20">
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-primary"><BookHeart className="ml-2 h-5 w-5" /> تأمل روزانه</CardTitle>
+                        <CardDescription>زمانی را برای ثبت افکار و احساسات خود اختصاص دهید.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <Button asChild className="w-full" variant="outline">
+                            <Link href="/section/2">
+                                نوشتن تأمل جدید
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+        </main>
+        <footer className="text-center py-4 text-sm text-muted-foreground mt-8">
+          <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+        </footer>
+      </div>
+    </ClientOnly>
   );
 }
