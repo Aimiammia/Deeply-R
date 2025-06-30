@@ -191,10 +191,15 @@ export default function SectionsPage() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sections.map((section) => {
+          {sections.map((section, index) => {
             const IconComponent = section.icon;
             return (
-              <Link href={section.link} key={section.key} className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
+              <Link 
+                href={section.link} 
+                key={section.key} 
+                className="group block rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${index * 75}ms` }}
+              >
                 <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50">
                   <CardHeader className="flex-shrink-0 p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
