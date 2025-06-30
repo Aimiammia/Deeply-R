@@ -141,7 +141,7 @@ export default function TodayDashboardPage() {
                         </Button>
                     </CardContent>
                 </Card>
-                 <Card>
+                 <Card className="bg-card/50 backdrop-blur-sm border-border/20">
                     <CardHeader>
                         <CardTitle className="flex items-center text-primary"><BookHeart className="ml-2 h-5 w-5" /> تأمل روزانه</CardTitle>
                         <CardDescription>زمانی را برای ثبت افکار و احساسات خود اختصاص دهید.</CardDescription>
