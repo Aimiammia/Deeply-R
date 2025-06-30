@@ -22,7 +22,7 @@ interface FastingTrackerProps {
 
 export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTrackerProps) {
     const [notes, setNotes] = useState('');
-    const [elapsedTime, setElapsedTime] = useState<{ hours: number; minutes: number } | null>(null);
+    const [elapsedTime, setElapsedTime] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
 
     useEffect(() => {
         if (!activeFast) {
@@ -30,22 +30,19 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
             return;
         }
 
-        const calculateTime = () => {
+        const timerId = setInterval(() => {
             const now = new Date();
             const start = parseISO(activeFast.startTime);
-            const seconds = differenceInSeconds(now, start);
+            const totalSeconds = differenceInSeconds(now, start);
 
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
+            if (totalSeconds < 0) return;
 
             setElapsedTime({
-                hours: hours,
-                minutes: minutes,
+                hours: Math.floor(totalSeconds / 3600),
+                minutes: Math.floor((totalSeconds % 3600) / 60),
+                seconds: totalSeconds % 60,
             });
-        };
-        
-        calculateTime();
-        const timerId = setInterval(calculateTime, 1000 * 60); // Update every minute
+        }, 1000); // Update every second
 
         return () => clearInterval(timerId);
     }, [activeFast]);
@@ -59,6 +56,14 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
         if (!activeFast || !elapsedTime) return null;
         return fastingStages.slice().reverse().find(stage => elapsedTime.hours >= stage.startHour);
     }, [elapsedTime, activeFast]);
+    
+    // Calculate progress for the circular timer based on a 24-hour cycle
+    const totalSecondsIn24Hours = 24 * 60 * 60;
+    const elapsedTotalSeconds = elapsedTime ? (elapsedTime.hours * 3600) + (elapsedTime.minutes * 60) + elapsedTime.seconds : 0;
+    const progress = Math.min((elapsedTotalSeconds / totalSecondsIn24Hours) * 100, 100);
+
+    const circumference = 2 * Math.PI * 90; // 2 * pi * radius of the SVG circle
+    const offset = circumference - (progress / 100) * circumference;
 
 
     if (!activeFast) {
@@ -94,29 +99,42 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
                     شما در حال حاضر در یک جلسه روزه‌داری هستید.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="p-3 border rounded-md bg-background text-center shadow-sm">
-                    <p className="text-sm text-muted-foreground">زمان شروع</p>
-                    <p className="text-lg font-semibold text-foreground">
-                        {formatJalaliDateDisplay(parseISO(activeFast.startTime), 'HH:mm - eeee, jD jMMMM')}
-                    </p>
+            <CardContent className="flex flex-col items-center gap-6">
+                <div className="relative w-56 h-56">
+                    <svg className="w-full h-full" viewBox="0 0 200 200">
+                        <circle
+                            cx="100"
+                            cy="100"
+                            r="90"
+                            className="stroke-muted/30"
+                            strokeWidth="12"
+                            fill="transparent"
+                        />
+                        <circle
+                            cx="100"
+                            cy="100"
+                            r="90"
+                            className="stroke-primary transition-all duration-1000 ease-linear"
+                            strokeWidth="12"
+                            fill="transparent"
+                            strokeLinecap="round"
+                            transform="rotate(-90 100 100)"
+                            style={{ strokeDasharray: circumference, strokeDashoffset: offset }}
+                        />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                         <span className="text-5xl font-bold font-mono tracking-tighter text-primary" dir="ltr">
+                            {elapsedTime ? `${String(elapsedTime.hours).padStart(2, '0')}:${String(elapsedTime.minutes).padStart(2, '0')}` : '۰۰:۰۰'}
+                        </span>
+                        <p className="text-xs text-muted-foreground mt-1 px-2 truncate">{currentStage?.title || 'شروع فستینگ'}</p>
+                    </div>
                 </div>
-                 <div className="p-3 border rounded-md bg-background text-center shadow-sm">
-                    <p className="text-sm text-muted-foreground">مدت زمان سپری شده</p>
-                    <p className="text-2xl font-bold text-primary tracking-wider">
-                        {elapsedTime ? (
-                            <>
-                                <span dir="ltr">{elapsedTime.hours.toLocaleString('fa-IR')}</span>
-                                <span> ساعت و </span>
-                                <span dir="ltr">{elapsedTime.minutes.toLocaleString('fa-IR')}</span>
-                                <span> دقیقه</span>
-                            </>
-                        ) : (
-                            'در حال محاسبه...'
-                        )}
-                    </p>
+
+                <div className="p-3 border rounded-md bg-background text-center shadow-sm w-full">
+                    <p className="text-sm text-muted-foreground">شروع: {formatJalaliDateDisplay(parseISO(activeFast.startTime), 'HH:mm - eeee, jD jMMMM')}</p>
                 </div>
-                <div>
+
+                <div className="w-full">
                     <Label htmlFor="fastingNotes" className="mb-1 block text-sm font-medium">یادداشت‌ها (اختیاری)</Label>
                     <Textarea 
                         id="fastingNotes"
@@ -131,7 +149,7 @@ export function FastingTracker({ activeFast, onStartFast, onEndFast }: FastingTr
                     پایان فستینگ و ذخیره جلسه
                 </Button>
 
-                <div className="mt-6 pt-4 border-t">
+                <div className="mt-6 pt-4 border-t w-full">
                     <h4 className="text-md font-semibold text-primary mb-3">مراحل فستینگ و اتفاقات بدن</h4>
                     <div className="space-y-3">
                         {fastingStages.map((stage) => {
