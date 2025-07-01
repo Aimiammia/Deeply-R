@@ -39,7 +39,7 @@ export function useSharedState<T>(
     }
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]); // We intentionally don't include initialValue to avoid re-fetching
+  }, [key]);
 
   // Debounce saving the state back to the server.
   useEffect(() => {
@@ -54,15 +54,25 @@ export function useSharedState<T>(
     const handler = setTimeout(() => {
       async function saveData() {
         try {
-          await fetch(`/api/data/${key}`, {
+          const response = await fetch(`/api/data/${key}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(value),
           });
+          // Also check if the save operation was successful on the server
+          if (!response.ok) {
+              console.error(`Error saving data for key “${key}”. Status: ${response.status}`);
+              try {
+                  const errorBody = await response.json();
+                  console.error("Server error response:", errorBody);
+              } catch {
+                  // Ignore cases where the error body isn't JSON
+              }
+          }
         } catch (error) {
-          console.error(`Error saving data for key “${key}”:`, error);
+          console.error(`Network error while saving data for key “${key}”:`, error);
         }
       }
       saveData();
