@@ -4,7 +4,8 @@ import CryptoJS from 'crypto-js';
 // It's better to store the salt separately or derive it, but for a simple offline app, a static salt is a starting point.
 const SALT = 'deeply-super-secret-salt-that-is-static';
 const KEY_SIZE = 256 / 32;
-const ITERATIONS = 10000; // Increased from 1000 for better security
+// Iterations increased to 10,000 (from 1000) for stronger key derivation, making brute-force attacks much harder.
+const ITERATIONS = 10000; 
 
 function deriveKey(password: string): string {
   // Use PBKDF2 to derive a more secure key from the user's password
