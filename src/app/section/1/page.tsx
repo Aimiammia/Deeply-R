@@ -6,11 +6,11 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardList, Target, Loader2, Timer } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Target, Loader2, Timer, ListChecks } from 'lucide-react';
 import Image from 'next/image';
 
 // Imports for Short-Term Planner
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Task, Project } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
@@ -19,6 +19,8 @@ import { useSharedState } from '@/hooks/useSharedState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isSameDay, isAfter, isBefore, startOfDay, parseISO } from 'date-fns';
 
 const DynamicCreateTaskForm = dynamic(() => import('@/components/tasks/CreateTaskForm').then(mod => mod.CreateTaskForm), {
   loading: () => <Skeleton className="h-48 w-full" />,
@@ -33,6 +35,7 @@ const DynamicPomodoroTimer = dynamic(() => import('@/components/tasks/PomodoroTi
   ssr: false
 });
 
+type TaskFilter = 'all' | 'today' | 'upcoming' | 'overdue' | 'completed';
 
 export default function PlannerLandingPage() {
   const sectionTitle = "برنامه‌ریز";
@@ -163,6 +166,38 @@ export default function PlannerLandingPage() {
         variant: "default",
     });
   }, [setTasks, toast]);
+  
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
+
+  const filteredTasks = useMemo(() => {
+    const today = startOfDay(new Date());
+
+    if (taskFilter === 'completed') {
+        return tasks
+            .filter(t => t.completed)
+            .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime());
+    }
+
+    const incompleteTasks = tasks.filter(t => !t.completed);
+
+    switch (taskFilter) {
+        case 'today':
+            return incompleteTasks
+                .filter(t => t.dueDate && isSameDay(parseISO(t.dueDate), today));
+        case 'upcoming':
+            return incompleteTasks
+                .filter(t => t.dueDate && isAfter(parseISO(t.dueDate), today))
+                .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+        case 'overdue':
+            return incompleteTasks
+                .filter(t => t.dueDate && isBefore(parseISO(t.dueDate), today))
+                .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+        case 'all':
+        default:
+            return incompleteTasks
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  }, [tasks, taskFilter]);
 
 
   return (
@@ -198,22 +233,47 @@ export default function PlannerLandingPage() {
                                 <Skeleton className="h-48 w-full" />
                             </div>
                         }>
-                            {tasksLoading || projectsLoading ? (
-                                <div className="space-y-4">
-                                    <Skeleton className="h-32 w-full" />
-                                    <Skeleton className="h-48 w-full" />
-                                </div>
+                            {projectsLoading ? (
+                                <Skeleton className="h-48 w-full" />
                             ) : (
-                                <>
-                                    <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
-                                    <DynamicTaskList
-                                    tasks={tasks}
-                                    onToggleComplete={handleToggleComplete}
-                                    onDeleteTask={handleDeleteTask}
-                                    onEditTask={handleEditTask}
-                                    />
-                                </>
+                                <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
                             )}
+                            
+                            <div className="mt-6">
+                                <Tabs value={taskFilter} onValueChange={(value) => setTaskFilter(value as TaskFilter)} className="w-full">
+                                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+                                        <TabsTrigger value="all">همه فعال</TabsTrigger>
+                                        <TabsTrigger value="today">امروز</TabsTrigger>
+                                        <TabsTrigger value="upcoming">آینده</TabsTrigger>
+                                        <TabsTrigger value="overdue">گذشته</TabsTrigger>
+                                        <TabsTrigger value="completed">تکمیل‌شده</TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
+                                <div className="mt-4">
+                                    {tasksLoading ? (
+                                        <Skeleton className="h-64 w-full" />
+                                    ) : (
+                                        <>
+                                            {filteredTasks.length > 0 ? (
+                                                <DynamicTaskList
+                                                    tasks={filteredTasks}
+                                                    onToggleComplete={handleToggleComplete}
+                                                    onDeleteTask={handleDeleteTask}
+                                                    onEditTask={handleEditTask}
+                                                />
+                                            ) : (
+                                                <div className="text-center py-10 text-muted-foreground border rounded-lg bg-muted/50 mt-4">
+                                                    <ListChecks className="mx-auto h-12 w-12 mb-4 text-primary" />
+                                                    <p className="text-lg font-semibold">
+                                                        {tasks.length === 0 ? 'هنوز وظیفه‌ای اضافه نشده است' : 'هیچ وظیفه‌ای با فیلتر فعلی مطابقت ندارد'}
+                                                    </p>
+                                                    {tasks.length === 0 && <p className="text-sm mt-1">اولین وظیفه خود را از طریق فرم بالا اضافه کنید!</p>}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
                         </ClientOnly>
                     </CardContent>
                 </Card>

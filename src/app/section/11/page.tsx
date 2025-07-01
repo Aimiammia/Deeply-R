@@ -142,6 +142,17 @@ export default function ProjectsPage() {
         createdAt: new Date().toISOString(),
         projectId: newProjectId,
         projectName: newProject.name,
+        dueDate: null,
+        dueTime: null,
+        priority: null,
+        category: null,
+        subjectId: null,
+        subjectName: null,
+        startChapter: null,
+        endChapter: null,
+        educationalLevelContext: null,
+        estimatedMinutes: null,
+        pomodorosCompleted: 0
     }));
 
     setProjects(prev => [newProject, ...prev]);
