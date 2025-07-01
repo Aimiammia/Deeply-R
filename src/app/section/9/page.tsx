@@ -194,13 +194,13 @@ export default function SectionNineGoalsPage() {
               <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1 h-auto">
                 <TabsTrigger
                   value="goals"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
                   <Target className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> اهداف
                 </TabsTrigger>
                 <TabsTrigger
                   value="books"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none"
                 >
                   <BookOpen className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> کتاب‌ها
                 </TabsTrigger>

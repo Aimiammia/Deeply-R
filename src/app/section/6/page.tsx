@@ -187,10 +187,10 @@ export default function SportsPage() {
                 <CardContent className="p-6">
                     <Tabs defaultValue="activities" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1 h-auto">
-                            <TabsTrigger value="activities" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                            <TabsTrigger value="activities" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none">
                                 <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
                             </TabsTrigger>
-                            <TabsTrigger value="fasting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none py-2.5">
+                            <TabsTrigger value="fasting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none">
                             <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
                             </TabsTrigger>
                         </TabsList>
