@@ -49,7 +49,7 @@
     --card: 222 47% 15%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 11%;
+    --popover: 222 47% 15%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 220 90% 68%;
@@ -100,10 +100,10 @@
     /* Jungle Dark Mode */
     --background: 142 50% 10%; /* very dark green */
     --foreground: 142 15% 90%;
-    --card: 142 50% 14%;
-    --card-foreground: 142 15% 90%;
-    --popover: 142 50% 10%;
-    --popover-foreground: 142 15% 90%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 15%;
+    --popover-foreground: 210 40% 98%;
     --primary: 142 60% 60%; /* brighter green */
     --primary-foreground: 142 60% 10%;
     --secondary: 142 40% 17%;
@@ -144,10 +144,10 @@
   .dark.theme-crimson {
     --background: 0 10% 8%;
     --foreground: 0 5% 90%;
-    --card: 0 10% 12%;
-    --card-foreground: 0 5% 90%;
-    --popover: 0 10% 8%;
-    --popover-foreground: 0 5% 90%;
+    --card: 222 47% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 15%;
+    --popover-foreground: 210 40% 98%;
     --primary: 355 90% 65%;
     --primary-foreground: 355 90% 10%;
     --secondary: 0 15% 15%;
