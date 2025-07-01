@@ -82,7 +82,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
 
       <div>
         <Label className="mb-2 block">نوع تراکنش</Label>
-        <div className="flex space-x-2 rtl:space-x-reverse">
+        <div className="flex">
           <Button
             type="button"
             variant={type === 'income' ? 'default' : 'outline'}
@@ -90,7 +90,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
               setType('income');
               setCategory(undefined);
             }}
-            className="flex-1"
+            className="flex-1 rounded-l-none"
           >
             درآمد
           </Button>
@@ -101,7 +101,7 @@ export function AddTransactionForm({ onAddTransaction }: AddTransactionFormProps
               setType('expense');
               setCategory(undefined);
             }}
-            className="flex-1"
+            className="flex-1 rounded-r-none rtl:-mr-px"
           >
             هزینه
           </Button>
