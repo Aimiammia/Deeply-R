@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="fa" dir="rtl" className={`${vazirmatnFont.variable} dark`}>
       <head>
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col bg-gray-50 dark:bg-black">
+      <body className="font-body antialiased min-h-screen flex flex-col">
         <AuthProvider>
           <ThemeManager />
           <AuthGuard>

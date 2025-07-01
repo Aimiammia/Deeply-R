@@ -42,14 +42,14 @@
   }
 
   .dark {
-    /* New Slate & Blue Theme - Dark Mode */
-    --background: 222 47% 11%;
+    /* Base Dark Theme - Black & Neutral */
+    --background: 0 0% 4%;
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 15%;
+    --card: 0 0% 10%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 15%;
+    --popover: 0 0% 10%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 220 90% 68%;
@@ -97,12 +97,12 @@
   }
 
   .dark.theme-jungle {
-    /* Jungle Dark Mode */
-    --background: 142 50% 10%; /* very dark green */
+    /* Jungle Dark Mode - with neutral background */
+    --background: 0 0% 4%; /* Neutral Black */
     --foreground: 142 15% 90%;
-    --card: 222 47% 15%;
+    --card: 0 0% 10%; /* Neutral Dark Grey */
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 15%;
+    --popover: 0 0% 10%; /* Neutral Dark Grey */
     --popover-foreground: 210 40% 98%;
     --primary: 142 60% 60%; /* brighter green */
     --primary-foreground: 142 60% 10%;
@@ -142,11 +142,12 @@
   }
 
   .dark.theme-crimson {
-    --background: 0 10% 8%;
+    /* Crimson Dark Mode - with neutral background */
+    --background: 0 0% 4%; /* Neutral Black */
     --foreground: 0 5% 90%;
-    --card: 222 47% 15%;
+    --card: 0 0% 10%; /* Neutral Dark Grey */
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 15%;
+    --popover: 0 0% 10%; /* Neutral Dark Grey */
     --popover-foreground: 210 40% 98%;
     --primary: 355 90% 65%;
     --primary-foreground: 355 90% 10%;
