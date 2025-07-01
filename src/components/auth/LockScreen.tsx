@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { ThemeToggle } from '../ThemeToggle';
 
 export function LockScreen() {
   const { isPasswordSet, setPassword, unlock, resetApp } = useAuth();
@@ -46,7 +47,10 @@ export function LockScreen() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black">
+    <div className="flex items-center justify-center min-h-screen bg-black relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-xl mx-4 rounded-2xl bg-black border-0">
         <CardHeader className="text-center p-8">
           <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
