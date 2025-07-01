@@ -47,7 +47,7 @@ export function LockScreen() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-lg mx-4 rounded-2xl">
+      <Card className="w-full max-w-xl mx-4 rounded-2xl">
         <CardHeader className="text-center p-8">
           <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
           <CardTitle className="text-3xl">Deeply قفل است</CardTitle>
