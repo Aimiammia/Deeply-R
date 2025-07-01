@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 
 // List of all possible theme classes that are not the default.
-const THEME_CLASSES = ['theme-jungle', 'theme-sunset', 'theme-ocean', 'theme-crimson', 'theme-cyberpunk'];
+const THEME_CLASSES = ['theme-jungle', 'theme-crimson'];
 
 export function useColorTheme() {
     const [theme, setTheme, isLoading] = useLocalStorageState<string>('color-theme', 'default');

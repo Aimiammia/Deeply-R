@@ -213,33 +213,12 @@ export default function SettingsPage() {
                                     </div>
                                     جنگل (سبز)
                                 </Button>
-                                <Button variant={colorTheme === 'theme-sunset' ? 'default' : 'outline'} onClick={() => setColorTheme('theme-sunset')} className="h-auto p-4 flex flex-col gap-2">
-                                    <div className="flex gap-1">
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(25,95%,53%)] border-2 border-background shadow-md"></div>
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(259,40%,12%)] border-2 border-background shadow-md"></div>
-                                    </div>
-                                    غروب (نارنجی)
-                                </Button>
-                                 <Button variant={colorTheme === 'theme-ocean' ? 'default' : 'outline'} onClick={() => setColorTheme('theme-ocean')} className="h-auto p-4 flex flex-col gap-2">
-                                    <div className="flex gap-1">
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(200,85%,45%)] border-2 border-background shadow-md"></div>
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(200,50%,10%)] border-2 border-background shadow-md"></div>
-                                    </div>
-                                    اقیانوس (فیروزه‌ای)
-                                </Button>
                                  <Button variant={colorTheme === 'theme-crimson' ? 'default' : 'outline'} onClick={() => setColorTheme('theme-crimson')} className="h-auto p-4 flex flex-col gap-2">
                                     <div className="flex gap-1">
                                         <div className="w-6 h-6 rounded-full bg-[hsl(350,80%,55%)] border-2 border-background shadow-md"></div>
                                         <div className="w-6 h-6 rounded-full bg-[hsl(0,10%,8%)] border-2 border-background shadow-md"></div>
                                     </div>
                                     قرمز تیره (Crimson)
-                                </Button>
-                                 <Button variant={colorTheme === 'theme-cyberpunk' ? 'default' : 'outline'} onClick={() => setColorTheme('theme-cyberpunk')} className="h-auto p-4 flex flex-col gap-2">
-                                    <div className="flex gap-1">
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(320,100%,55%)] border-2 border-background shadow-md"></div>
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(265,60%,8%)] border-2 border-background shadow-md"></div>
-                                    </div>
-                                    سایبرپانک (نئونی)
                                 </Button>
                                 </div>
                             </ClientOnly>
