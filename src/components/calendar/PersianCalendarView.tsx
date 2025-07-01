@@ -234,7 +234,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const renderDayCells = () => {
     const dayCells = [];
     for (let i = 0; i < firstDayOfWeekIndex; i++) {
-      dayCells.push(<div key={`empty-prev-${i}`} className="h-16 sm:h-20 border border-transparent rounded-lg"></div>);
+      dayCells.push(<div key={`empty-prev-${i}`} className="h-16 sm:h-20 border border-transparent rounded-2xl"></div>);
     }
 
     daysInMonthArray.map(day => {
@@ -263,7 +263,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           key={day}
           onClick={() => handleDayClick(day)}
           className={cn(
-            "flex flex-col items-center justify-start h-16 sm:h-20 rounded-lg border cursor-pointer transition-all duration-150 ease-in-out relative group p-1.5 text-center shadow-sm hover:shadow-md",
+            "flex flex-col items-center justify-start h-16 sm:h-20 rounded-2xl border cursor-pointer transition-all duration-150 ease-in-out relative group p-1.5 text-center shadow-sm hover:shadow-md",
             isTodayCell && !isSelectedForNew && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary shadow-lg scale-105",
             isSelectedForNew && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary-foreground shadow-lg scale-105",
             !isTodayCell && !isSelectedForNew && isPublicHoliday && "bg-destructive/10 text-destructive-foreground font-medium",
@@ -285,7 +285,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
 
     const totalCells = Math.ceil((firstDayOfWeekIndex + daysInMonthArray.length) / 7) * 7;
      for (let i = dayCells.length; i < totalCells; i++) {
-      dayCells.push(<div key={`empty-next-${i}`} className="h-16 sm:h-20 border border-transparent rounded-lg"></div>);
+      dayCells.push(<div key={`empty-next-${i}`} className="h-16 sm:h-20 border border-transparent rounded-2xl"></div>);
     }
     
     return dayCells;
@@ -308,8 +308,8 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-lg shadow-xl border">
-      <div className="flex items-center justify-between mb-4 p-3 bg-primary text-primary-foreground rounded-lg shadow">
+    <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-2xl shadow-xl border">
+      <div className="flex items-center justify-between mb-4 p-3 bg-primary text-primary-foreground rounded-xl shadow">
         <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="hover:bg-primary/80 text-primary-foreground">
           <ChevronRight className="h-6 w-6" />
         </Button>
@@ -324,13 +324,13 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 p-3 border rounded-md bg-muted/30 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 p-3 border rounded-xl bg-muted/30 shadow-sm">
         <Input 
             type="number" 
             value={inputYear} 
             onChange={(e) => setInputYear(e.target.value)} 
             placeholder="سال شمسی" 
-            className="text-center h-9 text-sm bg-background focus:ring-primary"
+            className="text-center text-sm bg-background focus:ring-primary"
             min="1000" max="2000"
         />
         <Input 
@@ -338,10 +338,10 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             value={inputMonth} 
             onChange={(e) => setInputMonth(e.target.value)} 
             placeholder="ماه (۱-۱۲)" 
-            className="text-center h-9 text-sm bg-background focus:ring-primary"
+            className="text-center text-sm bg-background focus:ring-primary"
             min="1" max="12"
         />
-        <Button onClick={handleGoToInputDate} variant="secondary" className="w-full h-9 text-sm shadow hover:bg-primary/20">برو به تاریخ</Button>
+        <Button onClick={handleGoToInputDate} variant="secondary" className="w-full text-sm shadow hover:bg-primary/20">برو به تاریخ</Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
@@ -359,7 +359,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       </div>
 
       {showAddBirthdayForm && (
-        <div className="p-4 border rounded-lg mb-4 space-y-3 bg-secondary/40 shadow-md">
+        <div className="p-4 border rounded-xl mb-4 space-y-3 bg-secondary/40 shadow-md">
           <h3 className="text-md font-semibold text-primary">فرم افزودن تولد</h3>
           <div>
             <Label htmlFor="birthdayName" className="mb-1 block text-sm font-medium">نام صاحب تولد</Label>
@@ -367,7 +367,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           </div>
           <div>
             <Label className="mb-1 block text-sm font-medium">تاریخ تولد (از تقویم بالا انتخاب کنید)</Label>
-            <div className="p-2 border rounded-md bg-background text-center h-10 flex items-center justify-center text-sm">
+            <div className="p-2 border rounded-xl bg-background text-center h-10 flex items-center justify-center text-sm">
               {selectedBirthdayDate && parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)
                 ? formatJalaliDateDisplay(parseJalaliDate(selectedBirthdayDate.year, selectedBirthdayDate.month, selectedBirthdayDate.day)!, 'jD jMMMM jYYYY')
                 : <span className="text-muted-foreground">تاریخی انتخاب نشده</span>
@@ -379,7 +379,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       )}
 
       {(showAddEventForm || editingEvent) && (
-        <div className="p-4 border rounded-lg mb-4 space-y-3 bg-secondary/40 shadow-md">
+        <div className="p-4 border rounded-xl mb-4 space-y-3 bg-secondary/40 shadow-md">
           <h3 className="text-md font-semibold text-primary">{editingEvent ? 'فرم ویرایش رویداد' : 'فرم افزودن رویداد'}</h3>
           <div>
             <Label htmlFor="eventName" className="mb-1 block text-sm font-medium">نام رویداد</Label>
@@ -391,7 +391,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
           </div>
           <div>
             <Label className="mb-1 block text-sm font-medium">تاریخ رویداد (از تقویم بالا انتخاب کنید)</Label>
-            <div className="p-2 border rounded-md bg-background text-center h-10 flex items-center justify-center text-sm">
+            <div className="p-2 border rounded-xl bg-background text-center h-10 flex items-center justify-center text-sm">
               {selectedEventDate && parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)
                 ? formatJalaliDateDisplay(parseJalaliDate(selectedEventDate.year, selectedEventDate.month, selectedEventDate.day)!, 'jD jMMMM jYYYY')
                 : <span className="text-muted-foreground">تاریخی انتخاب نشده</span>
@@ -417,13 +417,13 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       {(currentMonthOfficialHolidays.length > 0 || birthdaysInCurrentMonth.length > 0 || eventsInCurrentMonth.length > 0) && <Separator className="my-4" />}
 
       {birthdaysInCurrentMonth.length > 0 && (
-         <div className="mb-4 p-3 border rounded-lg bg-yellow-500/10 shadow">
+         <div className="mb-4 p-3 border rounded-xl bg-yellow-500/10 shadow">
           <h3 className="text-md font-semibold text-yellow-700 dark:text-yellow-400 mb-2 flex items-center">
             <Gift className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" /> تولدهای این ماه:
           </h3>
           <ul className="space-y-1.5">
             {birthdaysInCurrentMonth.map(b => (
-              <li key={b.id} className="flex items-center justify-between p-2 rounded-md bg-card/80 hover:bg-muted/40 text-sm shadow-sm">
+              <li key={b.id} className="flex items-center justify-between p-2 rounded-xl bg-card/80 hover:bg-muted/40 text-sm shadow-sm">
                 <div className="flex items-center">
                     <span className="font-medium text-foreground">{b.name}</span>
                     <span className="text-muted-foreground mr-2 rtl:ml-2 rtl:mr-0 text-xs">
@@ -440,13 +440,13 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       )}
 
       {eventsInCurrentMonth.length > 0 && (
-         <div className="mb-4 p-3 border rounded-lg bg-green-500/10 shadow">
+         <div className="mb-4 p-3 border rounded-xl bg-green-500/10 shadow">
           <h3 className="text-md font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center">
             <CalendarCheck2 className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" /> رویدادهای شما در این ماه:
           </h3>
           <ul className="space-y-1.5">
             {eventsInCurrentMonth.map(e => (
-              <li key={e.id} className="flex items-start justify-between p-2.5 rounded-md bg-card/80 hover:bg-muted/40 text-sm shadow-sm">
+              <li key={e.id} className="flex items-start justify-between p-2.5 rounded-xl bg-card/80 hover:bg-muted/40 text-sm shadow-sm">
                 <div>
                     <span className="font-semibold text-foreground">{e.name}</span>
                     <span className="text-muted-foreground mx-2 rtl:ml-2 rtl:mr-0 text-xs">
@@ -469,13 +469,13 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       )}
       
       {currentMonthOfficialHolidays.length > 0 && (
-         <div className="mt-4 p-3 border rounded-lg bg-red-500/10 shadow">
+         <div className="mt-4 p-3 border rounded-xl bg-red-500/10 shadow">
           <h3 className="text-md font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center">
             <Moon className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/> مناسبت‌های رسمی {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:
           </h3>
           <ul className="space-y-1 text-sm text-foreground/90">
             {currentMonthOfficialHolidays.map(event => (
-              <li key={`${event.day}-${event.occasion}`} className="p-1.5 rounded-md hover:bg-muted/30"> 
+              <li key={`${event.day}-${event.occasion}`} className="p-1.5 rounded-xl hover:bg-muted/30"> 
                 <span className="font-medium text-red-600 dark:text-red-300">{event.day.toLocaleString('fa-IR')} {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:</span> {event.occasion}
                 {event.isPublicHoliday && <span className="text-xs text-red-500 mr-1 rtl:ml-1 rtl:mr-0">(تعطیل رسمی)</span>}
               </li>
