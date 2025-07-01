@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 
 const FormLoadingSkeleton = () => (
-  <div className="space-y-6 p-4 border rounded-lg shadow-sm bg-card mb-8 animate-pulse">
+  <div className="space-y-6 p-4 border rounded-2xl shadow-sm bg-card mb-8 animate-pulse">
     <Skeleton className="h-8 w-1/3 mb-4 rounded" />
     <Skeleton className="h-10 w-full rounded" />
     <Skeleton className="h-10 w-full rounded" />
@@ -35,9 +35,9 @@ const ListLoadingSkeleton = () => (
   <div className="mt-8 animate-pulse">
     <Skeleton className="h-8 w-1/2 mb-4 rounded" />
     <div className="space-y-4">
-      <Skeleton className="h-20 w-full rounded-lg" />
-      <Skeleton className="h-20 w-full rounded-lg" />
-      <Skeleton className="h-20 w-full rounded-lg" />
+      <Skeleton className="h-20 w-full rounded-2xl" />
+      <Skeleton className="h-20 w-full rounded-2xl" />
+      <Skeleton className="h-20 w-full rounded-2xl" />
     </div>
   </div>
 );
@@ -406,7 +406,7 @@ export default function FinancialManagementPage() {
         <Card className="shadow-lg bg-card">
           <CardContent className="p-6">
             <Tabs defaultValue="transactions" className="w-full">
-              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 mb-6 rounded-full bg-primary/10 p-1 h-auto">
+              <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 mb-6 rounded-full bg-primary/10 p-1">
                 <TabsTrigger value="transactions" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none">
                   <Wallet className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> تراکنش‌ها
                 </TabsTrigger>
