@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -48,17 +47,17 @@ export function LockScreen() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-sm mx-4">
-        <CardHeader className="text-center">
-          <Brain className="mx-auto h-12 w-12 text-primary mb-2" />
-          <CardTitle className="text-2xl">Deeply قفل است</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-lg mx-4 rounded-2xl">
+        <CardHeader className="text-center p-8">
+          <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
+          <CardTitle className="text-3xl">Deeply قفل است</CardTitle>
+          <CardDescription className="text-base mt-2">
             {isPasswordSet
               ? 'برای ادامه، رمز عبور خود را وارد کنید.'
               : 'برای محافظت از اطلاعات خود، یک رمز عبور تنظیم کنید.'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-6">
           {isPasswordSet ? (
             <form onSubmit={handleUnlock} className="space-y-4">
               <Input
@@ -70,9 +69,10 @@ export function LockScreen() {
                 }}
                 placeholder="رمز عبور"
                 autoFocus
+                className="py-6 text-lg rounded-2xl text-center"
               />
-              <Button type="submit" className="w-full">
-                <KeyRound className="mr-2 h-4 w-4" />
+              <Button type="submit" className="w-full py-6 text-lg rounded-2xl">
+                <KeyRound className="mr-2 h-5 w-5" />
                 باز کردن
               </Button>
             </form>
@@ -87,6 +87,7 @@ export function LockScreen() {
                 }}
                 placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
                 autoFocus
+                className="py-6 text-lg rounded-2xl text-center"
               />
               <Input
                 type="password"
@@ -96,9 +97,10 @@ export function LockScreen() {
                   setError('');
                 }}
                 placeholder="تکرار رمز عبور"
+                className="py-6 text-lg rounded-2xl text-center"
               />
-              <Button type="submit" className="w-full">
-                <ShieldCheck className="mr-2 h-4 w-4" />
+              <Button type="submit" className="w-full py-6 text-lg rounded-2xl">
+                <ShieldCheck className="mr-2 h-5 w-5" />
                 تنظیم رمز عبور و ورود
               </Button>
             </form>
@@ -106,7 +108,7 @@ export function LockScreen() {
           {error && <p className="text-sm text-center text-destructive mt-4">{error}</p>}
         </CardContent>
         {isPasswordSet && (
-          <CardFooter className="flex justify-center">
+          <CardFooter className="flex justify-center px-8 pb-8">
              <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="link" className="text-xs text-muted-foreground">
