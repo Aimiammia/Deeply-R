@@ -2,22 +2,21 @@
 'use client';
 
 import Link from 'next/link';
-import dynamic from 'next/dynamic'; // Added
+import dynamic from 'next/dynamic'; 
 import { Header } from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarDays, CheckSquare, Edit, ListChecks, GanttChartSquare, BellDot, Loader2 } from 'lucide-react'; // Added Loader2
-// import { PersianCalendarView } from '@/components/calendar/PersianCalendarView'; // Commented out
+import { ArrowLeft, CalendarDays, Loader2 } from 'lucide-react'; 
 import { getJalaliToday } from '@/lib/calendar-helpers';
-import { Skeleton } from '@/components/ui/skeleton'; // Added for better loading
+import { Skeleton } from '@/components/ui/skeleton'; 
 
 const DynamicPersianCalendarView = dynamic(() => 
   import('@/components/calendar/PersianCalendarView').then(mod => mod.PersianCalendarView),
   {
-    ssr: false, // PersianCalendarView might use client-side logic (localStorage for events/birthdays)
+    ssr: false,
     loading: () => (
-      <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-lg shadow-lg animate-pulse">
-        <div className="flex items-center justify-between mb-4 p-2 bg-muted h-16 rounded-md">
+      <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-2xl shadow-lg animate-pulse">
+        <div className="flex items-center justify-between mb-4 p-3 bg-muted h-16 rounded-xl">
           <Skeleton className="h-8 w-8 rounded-full" />
           <Skeleton className="h-6 w-1/2 rounded-md" />
           <Skeleton className="h-8 w-8 rounded-full" />
@@ -71,28 +70,8 @@ export default function CalendarPage() {
           </p>
         </div>
         
-        <Card className="shadow-lg bg-card">
-          <CardContent className="p-6 space-y-8">
-            <DynamicPersianCalendarView initialYear={todayJalali.year} initialMonth={todayJalali.month} /> 
+        <DynamicPersianCalendarView initialYear={todayJalali.year} initialMonth={todayJalali.month} /> 
             
-            <div className="p-4 border rounded-lg bg-secondary/30">
-                <h4 className="text-lg font-semibold text-primary mb-3">قابلیت‌های پیاده‌سازی شده و آینده:</h4>
-                <ul className="list-disc list-inside space-y-2 text-sm text-foreground/90">
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش تقویم شمسی با ناوبری ماه و سال</li>
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />افزودن، نمایش و حذف تاریخ تولدها (ذخیره در localStorage)</li>
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />افزودن، ویرایش، نمایش و حذف رویدادها (ذخیره در localStorage)</li>
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش نشانگر برای روزهای دارای تولد یا رویداد</li>
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش بازه معادل میلادی برای ماه شمسی جاری</li>
-                  <li className="flex items-center"><CheckSquare className="ml-2 h-4 w-4 text-green-500 rtl:mr-2 rtl:ml-0" />نمایش مناسبت‌های نمونه</li>
-                  <li className="flex items-center"><Edit className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />ویرایش پیشرفته‌تر رویدادها (مانند انتخاب رنگ، تکرار و ...)</li>
-                  <li className="flex items-center"><GanttChartSquare className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />نمایش‌های مختلف (هفتگی، روزانه) برای رویدادها</li>
-                  <li className="flex items-center"><BellDot className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />تنظیم یادآور برای رویدادها</li>
-                  <li className="flex items-center"><ListChecks className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />بارگذاری هوشمند مناسبت‌ها و تعطیلات رسمی از منبع خارجی</li>
-                  <li className="flex items-center"><CalendarDays className="ml-2 h-4 w-4 text-yellow-500 rtl:mr-2 rtl:ml-0" />نمایش تاریخ قمری معادل برای هر روز</li>
-                </ul>
-              </div>
-          </CardContent>
-        </Card>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>

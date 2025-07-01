@@ -224,7 +224,7 @@ export default function PlannerLandingPage() {
             <div className="md:col-span-2 space-y-6">
                  <Card className="shadow-lg bg-card">
                     <CardContent className="p-6">
-                        <div className="p-4 rounded-md border bg-primary/10 shadow-sm mb-6">
+                        <div className="p-4 rounded-xl border bg-primary/10 shadow-sm mb-6">
                             <DailyPromptDisplay prompt={currentSuccessQuote} />
                         </div>
                         <ClientOnly fallback={
