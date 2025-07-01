@@ -52,7 +52,7 @@ export function LockScreen() {
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-xl mx-4 rounded-2xl bg-white dark:bg-black shadow-lg border-0">
+      <Card className="w-full max-w-xl mx-4 rounded-2xl shadow-lg border-0">
         <CardHeader className="text-center p-8">
           <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
           <CardTitle className="text-3xl">Deeply قفل است</CardTitle>
@@ -120,7 +120,7 @@ export function LockScreen() {
                         رمز عبور خود را فراموش کرده‌اید؟
                     </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent dir="rtl" className="max-w-xl rounded-2xl border-0 bg-white dark:bg-black">
+                <AlertDialogContent dir="rtl" className="max-w-xl rounded-2xl border-0">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center">
                             <AlertTriangle className="ml-2 h-5 w-5 text-destructive"/>
