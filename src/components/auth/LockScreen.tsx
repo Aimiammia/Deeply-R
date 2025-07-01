@@ -51,7 +51,7 @@ export function LockScreen() {
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-sm mx-4 rounded-2xl shadow-lg border-0 bg-card">
+      <Card className="w-full max-w-sm mx-4 shadow-lg border-0 bg-card">
         <CardHeader className="text-center p-8">
           <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
           <CardTitle className="text-3xl">Deeply قفل است</CardTitle>
