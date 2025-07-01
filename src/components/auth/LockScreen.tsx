@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -48,11 +47,11 @@ export function LockScreen() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black relative">
+    <div className="flex items-center justify-center min-h-screen bg-background relative">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-xl mx-4 rounded-2xl shadow-lg border-0">
+      <Card className="w-full max-w-sm mx-4 rounded-2xl shadow-lg border-0 bg-card">
         <CardHeader className="text-center p-8">
           <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
           <CardTitle className="text-3xl">Deeply قفل است</CardTitle>
@@ -74,7 +73,7 @@ export function LockScreen() {
                 }}
                 placeholder="رمز عبور"
                 autoFocus
-                className="py-6 text-lg rounded-2xl text-center"
+                className="py-6 text-lg rounded-2xl text-center focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500"
               />
               <Button type="submit" className="w-full py-6 text-lg rounded-2xl">
                 <KeyRound className="mr-2 h-5 w-5" />
@@ -92,7 +91,7 @@ export function LockScreen() {
                 }}
                 placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)"
                 autoFocus
-                className="py-6 text-lg rounded-2xl text-center"
+                className="py-6 text-lg rounded-2xl text-center focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500"
               />
               <Input
                 type="password"
@@ -102,7 +101,7 @@ export function LockScreen() {
                   setError('');
                 }}
                 placeholder="تکرار رمز عبور"
-                className="py-6 text-lg rounded-2xl text-center"
+                className="py-6 text-lg rounded-2xl text-center focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500"
               />
               <Button type="submit" className="w-full py-6 text-lg rounded-2xl">
                 <ShieldCheck className="mr-2 h-5 w-5" />
