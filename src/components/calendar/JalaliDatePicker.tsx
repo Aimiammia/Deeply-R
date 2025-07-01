@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface JalaliDatePickerProps {
+export interface JalaliDatePickerProps {
   value?: Date; // Gregorian Date object
   onChange: (date: Date) => void;
   initialYear?: number;

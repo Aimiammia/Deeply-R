@@ -2,13 +2,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import type { ComponentProps } from 'react';
-// Ensure the path to the original JalaliDatePicker is correct
-import { JalaliDatePicker as OriginalJalaliDatePicker } from './JalaliDatePicker';
+import type { JalaliDatePickerProps } from './JalaliDatePicker';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Define props type for the original component
-type OriginalDatePickerProps = ComponentProps<typeof OriginalJalaliDatePicker>;
 
 const DynamicDatePickerComponent = dynamic(() =>
   import('./JalaliDatePicker').then(mod => mod.JalaliDatePicker),
@@ -22,7 +17,6 @@ const DynamicDatePickerComponent = dynamic(() =>
   }
 );
 
-export function DynamicJalaliDatePicker(props: OriginalDatePickerProps) {
+export function DynamicJalaliDatePicker(props: JalaliDatePickerProps) {
   return <DynamicDatePickerComponent {...props} />;
 }
-
