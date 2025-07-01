@@ -16,7 +16,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   if (isLoading) {
     // Show a full-screen loader while checking auth status
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );

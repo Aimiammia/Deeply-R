@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -47,11 +48,11 @@ export function LockScreen() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black relative">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-black relative">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-xl mx-4 rounded-2xl bg-black border-0">
+      <Card className="w-full max-w-xl mx-4 rounded-2xl bg-white dark:bg-black dark:border-0 shadow-lg">
         <CardHeader className="text-center p-8">
           <Brain className="mx-auto h-12 w-12 text-primary mb-4" />
           <CardTitle className="text-3xl">Deeply قفل است</CardTitle>
