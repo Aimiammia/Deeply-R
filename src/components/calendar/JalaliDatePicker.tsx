@@ -88,17 +88,12 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
     const freshToday = getJalaliToday(); // Get the absolute latest "today"
     setCurrentJalaliYear(freshToday.year);
     setCurrentJalaliMonth(freshToday.month);
-    // Optionally, also select today's date if needed by the parent component
-    // const todayGregorian = parseJalaliDate(freshToday.year, freshToday.month, freshToday.day);
-    // if (todayGregorian) {
-    //   onChange(todayGregorian);
-    // }
   };
 
   const renderDayCells = () => {
     const dayCells = [];
     for (let i = 0; i < firstDayOfWeekIndex; i++) {
-      dayCells.push(<div key={`empty-prev-${i}`} className="p-1 sm:p-2 border border-transparent"></div>);
+      dayCells.push(<div key={`empty-prev-${i}`} className="p-1 sm:p-2"></div>);
     }
 
     daysInMonthArray.forEach(day => {
@@ -111,60 +106,58 @@ export function JalaliDatePicker({ value, onChange, initialYear, initialMonth }:
                          selectedJalaliDate?.jd === day;
 
       dayCells.push(
-        <div
+        <button
           key={day}
           onClick={() => handleDayClick(day)}
+          type="button"
           className={cn(
-            "flex flex-col items-center justify-center aspect-square rounded-lg border cursor-pointer transition-colors relative group p-1",
-            "text-sm sm:text-base",
-            isSelected && "bg-primary text-primary-foreground font-bold ring-2 ring-primary-foreground ring-offset-1 ring-offset-primary",
-            !isSelected && isTodayForCell && "bg-accent text-accent-foreground font-semibold",
-            !isSelected && !isTodayForCell && isFriday && "text-orange-600 dark:text-orange-400 bg-secondary/30",
-            !isSelected && !isTodayForCell && !isFriday && "bg-card hover:bg-muted/80",
+            "flex items-center justify-center aspect-square rounded-full h-9 w-9 text-sm transition-colors",
+            isSelected && "bg-primary text-primary-foreground font-bold hover:bg-primary/90",
+            !isSelected && isTodayForCell && "bg-accent text-accent-foreground",
+            !isSelected && !isTodayForCell && "hover:bg-accent hover:text-accent-foreground",
+            !isSelected && isFriday && "text-red-500 dark:text-red-400"
           )}
         >
-          <span className="font-medium">{day.toLocaleString('fa-IR')}</span>
-        </div>
+          {day.toLocaleString('fa-IR')}
+        </button>
       );
     });
     
     const totalCells = Math.ceil((firstDayOfWeekIndex + daysInMonthArray.length) / 7) * 7;
      for (let i = dayCells.length; i < totalCells; i++) {
-      dayCells.push(<div key={`empty-next-${i}`} className="p-1 sm:p-2 border border-transparent"></div>);
+      dayCells.push(<div key={`empty-next-${i}`} className="p-1 sm:p-2"></div>);
     }
 
     return dayCells;
   };
 
   return (
-    <div className="w-full bg-popover text-popover-foreground p-3 rounded-md shadow-md">
-      <div className="flex items-center justify-between mb-3 p-2 text-foreground rounded-md">
-        <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="hover:bg-muted/80">
+    <div className="w-full max-w-xs mx-auto bg-popover text-popover-foreground p-4 rounded-xl shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="rounded-full">
           <ChevronRight className="h-5 w-5" />
         </Button>
-        <div className="text-center">
-          <h3 className="text-md font-semibold">
+        <div className="text-center font-semibold text-lg">
             {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear.toLocaleString('fa-IR', {useGrouping: false})}
-          </h3>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleNextMonth} className="hover:bg-muted/80">
+        <Button variant="ghost" size="icon" onClick={handleNextMonth} className="rounded-full">
           <ChevronLeft className="h-5 w-5" />
         </Button>
       </div>
-      
-      <Button onClick={handleGoToToday} variant="outline" className="w-full mb-3 text-sm">
-          برو به امروز
-      </Button>
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">
         {JALALI_DAY_NAMES_LONG.map(dayName => (
-          <div key={dayName} className={cn("py-1", dayName === 'جمعه' && "text-orange-600 dark:text-orange-400")}>{dayName.substring(0,3)}</div>
+          <div key={dayName} className={cn("py-1", dayName === 'جمعه' && "text-red-500 dark:text-red-400")}>{dayName.substring(0,1)}</div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+      <div className="grid grid-cols-7 gap-1 place-items-center">
         {renderDayCells()}
       </div>
+
+      <Button onClick={handleGoToToday} variant="secondary" size="sm" className="w-full mt-4">
+          برو به امروز
+      </Button>
     </div>
   );
 }
