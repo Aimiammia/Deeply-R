@@ -203,7 +203,7 @@ export default function SectionsPage() {
                 <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50 rounded-2xl">
                   <CardHeader className="flex-shrink-0 p-4">
                     <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <div className="bg-primary/10 p-2 rounded-lg">
+                      <div className="bg-primary/10 p-2 rounded-full">
                         <IconComponent className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
                       </div>
                       <CardTitle className="text-lg font-headline font-semibold text-foreground">
