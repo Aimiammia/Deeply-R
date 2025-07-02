@@ -10,5 +10,10 @@
       "currentGrade": "17",
       "detailedNotes": null
     }
+  },
+  "educationalLevelSettingsDeeply": {
+    "levelValue": "middle_9",
+    "isConfirmed": true,
+    "lastPromotionCheckDate": "2025-07-02T16:55:59.103Z"
   }
 }
