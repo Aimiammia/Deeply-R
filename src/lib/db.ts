@@ -22,13 +22,19 @@ async function readDb(): Promise<DbData> {
     }
     return JSON.parse(fileContent);
   } catch (error) {
-    // If the file doesn't exist, create it with an empty object.
+    // If the file doesn't exist, try to create it.
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      await fs.writeFile(dbPath, JSON.stringify({}, null, 2), 'utf-8');
-      return {};
+      try {
+        await fs.writeFile(dbPath, JSON.stringify({}, null, 2), 'utf-8');
+        return {};
+      } catch (writeError) {
+        // If creating the file fails, log the error and return an empty object to prevent a server crash.
+        console.error(`Failed to create db.json at ${dbPath}:`, writeError);
+        return {};
+      }
     }
-    // For other errors (like invalid JSON), log it and return an empty object to prevent a server crash.
-    console.error(`Error reading or parsing db.json for path ${dbPath}. Returning empty object.`, error);
+    // For other read/parse errors, log it and return an empty object.
+    console.error(`Error reading or parsing db.json at ${dbPath}. Returning empty object.`, error);
     return {};
   }
 }
