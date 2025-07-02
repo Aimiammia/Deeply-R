@@ -15,28 +15,26 @@ const DynamicPersianCalendarView = dynamic(() =>
   {
     ssr: false,
     loading: () => (
-      <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-2xl shadow-lg animate-pulse">
-        <div className="flex items-center justify-between mb-4 p-3 bg-muted h-16 rounded-xl">
-          <Skeleton className="h-8 w-8 rounded-full" />
-          <Skeleton className="h-6 w-1/2 rounded-md" />
-          <Skeleton className="h-8 w-8 rounded-full" />
+      <div className="w-full max-w-2xl mx-auto bg-popover p-4 rounded-xl shadow-md space-y-4 animate-pulse">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-9 w-9 rounded-full" />
+          <div className="flex-1 flex flex-col items-center gap-1">
+             <Skeleton className="h-6 w-28 rounded-md" />
+             <Skeleton className="h-4 w-40 rounded-md" />
+          </div>
+          <Skeleton className="h-9 w-9 rounded-full" />
         </div>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Skeleton className="h-10 rounded-md" />
-          <Skeleton className="h-10 rounded-md" />
-          <Skeleton className="h-10 rounded-md" />
+         <div className="grid grid-cols-3 gap-2">
+            <Skeleton className="h-9 rounded-lg" />
+            <Skeleton className="h-9 rounded-lg" />
+            <Skeleton className="h-9 rounded-lg" />
         </div>
-        <Skeleton className="h-10 rounded-md mb-4 w-3/4 mx-auto" />
         <div className="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm font-medium text-muted-foreground mb-2">
-          {Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="py-1 h-6 rounded w-3/4 mx-auto" />)}
+          {Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="py-1 h-5 w-5 rounded-md mx-auto" />)}
         </div>
-        <div className="grid grid-cols-7 gap-1 sm:gap-2">
-          {Array.from({ length: 35 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-lg bg-muted/50" />)}
+        <div className="grid grid-cols-7 gap-2">
+          {Array.from({ length: 35 }).map((_, i) => <Skeleton key={i} className="aspect-square rounded-full bg-muted/50" />)}
         </div>
-        <Skeleton className="h-px w-full my-6 bg-muted" />
-        <Skeleton className="h-8 w-1/3 mb-3 rounded" />
-        <Skeleton className="h-20 w-full rounded" />
-
       </div>
     ),
   }

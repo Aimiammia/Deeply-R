@@ -234,12 +234,12 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const renderDayCells = () => {
     const dayCells = [];
     for (let i = 0; i < firstDayOfWeekIndex; i++) {
-      dayCells.push(<div key={`empty-prev-${i}`} className="h-16 sm:h-20 border border-transparent rounded-2xl"></div>);
+      dayCells.push(<div key={`empty-prev-${i}`} className="p-1 sm:p-2"></div>);
     }
 
-    daysInMonthArray.map(day => {
+    daysInMonthArray.forEach(day => {
       const isTodayCell = checkIsToday(currentJalaliYear, currentJalaliMonth, day);
-      const dayOfWeekArrayIndex = (firstDayOfWeekIndex + day - 1) % 7; 
+      const dayOfWeekArrayIndex = (firstDayOfWeekIndex + day - 1) % 7;
       const isFriday = dayOfWeekArrayIndex === 6;
 
       const holidayInfo = getJalaliHolidayInfo(currentJalaliYear, currentJalaliMonth, day);
@@ -259,33 +259,33 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       if (hasEvent) cellTitle += (cellTitle ? ' | ' : '') + dayEvents.map(e => e.name).join(', ');
 
       dayCells.push(
-        <div
+        <button
           key={day}
           onClick={() => handleDayClick(day)}
+          type="button"
           className={cn(
-            "flex flex-col items-center justify-start h-16 sm:h-20 rounded-2xl border cursor-pointer transition-all duration-150 ease-in-out relative group p-1.5 text-center shadow-sm hover:shadow-md",
-            isTodayCell && !isSelectedForNew && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary shadow-lg scale-105",
-            isSelectedForNew && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary-foreground shadow-lg scale-105",
-            !isTodayCell && !isSelectedForNew && isPublicHoliday && "bg-destructive/10 text-destructive-foreground font-medium",
-            !isTodayCell && !isSelectedForNew && !isPublicHoliday && isFriday && "text-orange-600 dark:text-orange-400 bg-orange-500/10",
-            !isTodayCell && !isSelectedForNew && !isPublicHoliday && !isFriday && "bg-card hover:bg-muted/60",
+            "flex flex-col items-center justify-center aspect-square rounded-full h-auto text-sm transition-colors relative group",
+            isSelectedForNew && "bg-primary text-primary-foreground font-bold hover:bg-primary/90 ring-2 ring-offset-2 ring-primary",
+            !isSelectedForNew && isTodayCell && "bg-accent text-accent-foreground",
+            !isSelectedForNew && !isTodayCell && "hover:bg-accent hover:text-accent-foreground",
+            !isSelectedForNew && isPublicHoliday && "text-destructive dark:text-red-400 font-semibold",
+            !isSelectedForNew && !isPublicHoliday && isFriday && "text-orange-600 dark:text-orange-400"
           )}
           title={cellTitle || undefined}
         >
-          <span className="font-bold text-sm sm:text-base">{day.toLocaleString('fa-IR')}</span>
-          <div className="flex items-center justify-center gap-1 mt-auto mb-0.5 h-2.5 opacity-70 group-hover:opacity-100">
-            {isPublicHoliday && <div className="h-1.5 w-1.5 rounded-full bg-destructive/70"></div>}
-            {hasBirthday && <div className="h-1.5 w-1.5 rounded-full bg-yellow-500"></div>}
-            {hasEvent && <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>}
+          <span className="text-lg font-bold">{day.toLocaleString('fa-IR')}</span>
+          <div className="absolute bottom-1.5 flex items-center justify-center gap-1 h-1.5">
+            {isPublicHoliday && <div className="h-1.5 w-1.5 rounded-full bg-destructive/80" title={holidayInfo?.occasion}></div>}
+            {hasBirthday && <div className="h-1.5 w-1.5 rounded-full bg-yellow-500" title={`تولد: ${dayBirthdays.map(b => b.name).join(', ')}`}></div>}
+            {hasEvent && <div className="h-1.5 w-1.5 rounded-full bg-green-500" title={`رویداد: ${dayEvents.map(e => e.name).join(', ')}`}></div>}
           </div>
-          {holidayInfo?.occasion && <p className="text-[10px] sm:text-xs leading-tight truncate opacity-60 group-hover:opacity-100 transition-opacity hidden sm:block">{holidayInfo.occasion.split(' ')[0]}</p>}
-        </div>
+        </button>
       );
     });
-
+    
     const totalCells = Math.ceil((firstDayOfWeekIndex + daysInMonthArray.length) / 7) * 7;
      for (let i = dayCells.length; i < totalCells; i++) {
-      dayCells.push(<div key={`empty-next-${i}`} className="h-16 sm:h-20 border border-transparent rounded-2xl"></div>);
+      dayCells.push(<div key={`empty-next-${i}`} className="p-1 sm:p-2"></div>);
     }
     
     return dayCells;
@@ -308,29 +308,29 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto bg-card p-3 sm:p-4 rounded-2xl shadow-xl border">
-      <div className="flex items-center justify-between mb-4 p-3 bg-primary text-primary-foreground rounded-xl shadow">
-        <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="hover:bg-primary/80 text-primary-foreground">
-          <ChevronRight className="h-6 w-6" />
+    <div className="w-full max-w-2xl mx-auto bg-popover text-popover-foreground p-4 rounded-xl shadow-md border">
+      <div className="flex items-center justify-between mb-4">
+        <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="rounded-full">
+          <ChevronRight className="h-5 w-5" />
         </Button>
         <div className="text-center">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+            <h2 className="text-lg font-semibold">
                 {JALALI_MONTH_NAMES[currentJalaliMonth - 1]} {currentJalaliYear.toLocaleString('fa-IR', {useGrouping:false})}
             </h2>
-            <p className="text-xs sm:text-sm opacity-90 font-light">{getGregorianMonthRangeDisplay}</p>
+            <p className="text-xs text-muted-foreground">{getGregorianMonthRangeDisplay}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleNextMonth} className="hover:bg-primary/80 text-primary-foreground">
-          <ChevronLeft className="h-6 w-6" />
+        <Button variant="ghost" size="icon" onClick={handleNextMonth} className="rounded-full">
+          <ChevronLeft className="h-5 w-5" />
         </Button>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 p-3 border rounded-xl bg-muted/30 shadow-sm">
+      
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
         <Input 
             type="number" 
             value={inputYear} 
             onChange={(e) => setInputYear(e.target.value)} 
             placeholder="سال شمسی" 
-            className="text-center text-sm bg-background focus:ring-primary"
+            className="text-center text-sm bg-background focus:ring-primary h-9"
             min="1000" max="2000"
         />
         <Input 
@@ -338,28 +338,28 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
             value={inputMonth} 
             onChange={(e) => setInputMonth(e.target.value)} 
             placeholder="ماه (۱-۱۲)" 
-            className="text-center text-sm bg-background focus:ring-primary"
+            className="text-center text-sm bg-background focus:ring-primary h-9"
             min="1" max="12"
         />
-        <Button onClick={handleGoToInputDate} variant="secondary" className="w-full text-sm shadow hover:bg-primary/20">برو به تاریخ</Button>
+        <Button onClick={handleGoToInputDate} variant="secondary" className="w-full text-sm shadow-sm h-9">برو به تاریخ</Button>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
-        <Button onClick={handleGoToToday} variant="outline" className="text-sm shadow-sm hover:border-primary">
+
+       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+        <Button onClick={handleGoToToday} variant="outline" className="h-9 text-sm">
           <CalendarIcon className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" /> امروز
         </Button>
-        <Button onClick={() => {setShowAddBirthdayForm(prev => !prev); setSelectedBirthdayDate(null); setNewBirthdayName(''); setShowAddEventForm(false); setEditingEvent(null);}} variant={showAddBirthdayForm ? "default" : "outline"} className="text-sm shadow-sm hover:border-primary">
+        <Button onClick={() => {setShowAddBirthdayForm(prev => !prev); setSelectedBirthdayDate(null); setNewBirthdayName(''); setShowAddEventForm(false); setEditingEvent(null);}} variant={showAddBirthdayForm ? "default" : "outline"} className="h-9 text-sm">
           <Gift className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-          {showAddBirthdayForm ? 'بستن فرم تولد' : 'افزودن تولد'}
+          {showAddBirthdayForm ? 'بستن فرم' : 'افزودن تولد'}
         </Button>
-         <Button onClick={() => {setShowAddEventForm(prev => !prev); setSelectedEventDate(null); setNewEventName(''); setNewEventDescription(''); setEditingEvent(null); setShowAddBirthdayForm(false);}} variant={(showAddEventForm || editingEvent) ? "default" : "outline"} className="text-sm shadow-sm hover:border-primary">
+         <Button onClick={() => {setShowAddEventForm(prev => !prev); setSelectedEventDate(null); setNewEventName(''); setNewEventDescription(''); setEditingEvent(null); setShowAddBirthdayForm(false);}} variant={(showAddEventForm || editingEvent) ? "default" : "outline"} className="h-9 text-sm">
           <CalendarPlus className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
-          {showAddEventForm ? (editingEvent ? 'بستن فرم ویرایش' : 'بستن فرم رویداد') : 'افزودن رویداد'}
+          {showAddEventForm ? (editingEvent ? 'بستن فرم' : 'بستن فرم') : 'افزودن رویداد'}
         </Button>
       </div>
 
-      {showAddBirthdayForm && (
-        <div className="p-4 border rounded-xl mb-4 space-y-3 bg-secondary/40 shadow-md">
+       {showAddBirthdayForm && (
+        <div className="p-4 border rounded-xl mb-4 space-y-3 bg-secondary/40 shadow-inner">
           <h3 className="text-md font-semibold text-primary">فرم افزودن تولد</h3>
           <div>
             <Label htmlFor="birthdayName" className="mb-1 block text-sm font-medium">نام صاحب تولد</Label>
@@ -379,7 +379,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       )}
 
       {(showAddEventForm || editingEvent) && (
-        <div className="p-4 border rounded-xl mb-4 space-y-3 bg-secondary/40 shadow-md">
+        <div className="p-4 border rounded-xl mb-4 space-y-3 bg-secondary/40 shadow-inner">
           <h3 className="text-md font-semibold text-primary">{editingEvent ? 'فرم ویرایش رویداد' : 'فرم افزودن رویداد'}</h3>
           <div>
             <Label htmlFor="eventName" className="mb-1 block text-sm font-medium">نام رویداد</Label>
@@ -404,20 +404,20 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
         </div>
       )}
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm font-medium text-muted-foreground mb-2 py-2 border-y">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">
         {JALALI_DAY_NAMES_LONG.map(dayName => (
-          <div key={dayName} className={cn("py-1", dayName === 'جمعه' && "text-orange-600 dark:text-orange-400 font-semibold")}>{dayName}</div>
+          <div key={dayName} className={cn("py-1", dayName === 'جمعه' && "text-red-500 dark:text-red-400")}>{dayName.substring(0,1)}</div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {renderDayCells()}
       </div>
-      
+
       {(currentMonthOfficialHolidays.length > 0 || birthdaysInCurrentMonth.length > 0 || eventsInCurrentMonth.length > 0) && <Separator className="my-4" />}
 
       {birthdaysInCurrentMonth.length > 0 && (
-         <div className="mb-4 p-3 border rounded-xl bg-yellow-500/10 shadow">
+         <div className="mb-4 p-3 border rounded-xl bg-yellow-500/10 shadow-inner">
           <h3 className="text-md font-semibold text-yellow-700 dark:text-yellow-400 mb-2 flex items-center">
             <Gift className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" /> تولدهای این ماه:
           </h3>
@@ -430,7 +430,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
                         ({b.jDay.toLocaleString('fa-IR')} {JALALI_MONTH_NAMES[b.jMonth - 1]})
                     </span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleDeleteBirthday(b.id)} aria-label={`حذف تولد ${b.name}`} className="text-destructive/80 hover:text-destructive">
+                <Button variant="ghost" size="icon" onClick={() => handleDeleteBirthday(b.id)} aria-label={`حذف تولد ${b.name}`} className="text-destructive/80 hover:text-destructive h-7 w-7">
                     <Trash2 className="h-4 w-4" />
                 </Button>
               </li>
@@ -440,7 +440,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       )}
 
       {eventsInCurrentMonth.length > 0 && (
-         <div className="mb-4 p-3 border rounded-xl bg-green-500/10 shadow">
+         <div className="mb-4 p-3 border rounded-xl bg-green-500/10 shadow-inner">
           <h3 className="text-md font-semibold text-green-700 dark:text-green-400 mb-2 flex items-center">
             <CalendarCheck2 className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" /> رویدادهای شما در این ماه:
           </h3>
@@ -455,10 +455,10 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
                     {e.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{e.description}</p>}
                 </div>
                 <div className="flex items-center flex-shrink-0">
-                    <Button variant="ghost" size="icon" onClick={() => handleEditEvent(e)} aria-label={`ویرایش رویداد ${e.name}`} className="text-blue-600/80 hover:text-blue-700">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditEvent(e)} aria-label={`ویرایش رویداد ${e.name}`} className="text-blue-600/80 hover:text-blue-700 h-7 w-7">
                         <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteEvent(e.id)} aria-label={`حذف رویداد ${e.name}`} className="text-destructive/80 hover:text-destructive">
+                    <Button variant="ghost" size="icon" onClick={() => handleDeleteEvent(e.id)} aria-label={`حذف رویداد ${e.name}`} className="text-destructive/80 hover:text-destructive h-7 w-7">
                         <Trash2 className="h-4 w-4" />
                     </Button>
                 </div>
@@ -469,7 +469,7 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
       )}
       
       {currentMonthOfficialHolidays.length > 0 && (
-         <div className="mt-4 p-3 border rounded-xl bg-red-500/10 shadow">
+         <div className="mt-4 p-3 border rounded-xl bg-red-500/10 shadow-inner">
           <h3 className="text-md font-semibold text-red-700 dark:text-red-400 mb-2 flex items-center">
             <Moon className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0"/> مناسبت‌های رسمی {JALALI_MONTH_NAMES[currentJalaliMonth - 1]}:
           </h3>

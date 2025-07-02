@@ -9,11 +9,63 @@
       "status": "completed",
       "currentGrade": "17",
       "detailedNotes": null
+    },
+    "english_m9": {
+      "status": "not-started",
+      "currentGrade": null,
+      "detailedNotes": null
     }
   },
   "educationalLevelSettingsDeeply": {
     "levelValue": "middle_9",
     "isConfirmed": true,
     "lastPromotionCheckDate": "2025-07-02T16:55:59.103Z"
-  }
+  },
+  "activeFastDeeply": {
+    "id": "d1753171-e995-406e-ad0d-b26848c69fdc",
+    "startTime": "2025-07-02T22:39:06.005Z"
+  },
+  "fastingHistoryDeeply": [
+    {
+      "id": "d1753171-e995-406e-ad0d-b26848c69fdc",
+      "startTime": "2025-07-02T22:39:06.005Z",
+      "endTime": "2025-07-02T22:40:15.294Z",
+      "durationHours": 0,
+      "notes": "سخن شما درست است"
+    }
+  ],
+  "userSportsActivitiesDeeply": [
+    {
+      "activityType": "شنا",
+      "date": "2025-07-02T22:40:30.918Z",
+      "durationMinutes": 30,
+      "distanceKm": null,
+      "caloriesBurned": 350,
+      "notes": "فلزات",
+      "id": "ab231a56-7da6-4c0f-b0cd-0ce00bf10448",
+      "createdAt": "2025-07-02T22:41:07.605Z"
+    }
+  ],
+  "dailyTasksPlanner": [
+    {
+      "id": "c92929e8-6c79-42a7-a52a-5e4945e96fc3",
+      "title": "رفتن به بازار",
+      "completed": false,
+      "createdAt": "2025-07-02T22:43:59.932Z",
+      "dueDate": "2025-07-02T20:30:00.000Z",
+      "dueTime": "03:13",
+      "priority": "high",
+      "category": "خرید",
+      "projectId": null,
+      "projectName": null,
+      "subjectId": null,
+      "subjectName": null,
+      "startChapter": null,
+      "endChapter": null,
+      "educationalLevelContext": null,
+      "estimatedMinutes": 60,
+      "pomodorosCompleted": 0,
+      "completedAt": null
+    }
+  ]
 }
