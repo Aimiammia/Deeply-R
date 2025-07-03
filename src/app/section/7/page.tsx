@@ -143,22 +143,24 @@ function EducationContent({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentEditingSubject, setCurrentEditingSubject] = useState<EducationalSubjectType | null>(null);
   
-  const { levelValue, isConfirmed, lastPromotionCheckDate } = educationalSettings;
-
   useEffect(() => {
     if (!dataLoading) {
-      setTransientSelectedLevel(levelValue);
+      setTransientSelectedLevel(educationalSettings.levelValue);
     }
-  }, [levelValue, dataLoading]);
+  }, [educationalSettings.levelValue, dataLoading]);
 
+  // Use a stringified dependency to prevent infinite loops from object references.
+  const settingsDependency = JSON.stringify(educationalSettings);
+  
   useEffect(() => {
-    if (dataLoading || !isConfirmed || !levelValue) {
+    if (dataLoading) {
       return;
     }
-
-    const newSettingsFromPromotion = calculateAutoPromotion({ levelValue, isConfirmed, lastPromotionCheckDate });
     
-    if (newSettingsFromPromotion && (newSettingsFromPromotion.levelValue !== levelValue || newSettingsFromPromotion.lastPromotionCheckDate !== lastPromotionCheckDate)) {
+    const currentSettings = JSON.parse(settingsDependency);
+    const newSettingsFromPromotion = calculateAutoPromotion(currentSettings);
+    
+    if (newSettingsFromPromotion) {
         setEducationalSettings(newSettingsFromPromotion);
         toast({
           title: "مقطع تحصیلی به‌روز شد",
@@ -166,7 +168,7 @@ function EducationContent({
           duration: 7000,
         });
     }
-  }, [dataLoading, levelValue, isConfirmed, lastPromotionCheckDate, setEducationalSettings, toast]);
+  }, [dataLoading, settingsDependency, setEducationalSettings, toast]);
 
 
   const currentSubjectsForLevel: EducationalSubjectType[] = educationalSettings.isConfirmed && educationalSettings.levelValue
@@ -601,3 +603,4 @@ export default function EducationPage() {
     </div>
   );
 }
+
