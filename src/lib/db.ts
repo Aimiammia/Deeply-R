@@ -14,28 +14,38 @@ interface DbData {
 
 // Function to ensure the database file exists and read its content.
 async function readDb(): Promise<DbData> {
+  let fileContent: string;
   try {
-    const fileContent = await fs.readFile(dbPath, 'utf-8');
-    // Handle empty file, which is not valid JSON
-    if (fileContent.trim() === '') {
-        return {};
-    }
-    return JSON.parse(fileContent);
+    fileContent = await fs.readFile(dbPath, 'utf-8');
   } catch (error) {
-    // If the file doesn't exist, try to create it.
+    // If the file doesn't exist, create it and return an empty object.
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       try {
         await fs.writeFile(dbPath, JSON.stringify({}, null, 2), 'utf-8');
         return {};
       } catch (writeError) {
-        // If creating the file fails, log the error and return an empty object to prevent a server crash.
         console.error(`Failed to create db.json at ${dbPath}:`, writeError);
-        return {};
+        // Throw a new, more specific error if creation fails.
+        throw new Error(`Failed to create database file.`);
       }
     }
-    // For other read/parse errors, log it and return an empty object.
-    console.error(`Error reading or parsing db.json at ${dbPath}. Returning empty object.`, error);
+    // For other reading errors, re-throw to be handled by the caller.
+    console.error(`Error reading db.json at ${dbPath}.`, error);
+    throw error;
+  }
+
+  // Handle case where file is empty.
+  if (fileContent.trim() === '') {
     return {};
+  }
+
+  try {
+    // Try to parse the file content.
+    return JSON.parse(fileContent);
+  } catch (parseError) {
+    console.error(`Error parsing db.json at ${dbPath}. The file might be corrupted.`, parseError);
+    // Throw an error if parsing fails, to prevent data loss on subsequent writes.
+    throw new Error(`Database file is corrupted.`);
   }
 }
 
