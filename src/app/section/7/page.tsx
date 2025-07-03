@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { parseISO, format, isSameDay } from 'date-fns';
+import { parseISO, format } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
@@ -158,14 +158,12 @@ function EducationContent({
       return; // Do nothing until ready
     }
 
-    // --- Part 1: Check for promotion ---
+    // --- Check for promotion ---
     const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
     if (newSettingsFromPromotion) {
+      // Direct ISO string comparison is safer and more efficient.
       const isNewLevel = newSettingsFromPromotion.levelValue !== educationalSettings.levelValue;
-      
-      const oldPromoDateStr = educationalSettings.lastPromotionCheckDate ? format(parseISO(educationalSettings.lastPromotionCheckDate), 'yyyy-MM-dd') : '1970-01-01';
-      const newPromoDateStr = format(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'yyyy-MM-dd');
-      const isNewPromoDate = oldPromoDateStr !== newPromoDateStr;
+      const isNewPromoDate = newSettingsFromPromotion.lastPromotionCheckDate !== educationalSettings.lastPromotionCheckDate;
 
       if (isNewLevel || isNewPromoDate) {
         setEducationalSettings(newSettingsFromPromotion);
@@ -174,19 +172,8 @@ function EducationContent({
           description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
           duration: 7000,
         });
-        return; // Exit after applying promotion to prevent next step in this render cycle
       }
     }
-
-    // --- Part 2: Update the daily check timestamp ---
-    // This runs only if no promotion was applied in this cycle.
-    const today = new Date();
-    const lastCheckDate = educationalSettings.lastPromotionCheckDate ? parseISO(educationalSettings.lastPromotionCheckDate) : new Date(1970, 0, 1);
-
-    if (!isSameDay(lastCheckDate, today)) {
-      setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
-    }
-
   }, [dataLoading, educationalSettings, setEducationalSettings, toast]);
 
 
@@ -331,7 +318,7 @@ function EducationContent({
                   </p>
                   {educationalSettings.lastPromotionCheckDate && parseISO(educationalSettings.lastPromotionCheckDate).getFullYear() > 1970 && (
                       <p className="text-xs text-muted-foreground mt-2">
-                      آخرین بررسی ارتقا: {formatJalaliDateDisplay(parseISO(educationalSettings.lastPromotionCheckDate), "PPP")}
+                      آخرین ارتقا: {formatJalaliDateDisplay(parseISO(educationalSettings.lastPromotionCheckDate), "PPP")}
                       </p>
                   )}
                   <p className="text-sm text-muted-foreground mt-3">
