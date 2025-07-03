@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, startOfDay } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
@@ -74,14 +74,14 @@ const calculateAutoPromotion = (currentSettings: EducationalLevelStorage): Educa
 
     const MEHR_FIRST_MONTH = 7; 
     const MEHR_FIRST_DAY_GREGORIAN_APPROX = 23;
-    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
-    const today = new Date();
+    let lastPromoDate = startOfDay(lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1));
+    const today = startOfDay(new Date());
     let currentProcessingLevel = levelValue;
     let promotionsMade = 0;
     let effectiveLastPromotionDate = lastPromoDate;
 
     for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
-      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY_GREGORIAN_APPROX); 
+      const mehrFirstInYear = startOfDay(new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY_GREGORIAN_APPROX)); 
       
       if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
         const nextLevel = findNextLevelValue(currentProcessingLevel);
@@ -143,7 +143,6 @@ function EducationContent({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentEditingSubject, setCurrentEditingSubject] = useState<EducationalSubjectType | null>(null);
   
-  // Destructure for stable dependencies in useEffect
   const { levelValue, isConfirmed, lastPromotionCheckDate } = educationalSettings;
 
   useEffect(() => {
@@ -153,14 +152,12 @@ function EducationContent({
   }, [levelValue, dataLoading]);
 
   useEffect(() => {
-    if (dataLoading || !isConfirmed) {
+    if (dataLoading || !isConfirmed || !levelValue) {
       return;
     }
 
-    const currentSettingsForCalc = { levelValue, isConfirmed, lastPromotionCheckDate };
-    const newSettingsFromPromotion = calculateAutoPromotion(currentSettingsForCalc);
+    const newSettingsFromPromotion = calculateAutoPromotion({ levelValue, isConfirmed, lastPromotionCheckDate });
     
-    // Only call setState if there is an actual change in values to prevent infinite loops
     if (newSettingsFromPromotion && (newSettingsFromPromotion.levelValue !== levelValue || newSettingsFromPromotion.lastPromotionCheckDate !== lastPromotionCheckDate)) {
         setEducationalSettings(newSettingsFromPromotion);
         toast({
