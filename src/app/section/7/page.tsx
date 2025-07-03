@@ -142,40 +142,39 @@ function EducationContent({
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentEditingSubject, setCurrentEditingSubject] = useState<EducationalSubjectType | null>(null);
-
-  const currentSubjectsForLevel: EducationalSubjectType[] = educationalSettings.isConfirmed && educationalSettings.levelValue
-    ? educationalSubjects[educationalSettings.levelValue] || []
-    : [];
+  
+  // Destructure for stable dependencies in useEffect
+  const { levelValue, isConfirmed, lastPromotionCheckDate } = educationalSettings;
 
   useEffect(() => {
     if (!dataLoading) {
-      setTransientSelectedLevel(educationalSettings.levelValue);
+      setTransientSelectedLevel(levelValue);
     }
-  }, [educationalSettings.levelValue, dataLoading]);
+  }, [levelValue, dataLoading]);
 
   useEffect(() => {
-    if (dataLoading || !educationalSettings.isConfirmed) {
-      return; // Do nothing until ready
+    if (dataLoading || !isConfirmed) {
+      return;
     }
 
-    // --- Check for promotion ---
-    const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
-    if (newSettingsFromPromotion) {
-      // Direct ISO string comparison is safer and more efficient.
-      const isNewLevel = newSettingsFromPromotion.levelValue !== educationalSettings.levelValue;
-      const isNewPromoDate = newSettingsFromPromotion.lastPromotionCheckDate !== educationalSettings.lastPromotionCheckDate;
-
-      if (isNewLevel || isNewPromoDate) {
+    const currentSettingsForCalc = { levelValue, isConfirmed, lastPromotionCheckDate };
+    const newSettingsFromPromotion = calculateAutoPromotion(currentSettingsForCalc);
+    
+    // Only call setState if there is an actual change in values to prevent infinite loops
+    if (newSettingsFromPromotion && (newSettingsFromPromotion.levelValue !== levelValue || newSettingsFromPromotion.lastPromotionCheckDate !== lastPromotionCheckDate)) {
         setEducationalSettings(newSettingsFromPromotion);
         toast({
           title: "مقطع تحصیلی به‌روز شد",
           description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
           duration: 7000,
         });
-      }
     }
-  }, [dataLoading, educationalSettings, setEducationalSettings, toast]);
+  }, [dataLoading, levelValue, isConfirmed, lastPromotionCheckDate, setEducationalSettings, toast]);
 
+
+  const currentSubjectsForLevel: EducationalSubjectType[] = educationalSettings.isConfirmed && educationalSettings.levelValue
+    ? educationalSubjects[educationalSettings.levelValue] || []
+    : [];
 
   const handleLevelChange = (value: string) => {
     setTransientSelectedLevel(value);
