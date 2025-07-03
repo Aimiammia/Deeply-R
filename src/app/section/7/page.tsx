@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { parseISO, format } from 'date-fns';
+import { parseISO, format, isSameDay } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
@@ -154,33 +154,39 @@ function EducationContent({
   }, [educationalSettings.levelValue, dataLoading]);
 
   useEffect(() => {
-    if (!dataLoading && educationalSettings.isConfirmed) {
-      const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
-      const today = new Date();
-      const todayDateString = format(today, 'yyyy-MM-dd');
-      const currentLastPromotionCheckDateString = educationalSettings.lastPromotionCheckDate
-        ? format(parseISO(educationalSettings.lastPromotionCheckDate), 'yyyy-MM-dd')
-        : '1970-01-01';
+    if (dataLoading || !educationalSettings.isConfirmed) {
+      return; // Do nothing until ready
+    }
 
-      if (newSettingsFromPromotion) {
-        const newPromoEffectiveDateString = format(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'yyyy-MM-dd');
-        if (newSettingsFromPromotion.levelValue !== educationalSettings.levelValue || 
-            newPromoEffectiveDateString !== currentLastPromotionCheckDateString) {
-          setEducationalSettings(newSettingsFromPromotion);
-          toast({
-            title: "مقطع تحصیلی به‌روز شد",
-            description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
-            duration: 7000,
-          });
-        } else if (currentLastPromotionCheckDateString !== todayDateString) {
-           setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
-        }
-      } else {
-        if (currentLastPromotionCheckDateString !== todayDateString) {
-          setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
-        }
+    // --- Part 1: Check for promotion ---
+    const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
+    if (newSettingsFromPromotion) {
+      const isNewLevel = newSettingsFromPromotion.levelValue !== educationalSettings.levelValue;
+      
+      const oldPromoDateStr = educationalSettings.lastPromotionCheckDate ? format(parseISO(educationalSettings.lastPromotionCheckDate), 'yyyy-MM-dd') : '1970-01-01';
+      const newPromoDateStr = format(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'yyyy-MM-dd');
+      const isNewPromoDate = oldPromoDateStr !== newPromoDateStr;
+
+      if (isNewLevel || isNewPromoDate) {
+        setEducationalSettings(newSettingsFromPromotion);
+        toast({
+          title: "مقطع تحصیلی به‌روز شد",
+          description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
+          duration: 7000,
+        });
+        return; // Exit after applying promotion to prevent next step in this render cycle
       }
     }
+
+    // --- Part 2: Update the daily check timestamp ---
+    // This runs only if no promotion was applied in this cycle.
+    const today = new Date();
+    const lastCheckDate = educationalSettings.lastPromotionCheckDate ? parseISO(educationalSettings.lastPromotionCheckDate) : new Date(1970, 0, 1);
+
+    if (!isSameDay(lastCheckDate, today)) {
+      setEducationalSettings(prev => ({ ...prev, lastPromotionCheckDate: today.toISOString() }));
+    }
+
   }, [dataLoading, educationalSettings, setEducationalSettings, toast]);
 
 
@@ -612,4 +618,3 @@ export default function EducationPage() {
     </div>
   );
 }
-
