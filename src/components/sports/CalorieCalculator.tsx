@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,35 +11,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calculator, Flame, Scale, Sandwich, Fish, Carrot, Goal, Dna } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Calculator, Flame, Goal, Dna, Loader2, Edit, PlusCircle, Trash2, TrendingUp } from 'lucide-react';
+import { useSharedState } from '@/hooks/useSharedState';
+import type { CalorieProfile, FoodLogEntry } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+import { isSameDay, parseISO, startOfDay } from 'date-fns';
+import { generateId, cn } from '@/lib/utils';
+import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
 
-// Updated schema with goal and dietType
-const formSchema = z.object({
+// Helper for formatting numbers with Persian digits
+function formatNumber(value: number) {
+    return new Intl.NumberFormat('fa-IR').format(Math.round(value));
+}
+
+// #region Profile Form Component
+const profileFormSchema = z.object({
   gender: z.enum(['male', 'female'], { required_error: 'لطفاً جنسیت را انتخاب کنید.' }),
   age: z.number({ required_error: 'لطفاً سن را وارد کنید.' }).min(15, 'سن باید حداقل ۱۵ سال باشد.').max(80, 'سن باید حداکثر ۸۰ سال باشد.'),
   weight: z.number({ required_error: 'لطفاً وزن را وارد کنید.' }).min(40, 'وزن باید حداقل ۴۰ کیلوگرم باشد.').max(200, 'وزن باید حداکثر ۲۰۰ کیلوگرم باشد.'),
   height: z.number({ required_error: 'لطفاً قد را وارد کنید.' }).min(140, 'قد باید حداقل ۱۴۰ سانتی‌متر باشد.').max(220, 'قد باید حداکثر ۲۲۰ سانتی‌متر باشد.'),
   activityLevel: z.enum(['sedentary', 'light', 'moderate', 'very', 'super'], { required_error: 'لطفاً سطح فعالیت را انتخاب کنید.' }),
   goal: z.enum(['lose', 'maintain', 'gain'], { required_error: 'لطفاً هدف خود را انتخاب کنید.' }),
-  dietType: z.enum(['balanced', 'highProtein', 'lowCarb'], { required_error: 'لطفاً نوع رژیم را انتخاب کنید.' }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
-interface CalorieResults {
-  maintenance: number;
-  mildLoss: number;
-  weightLoss: number;
-  mildGain: number;
-  weightGain: number;
-  targetCalories: number;
-  goal: FormValues['goal'];
-  macros: {
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-}
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const activityLevels = [
   { value: 'sedentary', label: 'بی‌تحرک (کار اداری، بدون ورزش)' },
@@ -49,48 +45,17 @@ const activityLevels = [
   { value: 'super', label: 'فعالیت خیلی زیاد (ورزش سنگین روزانه + شغل فیزیکی)' },
 ];
 
-const activityFactors: Record<FormValues['activityLevel'], number> = {
-  sedentary: 1.2,
-  light: 1.375,
-  moderate: 1.55,
-  very: 1.725,
-  super: 1.9,
+const activityFactors: Record<ProfileFormValues['activityLevel'], number> = {
+  sedentary: 1.2, light: 1.375, moderate: 1.55, very: 1.725, super: 1.9,
 };
 
-const dietTypes = [
-    { value: 'balanced', label: 'متعادل (۴۰٪ کربوهیدرات, ۳۰٪ پروتئین, ۳۰٪ چربی)' },
-    { value: 'highProtein', label: 'پروتئین بالا (۳۰٪ کربوهیدرات, ۴۰٪ پروتئین, ۳۰٪ چربی)' },
-    { value: 'lowCarb', label: 'کربوهیدرات کم (۲۰٪ کربوهیدرات, ۴۰٪ پروتئین, ۴۰٪ چربی)' },
-];
-
-const macroSplits: Record<FormValues['dietType'], {p: number, c: number, f: number}> = {
-    balanced: { c: 0.40, p: 0.30, f: 0.30 },
-    highProtein: { c: 0.30, p: 0.40, f: 0.30 },
-    lowCarb: { c: 0.20, p: 0.40, f: 0.40 },
-}
-
-function formatNumber(value: number) {
-    return new Intl.NumberFormat('fa-IR').format(Math.round(value));
-}
-
-export function CalorieCalculator() {
-  const [results, setResults] = useState<CalorieResults | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-     defaultValues: {
-      gender: 'male',
-      goal: 'maintain',
-      dietType: 'balanced'
-    },
+function CalorieProfileForm({ onProfileSet, existingProfile }: { onProfileSet: (profile: CalorieProfile) => void, existingProfile?: CalorieProfile | null }) {
+  const { register, handleSubmit, control, formState: { errors } } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: existingProfile || { gender: 'male', goal: 'maintain' },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {
     let bmr: number;
     if (data.gender === 'male') {
       bmr = 10 * data.weight + 6.25 * data.height - 5 * data.age + 5;
@@ -99,213 +64,211 @@ export function CalorieCalculator() {
     }
 
     const tdee = bmr * activityFactors[data.activityLevel];
-    const maintenance = tdee;
-
-    let targetCalories = maintenance;
+    
+    let targetCalories = tdee;
     if (data.goal === 'lose') targetCalories -= 500;
     if (data.goal === 'gain') targetCalories += 500;
     
-    const split = macroSplits[data.dietType];
-    const proteinGrams = (targetCalories * split.p) / 4;
-    const carbsGrams = (targetCalories * split.c) / 4;
-    const fatGrams = (targetCalories * split.f) / 9;
+    const heightInMeters = data.height / 100;
+    const idealWeight = Math.round(22 * (heightInMeters * heightInMeters));
 
-    setResults({
-      maintenance: maintenance,
-      mildLoss: maintenance - 250,
-      weightLoss: maintenance - 500,
-      mildGain: maintenance + 250,
-      weightGain: maintenance + 500,
-      targetCalories: targetCalories,
-      goal: data.goal,
-      macros: {
-          protein: proteinGrams,
-          carbs: carbsGrams,
-          fat: fatGrams,
-      }
+    const newProfile: CalorieProfile = {
+      ...data,
+      targetCalories: Math.round(targetCalories),
+      idealWeight: idealWeight,
+    };
+    onProfileSet(newProfile);
+  };
+    
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center"><Calculator className="ml-2 h-6 w-6 text-primary" />{existingProfile ? 'ویرایش پروفایل کالری' : 'محاسبه‌گر کالری و پیشنهاد روزانه'}</CardTitle>
+        <CardDescription>با وارد کردن اطلاعات، یک تخمین دقیق از کالری مورد نیاز روزانه و وزن ایده‌آل خود دریافت کنید.</CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label>جنسیت</Label>
+            <Controller control={control} name="gender" render={({ field }) => (
+              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="male" id="male" /><Label htmlFor="male">مرد</Label></div>
+                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="female" id="female" /><Label htmlFor="female">زن</Label></div>
+              </RadioGroup>
+            )} />
+            {errors.gender && <p className="text-xs text-destructive mt-1">{errors.gender.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2"><Label htmlFor="age">سن (سال)</Label><Input id="age" type="number" {...register('age', { valueAsNumber: true })} />{errors.age && <p className="text-xs text-destructive">{errors.age.message}</p>}</div>
+            <div className="space-y-2"><Label htmlFor="weight">وزن (کیلوگرم)</Label><Input id="weight" type="number" {...register('weight', { valueAsNumber: true })} />{errors.weight && <p className="text-xs text-destructive">{errors.weight.message}</p>}</div>
+            <div className="space-y-2"><Label htmlFor="height">قد (سانتی‌متر)</Label><Input id="height" type="number" {...register('height', { valueAsNumber: true })} />{errors.height && <p className="text-xs text-destructive">{errors.height.message}</p>}</div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="activityLevel">سطح فعالیت روزانه</Label>
+            <Controller control={control} name="activityLevel" render={({ field }) => (
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <SelectTrigger id="activityLevel"><SelectValue placeholder="سطح فعالیت خود را انتخاب کنید..." /></SelectTrigger>
+                <SelectContent>{activityLevels.map(level => (<SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>))}</SelectContent>
+              </Select>
+            )} />
+            {errors.activityLevel && <p className="text-xs text-destructive mt-1">{errors.activityLevel.message}</p>}
+          </div>
+          <div className="space-y-3 pt-2">
+            <Label className="flex items-center"><Goal className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0 text-primary" />هدف شما چیست؟</Label>
+            <Controller control={control} name="goal" render={({ field }) => (
+              <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-1">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="lose" id="lose" /><Label htmlFor="lose">کاهش وزن</Label></div>
+                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="maintain" id="maintain" /><Label htmlFor="maintain">حفظ وزن</Label></div>
+                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="gain" id="gain" /><Label htmlFor="gain">افزایش وزن</Label></div>
+              </RadioGroup>
+            )} />
+            {errors.goal && <p className="text-xs text-destructive mt-1">{errors.goal.message}</p>}
+          </div>
+        </CardContent>
+        <CardFooter><Button type="submit" className="w-full">{existingProfile ? 'ذخیره تغییرات' : 'محاسبه و ایجاد پروفایل'}</Button></CardFooter>
+      </form>
+    </Card>
+  );
+}
+// #endregion
+
+// #region Food Tracker Component
+function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEditProfile: () => void }) {
+    const { toast } = useToast();
+    const [foodLog, setFoodLog] = useSharedState<FoodLogEntry[]>('foodLogDeeply', []);
+    const [foodName, setFoodName] = useState('');
+    const [calories, setCalories] = useState<number | ''>('');
+
+    const todaysLog = useMemo(() => {
+        return foodLog.filter(entry => isSameDay(parseISO(entry.date), startOfDay(new Date()))).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [foodLog]);
+
+    const consumedCalories = useMemo(() => {
+        return todaysLog.reduce((sum, entry) => sum + entry.calories, 0);
+    }, [todaysLog]);
+
+    const remainingCalories = profile.targetCalories - consumedCalories;
+    const progress = (consumedCalories / profile.targetCalories) * 100;
+
+    const handleAddFood = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!foodName.trim() || calories === '' || Number(calories) <= 0) {
+            toast({ title: "اطلاعات نامعتبر", description: "لطفا نام غذا و کالری صحیح را وارد کنید.", variant: "destructive" });
+            return;
+        }
+        const newEntry: FoodLogEntry = {
+            id: generateId(),
+            date: new Date().toISOString(),
+            name: foodName.trim(),
+            calories: Number(calories),
+        };
+        setFoodLog(prev => [newEntry, ...prev]);
+        setFoodName('');
+        setCalories('');
+    };
+
+    const handleDeleteFood = (id: string) => {
+        setFoodLog(prev => prev.filter(entry => entry.id !== id));
+        toast({ title: "غذا حذف شد", variant: "destructive" });
+    };
+
+    return (
+        <div className="space-y-8">
+            <Card className="bg-primary/5 border-primary">
+                <CardHeader>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <CardTitle className="text-primary">داشبورد کالری روزانه</CardTitle>
+                            <CardDescription>بر اساس پروفایل شما، پیشنهاد ما این است:</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={onEditProfile}><Edit className="h-5 w-5"/></Button>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">وزن ایده‌آل</p><p className="text-lg font-bold">{formatNumber(profile.idealWeight)} <span className="text-xs">کیلوگرم</span></p></div>
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">کالری هدف</p><p className="text-lg font-bold text-green-600">{formatNumber(profile.targetCalories)}</p></div>
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">مصرفی امروز</p><p className="text-lg font-bold text-blue-600">{formatNumber(consumedCalories)}</p></div>
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">باقی‌مانده</p><p className={cn("text-lg font-bold", remainingCalories < 0 ? "text-red-600" : "text-orange-600")}>{formatNumber(remainingCalories)}</p></div>
+                    </div>
+                    <div>
+                        <Progress value={progress} className="h-3"/>
+                        <p className="text-xs text-muted-foreground text-center mt-1">{formatNumber(progress)}٪ از هدف روزانه</p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader><CardTitle className="flex items-center"><PlusCircle className="ml-2 h-5 w-5"/>ثبت غذای مصرفی</CardTitle></CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleAddFood} className="space-y-4">
+                            <div><Label htmlFor="foodName">نام غذا</Label><Input id="foodName" value={foodName} onChange={e => setFoodName(e.target.value)} placeholder="مثلا: تخم مرغ آب‌پز"/></div>
+                            <div><Label htmlFor="calories">کالری</Label><Input id="calories" type="number" value={calories} onChange={e => setCalories(e.target.value === '' ? '' : Number(e.target.value))} placeholder="مثلا: ۱۵۵"/></div>
+                            <Button type="submit" className="w-full">افزودن به لیست امروز</Button>
+                        </form>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader><CardTitle>لیست امروز ({formatJalaliDateDisplay(new Date(), 'jD jMMMM')})</CardTitle></CardHeader>
+                    <CardContent>
+                        {todaysLog.length > 0 ? (
+                            <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                {todaysLog.map(entry => (
+                                    <li key={entry.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                                        <p className="font-medium">{entry.name}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm text-muted-foreground">{formatNumber(entry.calories)} کالری</p>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteFood(entry.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-center text-muted-foreground py-8">هنوز غذایی برای امروز ثبت نکرده‌اید.</p>
+                        )}
+                         <div className="border-t mt-4 pt-4 text-right">
+                            <p className="text-lg font-bold">مجموع کالری امروز: {formatNumber(consumedCalories)}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
+}
+// #endregion
+
+export function CalorieCalculator() {
+  const { toast } = useToast();
+  const [profile, setProfile, profileLoading] = useSharedState<CalorieProfile | null>('calorieProfileDeeply', null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleSetProfile = (newProfile: CalorieProfile) => {
+    setProfile(newProfile);
+    setIsEditing(false); // Exit editing mode after saving
+    toast({
+      title: "پروفایل شما تنظیم شد",
+      description: `وزن ایده‌آل شما حدود ${formatNumber(newProfile.idealWeight)} کیلوگرم و کالری هدف روزانه ${formatNumber(newProfile.targetCalories)} است.`,
+      duration: 7000,
     });
   };
 
-  return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Calculator className="ml-2 h-6 w-6 text-primary" />
-            محاسبه‌گر پیشرفته کالری و درشت‌مغذی‌ها
-          </CardTitle>
-          <CardDescription>
-            با وارد کردن اطلاعات، یک تخمین دقیق از کالری و ماکروهای مورد نیاز روزانه خود دریافت کنید.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-                <Label>جنسیت</Label>
-                <Controller
-                    control={control}
-                    name="gender"
-                    render={({ field }) => (
-                         <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex gap-4"
-                        >
-                            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                            <RadioGroupItem value="male" id="male" />
-                            <Label htmlFor="male">مرد</Label>
-                            </div>
-                            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                            <RadioGroupItem value="female" id="female" />
-                            <Label htmlFor="female">زن</Label>
-                            </div>
-                        </RadioGroup>
-                    )}
-                />
-                {errors.gender && <p className="text-xs text-destructive mt-1">{errors.gender.message}</p>}
-            </div>
+  const startEditing = () => {
+    setIsEditing(true);
+  };
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="age">سن (سال)</Label>
-                <Input id="age" type="number" {...register('age', { valueAsNumber: true })} />
-                {errors.age && <p className="text-xs text-destructive">{errors.age.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weight">وزن (کیلوگرم)</Label>
-                <Input id="weight" type="number" {...register('weight', { valueAsNumber: true })} />
-                {errors.weight && <p className="text-xs text-destructive">{errors.weight.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="height">قد (سانتی‌متر)</Label>
-                <Input id="height" type="number" {...register('height', { valueAsNumber: true })} />
-                {errors.height && <p className="text-xs text-destructive">{errors.height.message}</p>}
-              </div>
-            </div>
+  if (profileLoading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-            <div className="space-y-2">
-                <Label htmlFor="activityLevel">سطح فعالیت روزانه</Label>
-                <Controller
-                    control={control}
-                    name="activityLevel"
-                    render={({ field }) => (
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger id="activityLevel">
-                                <SelectValue placeholder="سطح فعالیت خود را انتخاب کنید..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {activityLevels.map(level => (
-                                <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-                />
-                 {errors.activityLevel && <p className="text-xs text-destructive mt-1">{errors.activityLevel.message}</p>}
-            </div>
+  if (!profile || isEditing) {
+    return <CalorieProfileForm onProfileSet={handleSetProfile} existingProfile={profile} />;
+  }
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-3">
-                    <Label className="flex items-center"><Goal className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0 text-primary" />هدف شما چیست؟</Label>
-                     <Controller
-                        control={control}
-                        name="goal"
-                        render={({ field }) => (
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-1">
-                                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="lose" id="lose" /><Label htmlFor="lose">کاهش وزن</Label></div>
-                                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="maintain" id="maintain" /><Label htmlFor="maintain">حفظ وزن</Label></div>
-                                <div className="flex items-center space-x-2 rtl:space-x-reverse"><RadioGroupItem value="gain" id="gain" /><Label htmlFor="gain">افزایش وزن</Label></div>
-                            </RadioGroup>
-                        )}
-                    />
-                    {errors.goal && <p className="text-xs text-destructive mt-1">{errors.goal.message}</p>}
-                </div>
-                 <div className="space-y-3">
-                    <Label className="flex items-center"><Dna className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0 text-primary" />نوع رژیم غذایی</Label>
-                     <Controller
-                        control={control}
-                        name="dietType"
-                        render={({ field }) => (
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="space-y-1">
-                                 {dietTypes.map(diet => (
-                                     <div key={diet.value} className="flex items-center space-x-2 rtl:space-x-reverse">
-                                        <RadioGroupItem value={diet.value} id={diet.value} />
-                                        <Label htmlFor={diet.value} className="text-xs font-normal">{diet.label}</Label>
-                                    </div>
-                                 ))}
-                            </RadioGroup>
-                        )}
-                    />
-                     {errors.dietType && <p className="text-xs text-destructive mt-1">{errors.dietType.message}</p>}
-                </div>
-            </div>
-
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full">محاسبه کن</Button>
-          </CardFooter>
-        </form>
-      </Card>
-      
-      {results && (
-        <Card className="animate-in fade-in-50">
-            <CardHeader>
-                <CardTitle>نتایج شخصی‌سازی شده شما</CardTitle>
-                <CardDescription>بر اساس اطلاعات و هدف شما، این مقادیر دقیق برای شما پیشنهاد می‌شود.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                 <div className="p-4 border-2 border-primary rounded-lg text-center bg-primary/10">
-                    <p className="text-md font-semibold text-primary">کالری روزانه برای هدف شما</p>
-                    <p className="text-4xl font-bold text-primary mt-1">{formatNumber(results.targetCalories)}</p>
-                    <p className="text-sm text-primary/80">کالری در روز</p>
-                 </div>
-                 
-                <div>
-                    <h4 className="text-lg font-semibold text-foreground mb-3">تفکیک درشت‌مغذی‌ها برای هدف شما</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                        <div className="p-3 border rounded-lg bg-blue-500/10">
-                            <Carrot className="mx-auto h-8 w-8 text-blue-600 mb-1"/>
-                            <p className="font-bold text-blue-800 dark:text-blue-300">{formatNumber(results.macros.carbs)} گرم</p>
-                            <p className="text-xs text-blue-700 dark:text-blue-400">کربوهیدرات</p>
-                        </div>
-                         <div className="p-3 border rounded-lg bg-orange-500/10">
-                            <Fish className="mx-auto h-8 w-8 text-orange-600 mb-1"/>
-                            <p className="font-bold text-orange-800 dark:text-orange-300">{formatNumber(results.macros.protein)} گرم</p>
-                            <p className="text-xs text-orange-700 dark:text-orange-400">پروتئین</p>
-                        </div>
-                         <div className="p-3 border rounded-lg bg-yellow-500/10">
-                            <Sandwich className="mx-auto h-8 w-8 text-yellow-600 mb-1"/>
-                            <p className="font-bold text-yellow-800 dark:text-yellow-300">{formatNumber(results.macros.fat)} گرم</p>
-                            <p className="text-xs text-yellow-700 dark:text-yellow-400">چربی</p>
-                        </div>
-                    </div>
-                </div>
-
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                     <div className="p-3 border rounded-lg bg-card">
-                        <p className="text-md font-semibold text-red-600 dark:text-red-400 flex items-center"><Flame className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />کالری برای کاهش وزن</p>
-                        <div className="mt-2 space-y-1 text-sm">
-                            <p>کاهش وزن ملایم (۰.۲۵ کیلوگرم در هفته): <span className="font-bold">{formatNumber(results.mildLoss)} کالری</span></p>
-                            <p>کاهش وزن (۰.۵ کیلوگرم در هفته): <span className="font-bold">{formatNumber(results.weightLoss)} کالری</span></p>
-                        </div>
-                     </div>
-                      <div className="p-3 border rounded-lg bg-card">
-                        <p className="text-md font-semibold text-green-600 dark:text-green-400 flex items-center"><Scale className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />کالری برای افزایش وزن</p>
-                         <div className="mt-2 space-y-1 text-sm">
-                            <p>افزایش وزن ملایм (۰.۲۵ کیلوگرم در هفته): <span className="font-bold">{formatNumber(results.mildGain)} کالری</span></p>
-                            <p>افزایش وزن (۰.۵ کیلوگرم در هفته): <span className="font-bold">{formatNumber(results.weightGain)} کالری</span></p>
-                        </div>
-                     </div>
-                 </div>
-
-            </CardContent>
-             <CardFooter>
-                <p className="text-xs text-muted-foreground">توجه: این مقادیر تخمینی هستند و ممکن است بر اساس متابولیسم فردی متفاوت باشند. برای نتایج دقیق‌تر با یک متخصص تغذیه مشورت کنید.</p>
-             </CardFooter>
-        </Card>
-      )}
-    </div>
-  );
+  return <FoodTracker profile={profile} onEditProfile={startEditing} />;
 }
-
-    

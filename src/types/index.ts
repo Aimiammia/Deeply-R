@@ -121,9 +121,9 @@ export interface FinancialAsset {
   initialValue: number;
   purchaseDate: string; // ISO date string
   currentValue: number;
-  lastValueUpdate: string; // ISO date string of when currentValue was last set
+  lastValueUpdate: string; // ISO date string of when asset was first created
   notes?: string | null;
-  createdAt: string; // ISO date string of when asset was first created
+  createdAt: string; // ISO date string
 }
 
 export interface FinancialInvestment {
@@ -224,4 +224,22 @@ export interface Challenge {
   description: string | null;
   startDate: string; // ISO Date string
   completions: { [day: number]: boolean }; // e.g., { 1: true, 2: false, 3: true }
+}
+
+export interface CalorieProfile {
+  gender: 'male' | 'female';
+  age: number;
+  weight: number;
+  height: number;
+  activityLevel: 'sedentary' | 'light' | 'moderate' | 'very' | 'super';
+  goal: 'lose' | 'maintain' | 'gain';
+  targetCalories: number;
+  idealWeight: number;
+}
+
+export interface FoodLogEntry {
+  id: string;
+  date: string; // ISO date string
+  name: string;
+  calories: number;
 }
