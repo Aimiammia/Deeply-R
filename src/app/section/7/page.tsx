@@ -65,6 +65,47 @@ function findNextLevelValue(currentValue: string): string | undefined {
   return nextLevel.value;
 }
 
+const calculateAutoPromotion = (currentSettings: EducationalLevelStorage): EducationalLevelStorage | null => {
+    const { levelValue, lastPromotionCheckDate: lastPromoDateISO, isConfirmed } = currentSettings;
+
+    if (!isConfirmed || !levelValue || levelValue === 'other' || levelValue === 'high_12') {
+      return null; 
+    }
+
+    const MEHR_FIRST_MONTH = 7; 
+    const MEHR_FIRST_DAY_GREGORIAN_APPROX = 23;
+    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
+    const today = new Date();
+    let currentProcessingLevel = levelValue;
+    let promotionsMade = 0;
+    let effectiveLastPromotionDate = lastPromoDate;
+
+    for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
+      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY_GREGORIAN_APPROX); 
+      
+      if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
+        const nextLevel = findNextLevelValue(currentProcessingLevel);
+        if (nextLevel) {
+          currentProcessingLevel = nextLevel;
+          promotionsMade++;
+          effectiveLastPromotionDate = mehrFirstInYear; 
+          if (currentProcessingLevel === 'high_12' || currentProcessingLevel === 'other') break;
+        } else {
+          break; 
+        }
+      }
+    }
+    if (promotionsMade > 0) {
+      return {
+        ...currentSettings,
+        levelValue: currentProcessingLevel,
+        lastPromotionCheckDate: effectiveLastPromotionDate.toISOString(),
+      };
+    }
+    return null; 
+};
+
+
 const initialEducationalSettings: EducationalLevelStorage = {
   levelValue: '',
   isConfirmed: false,
@@ -112,46 +153,6 @@ function EducationContent({
     }
   }, [educationalSettings.levelValue, dataLoading]);
 
-  const calculateAutoPromotion = useCallback((currentSettings: EducationalLevelStorage): EducationalLevelStorage | null => {
-    const { levelValue, lastPromotionCheckDate: lastPromoDateISO, isConfirmed } = currentSettings;
-
-    if (!isConfirmed || !levelValue || levelValue === 'other' || levelValue === 'high_12') {
-      return null; 
-    }
-
-    const MEHR_FIRST_MONTH = 7; 
-    const MEHR_FIRST_DAY_GREGORIAN_APPROX = 23;
-    let lastPromoDate = lastPromoDateISO ? parseISO(lastPromoDateISO) : new Date(1970, 0, 1);
-    const today = new Date();
-    let currentProcessingLevel = levelValue;
-    let promotionsMade = 0;
-    let effectiveLastPromotionDate = lastPromoDate;
-
-    for (let year = lastPromoDate.getFullYear(); year <= today.getFullYear(); year++) {
-      const mehrFirstInYear = new Date(year, MEHR_FIRST_MONTH -1, MEHR_FIRST_DAY_GREGORIAN_APPROX); 
-      
-      if (mehrFirstInYear > lastPromoDate && mehrFirstInYear <= today) {
-        const nextLevel = findNextLevelValue(currentProcessingLevel);
-        if (nextLevel) {
-          currentProcessingLevel = nextLevel;
-          promotionsMade++;
-          effectiveLastPromotionDate = mehrFirstInYear; 
-          if (currentProcessingLevel === 'high_12' || currentProcessingLevel === 'other') break;
-        } else {
-          break; 
-        }
-      }
-    }
-    if (promotionsMade > 0) {
-      return {
-        ...currentSettings,
-        levelValue: currentProcessingLevel,
-        lastPromotionCheckDate: effectiveLastPromotionDate.toISOString(),
-      };
-    }
-    return null; 
-  }, []);
-
   useEffect(() => {
     if (!dataLoading && educationalSettings.isConfirmed) {
       const newSettingsFromPromotion = calculateAutoPromotion(educationalSettings);
@@ -180,7 +181,7 @@ function EducationContent({
         }
       }
     }
-  }, [dataLoading, educationalSettings, calculateAutoPromotion, setEducationalSettings, toast]);
+  }, [dataLoading, educationalSettings, setEducationalSettings, toast]);
 
 
   const handleLevelChange = (value: string) => {
@@ -611,3 +612,4 @@ export default function EducationPage() {
     </div>
   );
 }
+
