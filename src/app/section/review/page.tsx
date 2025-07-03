@@ -11,10 +11,11 @@ import { AreaChart, ArrowLeft, BarChart as BarChartIcon, BookHeart, Calendar, Ch
 import { useSharedState } from '@/hooks/useSharedState';
 import { ClientOnly } from '@/components/ClientOnly';
 import type { Task, FinancialTransaction, Habit, ReflectionEntry } from '@/types';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { parseISO, subDays, startOfMonth, endOfMonth, isWithinInterval, eachDayOfInterval, format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart"
 
 type TimeRange = '7d' | '30d' | 'this_month';
 
@@ -84,7 +85,7 @@ export default function ReviewPage() {
             const completionRate = totalDaysPossible > 0 ? (completionsInInterval.length / totalDaysPossible) * 100 : 0;
             return {
                 name: habit.name.length > 15 ? `${habit.name.substring(0, 15)}...` : habit.name,
-                'نرخ موفقیت': completionRate.toFixed(0)
+                completionRate: parseInt(completionRate.toFixed(0)),
             };
         });
 
@@ -100,6 +101,24 @@ export default function ReviewPage() {
         };
 
     }, [dateRange, tasks, transactions, habits, reflections]);
+
+    const taskChartConfig = {
+      created: {
+        label: "ایجاد شده",
+        color: "hsl(var(--chart-2))",
+      },
+      completed: {
+        label: "تکمیل شده",
+        color: "hsl(var(--chart-1))",
+      },
+    } satisfies ChartConfig
+
+    const habitChartConfig = {
+      completionRate: {
+        label: "نرخ موفقیت",
+        color: "hsl(var(--chart-1))",
+      },
+    } satisfies ChartConfig
 
 
     return (
@@ -173,17 +192,30 @@ export default function ReviewPage() {
                             </CardHeader>
                             <CardContent>
                                 {isLoading ? <Skeleton className="h-[300px]" /> : (
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={reviewData.taskChartData}>
-                                            <CartesianGrid strokeDasharray="3 3" />
-                                            <XAxis dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                            <YAxis stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                                            <Tooltip contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}}/>
-                                            <Legend wrapperStyle={{direction: 'rtl'}} formatter={(value) => <span style={{color: 'hsl(var(--foreground))'}}>{value}</span>}/>
-                                            <Bar dataKey="created" name="ایجاد شده" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                                            <Bar dataKey="completed" name="تکمیل شده" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                                    <ChartContainer config={taskChartConfig} className="w-full h-[300px]">
+                                        <BarChart accessibilityLayer data={reviewData.taskChartData}>
+                                            <CartesianGrid vertical={false} />
+                                            <XAxis
+                                            dataKey="name"
+                                            tickLine={false}
+                                            tickMargin={10}
+                                            axisLine={false}
+                                            />
+                                            <YAxis
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickMargin={10}
+                                            allowDecimals={false}
+                                            />
+                                            <ChartTooltip
+                                                cursor={false}
+                                                content={<ChartTooltipContent indicator="dot" />}
+                                            />
+                                            <ChartLegend content={<ChartLegendContent />} />
+                                            <Bar dataKey="created" fill="var(--color-created)" radius={4} />
+                                            <Bar dataKey="completed" fill="var(--color-completed)" radius={4} />
                                         </BarChart>
-                                    </ResponsiveContainer>
+                                    </ChartContainer>
                                 )}
                             </CardContent>
                         </Card>
@@ -195,15 +227,37 @@ export default function ReviewPage() {
                             <CardContent>
                                 {isLoading ? <Skeleton className="h-[300px]" /> : (
                                      reviewData.habitChartData.length > 0 ? (
-                                        <ResponsiveContainer width="100%" height={300}>
-                                            <BarChart data={reviewData.habitChartData} layout="vertical">
-                                                <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis type="number" domain={[0, 100]} stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}%`} />
-                                                <YAxis type="category" dataKey="name" width={80} stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                                <Tooltip contentStyle={{backgroundColor: 'hsl(var(--popover))', direction: 'rtl', borderRadius: '0.375rem'}} formatter={(value) => [`${value}%`, "نرخ موفقیت"]} />
-                                                <Bar dataKey="نرخ موفقیت" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]} />
+                                        <ChartContainer config={habitChartConfig} className="w-full h-[300px]">
+                                            <BarChart accessibilityLayer data={reviewData.habitChartData} layout="vertical">
+                                                <CartesianGrid horizontal={false} />
+                                                <YAxis
+                                                    dataKey="name"
+                                                    type="category"
+                                                    tickLine={false}
+                                                    tickMargin={10}
+                                                    axisLine={false}
+                                                    width={80}
+                                                />
+                                                <XAxis dataKey="completionRate" type="number" hide />
+                                                <ChartTooltip
+                                                    cursor={false}
+                                                    content={<ChartTooltipContent indicator="dot" />}
+                                                />
+                                                <Bar
+                                                    dataKey="completionRate"
+                                                    fill="var(--color-completionRate)"
+                                                    radius={4}
+                                                >
+                                                    <LabelList
+                                                        position="right"
+                                                        offset={8}
+                                                        className="fill-foreground"
+                                                        fontSize={12}
+                                                        formatter={(value: number) => `${value.toLocaleString('fa-IR')}%`}
+                                                    />
+                                                </Bar>
                                             </BarChart>
-                                        </ResponsiveContainer>
+                                        </ChartContainer>
                                      ) : (
                                         <div className="flex items-center justify-center h-[300px]">
                                             <p className="text-muted-foreground">عادتی برای نمایش وجود ندارد.</p>
