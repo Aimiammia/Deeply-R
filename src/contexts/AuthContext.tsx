@@ -1,139 +1,32 @@
 
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode, useRef } from 'react';
-import { encrypt, decrypt } from '@/lib/crypto';
-import { useToast } from '@/hooks/use-toast';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
-const PASSWORD_CHECK_KEY = 'deeply-auth-check';
-const PASSWORD_CHECK_VALUE = 'deeply-password-is-correct';
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-
-const ALL_APP_KEYS = [
-  'dailyTasksPlanner', 'allProjects', 'dailyReflections', 'financialTransactions',
-  'financialBudgets', 'financialAssets', 'financialInvestments', 'financialSavingsGoals',
-  'calendarBirthdaysDeeply', 'calendarEventsDeeply', 'userHabitsDeeply', 'dailyActivityLogsDeeply',
-  'longTermGoals', 'userBooksDeeply', 'userSportsActivitiesDeeply', 'activeFastDeeply',
-  'fastingHistoryDeeply', 'educationalLevelSettingsDeeply', 'educationalSubjectProgressDeeply',
-  'knowledgeBasePages', 'projectTemplates', 'thirtyDayChallenges',
-  'theme', 'color-theme', 'deeply-auth-check'
-];
+// This is a placeholder context to prepare for a full cloud-based authentication system.
+// The previous local password and encryption system has been removed to allow for this upgrade.
 
 interface AuthContextType {
   isLoading: boolean;
-  isLocked: boolean;
-  isPasswordSet: boolean;
-  setPassword: (password: string) => void;
-  unlock: (password: string) => boolean;
-  lock: () => void;
-  getEncryptionKey: () => string | null;
-  resetApp: () => void;
+  // All other properties like isLocked, setPassword, etc., are removed for now.
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [isLocked, setIsLocked] = useState(true);
-  const [isPasswordSet, setIsPasswordSet] = useState(false);
-  const passwordKeyRef = useRef<string | null>(null);
-  const { toast } = useToast();
-  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const lock = useCallback(() => {
-    passwordKeyRef.current = null;
-    setIsLocked(true);
-  }, []);
-
-  const resetInactivityTimer = useCallback(() => {
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
-    inactivityTimerRef.current = setTimeout(lock, INACTIVITY_TIMEOUT);
-  }, [lock]);
 
   useEffect(() => {
-    // This effect now determines the initial state and then signals loading is complete.
-    try {
-      const checkValue = localStorage.getItem(PASSWORD_CHECK_KEY);
-      setIsPasswordSet(!!checkValue);
-    } catch (e) {
-      console.error("Error accessing localStorage during auth check", e);
-      setIsPasswordSet(false);
-    } finally {
-      setIsLoading(false); // Signal that we are done loading.
-    }
+    // Simulate loading check (e.g., checking for a Firebase user session in the future)
+    const timer = setTimeout(() => {
+        setIsLoading(false);
+    }, 500); // A small delay to show a loading indicator, similar to a real auth check
+    
+    return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (!isLocked && isPasswordSet) {
-      const events: (keyof WindowEventMap)[] = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-      
-      resetInactivityTimer();
-      
-      events.forEach(event => window.addEventListener(event, resetInactivityTimer));
-      
-      return () => {
-        if (inactivityTimerRef.current) {
-          clearTimeout(inactivityTimerRef.current);
-        }
-        events.forEach(event => window.removeEventListener(event, resetInactivityTimer));
-      };
-    }
-  }, [isLocked, isPasswordSet, resetInactivityTimer]);
-
-  const getEncryptionKey = useCallback(() => {
-    return passwordKeyRef.current;
-  }, []);
-
-  const setPassword = useCallback((password: string) => {
-    if (password.length < 6) {
-      toast({
-        title: "رمز عبور ضعیف",
-        description: "رمز عبور باید حداقل ۶ کاراکتر باشد.",
-        variant: "destructive",
-      });
-      return;
-    }
-    const encryptedCheck = encrypt(PASSWORD_CHECK_VALUE, password);
-    localStorage.setItem(PASSWORD_CHECK_KEY, encryptedCheck);
-    passwordKeyRef.current = password;
-    setIsPasswordSet(true);
-    setIsLocked(false);
-    toast({
-      title: "رمز عبور تنظیم شد",
-      description: "برنامه شما اکنون با رمز عبور محافظت می‌شود.",
-    });
-  }, [toast]);
-
-  const unlock = useCallback((password: string) => {
-    const checkValue = localStorage.getItem(PASSWORD_CHECK_KEY);
-    if (!checkValue) return false;
-
-    const decryptedCheck = decrypt(checkValue, password);
-    if (decryptedCheck === PASSWORD_CHECK_VALUE) {
-      passwordKeyRef.current = password;
-      setIsLocked(false);
-      return true;
-    }
-    return false;
-  }, []);
-
-  const resetApp = useCallback(() => {
-    ALL_APP_KEYS.forEach(key => {
-        localStorage.removeItem(key);
-    });
-    toast({
-        title: "برنامه بازنشانی شد",
-        description: "تمام اطلاعات محلی شما پاک شد. لطفاً یک رمز عبور جدید تنظیم کنید.",
-        variant: "destructive"
-    });
-    // Reload the page to start from scratch
-    window.location.reload();
-  }, [toast]);
 
   return (
-    <AuthContext.Provider value={{ isLoading, isLocked, isPasswordSet, setPassword, unlock, lock, getEncryptionKey, resetApp }}>
+    <AuthContext.Provider value={{ isLoading }}>
       {children}
     </AuthContext.Provider>
   );

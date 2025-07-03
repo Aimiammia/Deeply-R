@@ -1,8 +1,8 @@
+
 'use client';
 
 import { type ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { LockScreen } from './LockScreen';
 import { Brain } from 'lucide-react';
 
 interface AuthGuardProps {
@@ -10,12 +10,13 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { isLocked, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
-    // Show a more engaging full-screen loader
+    // Show a loading indicator while the app initializes.
+    // In the future, this will wait for the Firebase auth state to be confirmed.
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-black">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Brain className="h-16 w-16 text-primary animate-pulse-slow" />
         <p className="mt-4 text-lg font-semibold text-primary/80 animate-pulse-slow [animation-delay:0.2s]">
           Deeply
@@ -24,9 +25,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
-  if (isLocked) {
-    return <LockScreen />;
-  }
-
+  // The lock screen logic has been removed to prepare for Firebase authentication.
+  // The app is now always "unlocked" at this stage.
   return <>{children}</>;
 }
