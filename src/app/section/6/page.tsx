@@ -191,17 +191,19 @@ export default function SportsPage() {
             <Card className="shadow-lg bg-card">
                 <CardContent className="p-6">
                     <Tabs defaultValue="activities" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3">
-                            <TabsTrigger value="activities">
-                                <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
-                            </TabsTrigger>
-                            <TabsTrigger value="fasting">
-                                <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
-                            </TabsTrigger>
-                            <TabsTrigger value="calories">
-                                <Calculator className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> محاسبه‌گر کالری
-                            </TabsTrigger>
-                        </TabsList>
+                        <div className="w-full overflow-x-auto pb-2">
+                            <TabsList>
+                                <TabsTrigger value="activities">
+                                    <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
+                                </TabsTrigger>
+                                <TabsTrigger value="fasting">
+                                    <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
+                                </TabsTrigger>
+                                <TabsTrigger value="calories">
+                                    <Calculator className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> محاسبه‌گر کالری
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
                         
                         <TabsContent value="activities" className="space-y-8 mt-6">
                              <Card id="activity-form-card" className="scroll-mt-20">
