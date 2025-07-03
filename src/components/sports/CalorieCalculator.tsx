@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Calculator, Flame, Goal, Dna, Loader2, Edit, PlusCircle, Trash2, TrendingUp, Dumbbell } from 'lucide-react';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import type { CalorieProfile, FoodLogEntry, SportsActivity } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
@@ -136,8 +136,8 @@ function CalorieProfileForm({ onProfileSet, existingProfile }: { onProfileSet: (
 // #region Food Tracker Component
 function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEditProfile: () => void }) {
     const { toast } = useToast();
-    const [foodLog, setFoodLog] = useSharedState<FoodLogEntry[]>('foodLogDeeply', []);
-    const [activities] = useSharedState<SportsActivity[]>('userSportsActivitiesDeeply', []);
+    const [foodLog, setFoodLog] = useLocalStorageState<FoodLogEntry[]>('foodLogDeeply', []);
+    const [activities] = useLocalStorageState<SportsActivity[]>('userSportsActivitiesDeeply', []);
     const [foodName, setFoodName] = useState('');
     const [calories, setCalories] = useState<number | ''>('');
 
@@ -250,7 +250,7 @@ function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEd
 
 export function CalorieCalculator() {
   const { toast } = useToast();
-  const [profile, setProfile, profileLoading] = useSharedState<CalorieProfile | null>('calorieProfileDeeply', null);
+  const [profile, setProfile, profileLoading] = useLocalStorageState<CalorieProfile | null>('calorieProfileDeeply', null);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSetProfile = (newProfile: CalorieProfile) => {
@@ -281,6 +281,3 @@ export function CalorieCalculator() {
 
   return <FoodTracker profile={profile} onEditProfile={startEditing} />;
 }
-
-
-    

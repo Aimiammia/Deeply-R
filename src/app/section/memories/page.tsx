@@ -7,7 +7,7 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, History, BookHeart, CheckCircle, FileText, Calendar, Camera } from 'lucide-react';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { ClientOnly } from '@/components/ClientOnly';
 import type { Task, ReflectionEntry, DailyActivityLogEntry, CalendarEvent } from '@/types';
 import { parseISO, getMonth, getDate, getYear } from 'date-fns';
@@ -26,10 +26,10 @@ interface MemoriesByYear {
 }
 
 export default function MemoriesPage() {
-    const [tasks, , tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
-    const [reflections, , reflectionsLoading] = useSharedState<ReflectionEntry[]>('dailyReflections', []);
-    const [logs, , logsLoading] = useSharedState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
-    const [events, , eventsLoading] = useSharedState<CalendarEvent[]>('calendarEventsDeeply', []);
+    const [tasks, , tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
+    const [reflections, , reflectionsLoading] = useLocalStorageState<ReflectionEntry[]>('dailyReflections', []);
+    const [logs, , logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+    const [events, , eventsLoading] = useLocalStorageState<CalendarEvent[]>('calendarEventsDeeply', []);
 
     const isLoading = tasksLoading || reflectionsLoading || logsLoading || eventsLoading;
 

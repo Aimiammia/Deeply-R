@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -48,7 +48,7 @@ const DynamicActivityForm = dynamic(() => Promise.resolve(({ onSubmit, currentLo
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
       ) : (
-        <Save className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+        <Save className="mr-2 h-4 w-4" />
       )}
       {isSaving ? 'در حال ثبت...' : 'ثبت در لیست'}
     </Button>
@@ -113,7 +113,7 @@ export default function DailyActivityLogPage() {
   const sectionTitle = "صندوق ورودی و یادداشت سریع";
   const sectionPageDescription = "افکار، ایده‌ها، کارها و هرچیز دیگری که به ذهنتان می‌رسد را سریعاً در اینجا ثبت کنید تا بعداً به آن‌ها رسیدگی کنید.";
 
-  const [logs, setLogs, logsLoading] = useSharedState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+  const [logs, setLogs, logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 

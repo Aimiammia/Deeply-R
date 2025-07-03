@@ -10,7 +10,7 @@ import { ArrowLeft, FolderKanban, PlusCircle, ListChecks, Loader2, CopyPlus } fr
 import { useState, useCallback } from 'react';
 import type { Project, Task, ProjectTemplate } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { generateId } from '@/lib/utils';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -48,9 +48,9 @@ export default function ProjectsPage() {
   const sectionPageDescription = "پروژه‌های خود را با وظایف، مهلت‌ها و وضعیت پیشرفت مدیریت کنید.";
   const { toast } = useToast();
 
-  const [projects, setProjects, projectsLoading] = useSharedState<Project[]>('allProjects', []);
-  const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
-  const [templates, , templatesLoading] = useSharedState<ProjectTemplate[]>('projectTemplates', []);
+  const [projects, setProjects, projectsLoading] = useLocalStorageState<Project[]>('allProjects', []);
+  const [tasks, setTasks, tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
+  const [templates, , templatesLoading] = useLocalStorageState<ProjectTemplate[]>('projectTemplates', []);
   
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showForm, setShowForm] = useState(false);

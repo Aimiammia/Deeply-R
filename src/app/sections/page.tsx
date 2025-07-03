@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
 import type { Task, Habit, CalendarEvent, BirthdayEntry } from '@/types';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -16,10 +17,10 @@ import { TodayEvents } from '@/components/dashboard/TodayEvents';
 import { getDailySuccessQuote } from '@/lib/prompts';
 
 export default function TodayDashboardPage() {
-  const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
-  const [habits, setHabits, habitsLoading] = useSharedState<Habit[]>('userHabitsDeeply', []);
-  const [events, , eventsLoading] = useSharedState<CalendarEvent[]>('calendarEventsDeeply', []);
-  const [birthdays, , birthdaysLoading] = useSharedState<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
+  const [tasks, setTasks, tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
+  const [habits, setHabits, habitsLoading] = useLocalStorageState<Habit[]>('userHabitsDeeply', []);
+  const [events, , eventsLoading] = useLocalStorageState<CalendarEvent[]>('calendarEventsDeeply', []);
+  const [birthdays, , birthdaysLoading] = useLocalStorageState<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
   
   const isLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
 

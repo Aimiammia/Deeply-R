@@ -15,7 +15,7 @@ import type { Task, Project } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
-import { useSharedState } from '@/hooks/useSharedState';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -44,8 +44,8 @@ export default function PlannerLandingPage() {
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   
-  const [tasks, setTasks, tasksLoading] = useSharedState<Task[]>('dailyTasksPlanner', []);
-  const [projects, , projectsLoading] = useSharedState<Project[]>('allProjects', []);
+  const [tasks, setTasks, tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
+  const [projects, , projectsLoading] = useLocalStorageState<Project[]>('allProjects', []);
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
