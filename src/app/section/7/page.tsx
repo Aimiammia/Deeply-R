@@ -148,27 +148,28 @@ function EducationContent({
       setTransientSelectedLevel(educationalSettings.levelValue);
     }
   }, [educationalSettings.levelValue, dataLoading]);
-
-  // Use a stringified dependency to prevent infinite loops from object references.
-  const settingsDependency = JSON.stringify(educationalSettings);
   
+  // Destructure for stable dependencies
+  const { levelValue, isConfirmed, lastPromotionCheckDate } = educationalSettings;
+  
+  // Refactored useEffect with stable, primitive dependencies
   useEffect(() => {
     if (dataLoading) {
       return;
     }
     
-    const currentSettings = JSON.parse(settingsDependency);
-    const newSettingsFromPromotion = calculateAutoPromotion(currentSettings);
+    const newSettings = calculateAutoPromotion({ levelValue, isConfirmed, lastPromotionCheckDate });
     
-    if (newSettingsFromPromotion) {
-        setEducationalSettings(newSettingsFromPromotion);
+    // Only update if a promotion actually happened and the new values are different
+    if (newSettings && (newSettings.levelValue !== levelValue || newSettings.lastPromotionCheckDate !== lastPromotionCheckDate)) {
+        setEducationalSettings(newSettings);
         toast({
           title: "مقطع تحصیلی به‌روز شد",
-          description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettingsFromPromotion.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettingsFromPromotion.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
+          description: `مقطع تحصیلی شما به صورت خودکار به "${educationalLevels.find(l => l.value === newSettings.levelValue)?.label}" در تاریخ ${formatJalaliDateDisplay(parseISO(newSettings.lastPromotionCheckDate), 'PPP')} ارتقا یافت.`,
           duration: 7000,
         });
     }
-  }, [dataLoading, settingsDependency, setEducationalSettings, toast]);
+  }, [dataLoading, levelValue, isConfirmed, lastPromotionCheckDate, setEducationalSettings, toast]);
 
 
   const currentSubjectsForLevel: EducationalSubjectType[] = educationalSettings.isConfirmed && educationalSettings.levelValue
@@ -603,4 +604,3 @@ export default function EducationPage() {
     </div>
   );
 }
-
