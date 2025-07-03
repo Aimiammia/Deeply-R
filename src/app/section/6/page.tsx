@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Dumbbell, PlusCircle, ListChecks, Loader2, TimerOff } from 'lucide-react';
+import { ArrowLeft, Dumbbell, PlusCircle, ListChecks, Loader2, TimerOff, Calculator } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import type { SportsActivity, ActiveFast, FastingSession } from '@/types';
 import { useSharedState } from '@/hooks/useSharedState';
@@ -59,6 +59,11 @@ const DynamicFastingTracker = dynamic(() => import('@/components/sports/FastingT
 const DynamicFastingHistory = dynamic(() => import('@/components/sports/FastingHistory').then(mod => mod.FastingHistory), {
     ssr: false,
     loading: () => <ListLoadingSkeleton />
+});
+
+const DynamicCalorieCalculator = dynamic(() => import('@/components/sports/CalorieCalculator').then(mod => mod.CalorieCalculator), {
+    ssr: false,
+    loading: () => <Skeleton className="h-96 w-full" />
 });
 
 
@@ -186,16 +191,19 @@ export default function SportsPage() {
             <Card className="shadow-lg bg-card">
                 <CardContent className="p-6">
                     <Tabs defaultValue="activities" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-primary/10 p-1">
-                            <TabsTrigger value="activities" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none">
+                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3">
+                            <TabsTrigger value="activities">
                                 <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
                             </TabsTrigger>
-                            <TabsTrigger value="fasting" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:rounded-full data-[state=active]:shadow-none">
-                            <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
+                            <TabsTrigger value="fasting">
+                                <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
+                            </TabsTrigger>
+                            <TabsTrigger value="calories">
+                                <Calculator className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> محاسبه‌گر کالری
                             </TabsTrigger>
                         </TabsList>
                         
-                        <TabsContent value="activities" className="space-y-8">
+                        <TabsContent value="activities" className="space-y-8 mt-6">
                              <Card id="activity-form-card" className="scroll-mt-20">
                                 <CardHeader className="flex flex-row items-center justify-between">
                                     <div>
@@ -243,7 +251,7 @@ export default function SportsPage() {
                             </Card>
                         </TabsContent>
 
-                        <TabsContent value="fasting" className="space-y-8">
+                        <TabsContent value="fasting" className="space-y-8 mt-6">
                             <DynamicFastingTracker 
                                 activeFast={activeFast}
                                 onStartFast={handleStartFast}
@@ -253,6 +261,10 @@ export default function SportsPage() {
                                 sessions={fastingSessions}
                                 onDelete={handleDeleteFastSession}
                             />
+                        </TabsContent>
+
+                         <TabsContent value="calories" className="space-y-8 mt-6">
+                            <DynamicCalorieCalculator />
                         </TabsContent>
                     </Tabs>
                 </CardContent>
