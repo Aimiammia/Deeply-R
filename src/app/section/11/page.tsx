@@ -238,7 +238,7 @@ export default function ProjectsPage() {
                         onEditProject={handleEditProject}
                         onToggleTask={handleToggleTask}
                         onDeleteTask={handleDeleteTask}
-                        onEditTask={handleEditTask}
+                        onEditTask={onEditTask}
                     />
                 )}
               </CardContent>

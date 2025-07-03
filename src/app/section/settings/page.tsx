@@ -254,7 +254,7 @@ export default function SettingsPage() {
                                     id="restore-input"
                                 />
                                 <Button onClick={() => fileInputRef.current?.click()} className="w-full" variant="destructive">
-                                    <Upload className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0" />
+                                    <Upload className="ml-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
                                     انتخاب فایل پشتیبان و بازیابی
                                 </Button>
                             </CardContent>
