@@ -1,101 +1,30 @@
 {
-  "educationalSubjectProgressDeeply": {
-    "math_m9": {
-      "status": "completed",
-      "currentGrade": "9",
-      "detailedNotes": null
-    },
-    "science_m9": {
-      "status": "completed",
-      "currentGrade": "17",
-      "detailedNotes": null
-    },
-    "english_m9": {
-      "status": "not-started",
-      "currentGrade": null,
-      "detailedNotes": null
-    }
-  },
+  "dailyTasksPlanner": [],
+  "allProjects": [],
+  "dailyReflections": [],
+  "financialTransactions": [],
+  "financialBudgets": [],
+  "financialAssets": [],
+  "financialInvestments": [],
+  "financialSavingsGoals": [],
+  "calendarBirthdaysDeeply": [],
+  "calendarEventsDeeply": [],
+  "userHabitsDeeply": [],
+  "dailyActivityLogsDeeply": [],
+  "longTermGoals": [],
+  "userBooksDeeply": [],
+  "userSportsActivitiesDeeply": [],
+  "activeFastDeeply": null,
+  "fastingHistoryDeeply": [],
   "educationalLevelSettingsDeeply": {
-    "levelValue": "middle_9",
-    "isConfirmed": true,
-    "lastPromotionCheckDate": "2025-07-02T16:55:59.103Z"
+    "levelValue": "",
+    "isConfirmed": false,
+    "lastPromotionCheckDate": "1970-01-01T00:00:00.000Z"
   },
-  "activeFastDeeply": {
-    "id": "d1753171-e995-406e-ad0d-b26848c69fdc",
-    "startTime": "2025-07-02T22:39:06.005Z"
-  },
-  "fastingHistoryDeeply": [
-    {
-      "id": "d1753171-e995-406e-ad0d-b26848c69fdc",
-      "startTime": "2025-07-02T22:39:06.005Z",
-      "endTime": "2025-07-02T22:40:15.294Z",
-      "durationHours": 0,
-      "notes": "سخن شما درست است"
-    }
-  ],
-  "userSportsActivitiesDeeply": [
-    {
-      "activityType": "شنا",
-      "date": "2025-07-02T22:40:30.918Z",
-      "durationMinutes": 30,
-      "distanceKm": null,
-      "caloriesBurned": 350,
-      "notes": "فلزات",
-      "id": "ab231a56-7da6-4c0f-b0cd-0ce00bf10448",
-      "createdAt": "2025-07-02T22:41:07.605Z"
-    }
-  ],
-  "dailyTasksPlanner": [
-    {
-      "id": "c92929e8-6c79-42a7-a52a-5e4945e96fc3",
-      "title": "رفتن به بازار",
-      "completed": false,
-      "createdAt": "2025-07-02T22:43:59.932Z",
-      "dueDate": "2025-07-02T20:30:00.000Z",
-      "dueTime": "03:13",
-      "priority": "high",
-      "category": "خرید",
-      "projectId": null,
-      "projectName": null,
-      "subjectId": null,
-      "subjectName": null,
-      "startChapter": null,
-      "endChapter": null,
-      "educationalLevelContext": null,
-      "estimatedMinutes": 60,
-      "pomodorosCompleted": 0,
-      "completedAt": null
-    }
-  ],
-  "calendarBirthdaysDeeply": [
-    {
-      "id": "6d8ac06a-2811-418b-b818-b127e1a370cc",
-      "name": "رادین",
-      "jYear": 1404,
-      "jMonth": 6,
-      "jDay": 1,
-      "gDate": "2025-08-22T20:30:00.000Z",
-      "createdAt": "2025-07-03T08:26:30.189Z"
-    },
-    {
-      "id": "e6a1c297-03be-42c4-a885-91a13b2cc4a9",
-      "name": "محمد حسین",
-      "jYear": 1404,
-      "jMonth": 4,
-      "jDay": 19,
-      "gDate": "2025-07-09T20:30:00.000Z",
-      "createdAt": "2025-07-03T08:25:44.339Z"
-    }
-  ],
-  "calorieProfileDeeply": {
-    "gender": "male",
-    "age": 15,
-    "weight": 80,
-    "height": 180,
-    "activityLevel": "sedentary",
-    "goal": "gain",
-    "targetCalories": 2726,
-    "idealWeight": 71
-  }
+  "educationalSubjectProgressDeeply": {},
+  "knowledgeBasePages": [],
+  "projectTemplates": [],
+  "thirtyDayChallenges": [],
+  "calorieProfileDeeply": null,
+  "foodLogDeeply": []
 }
