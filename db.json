@@ -67,5 +67,25 @@
       "pomodorosCompleted": 0,
       "completedAt": null
     }
+  ],
+  "calendarBirthdaysDeeply": [
+    {
+      "id": "6d8ac06a-2811-418b-b818-b127e1a370cc",
+      "name": "رادین",
+      "jYear": 1404,
+      "jMonth": 6,
+      "jDay": 1,
+      "gDate": "2025-08-22T20:30:00.000Z",
+      "createdAt": "2025-07-03T08:26:30.189Z"
+    },
+    {
+      "id": "e6a1c297-03be-42c4-a885-91a13b2cc4a9",
+      "name": "محمد حسین",
+      "jYear": 1404,
+      "jMonth": 4,
+      "jDay": 19,
+      "gDate": "2025-07-09T20:30:00.000Z",
+      "createdAt": "2025-07-03T08:25:44.339Z"
+    }
   ]
 }
