@@ -87,5 +87,15 @@
       "gDate": "2025-07-09T20:30:00.000Z",
       "createdAt": "2025-07-03T08:25:44.339Z"
     }
-  ]
+  ],
+  "calorieProfileDeeply": {
+    "gender": "male",
+    "age": 15,
+    "weight": 80,
+    "height": 180,
+    "activityLevel": "sedentary",
+    "goal": "gain",
+    "targetCalories": 2726,
+    "idealWeight": 71
+  }
 }

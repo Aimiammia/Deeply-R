@@ -12,9 +12,9 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Calculator, Flame, Goal, Dna, Loader2, Edit, PlusCircle, Trash2, TrendingUp } from 'lucide-react';
+import { Calculator, Flame, Goal, Dna, Loader2, Edit, PlusCircle, Trash2, TrendingUp, Dumbbell } from 'lucide-react';
 import { useSharedState } from '@/hooks/useSharedState';
-import type { CalorieProfile, FoodLogEntry } from '@/types';
+import type { CalorieProfile, FoodLogEntry, SportsActivity } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
 import { generateId, cn } from '@/lib/utils';
@@ -137,6 +137,7 @@ function CalorieProfileForm({ onProfileSet, existingProfile }: { onProfileSet: (
 function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEditProfile: () => void }) {
     const { toast } = useToast();
     const [foodLog, setFoodLog] = useSharedState<FoodLogEntry[]>('foodLogDeeply', []);
+    const [activities] = useSharedState<SportsActivity[]>('userSportsActivitiesDeeply', []);
     const [foodName, setFoodName] = useState('');
     const [calories, setCalories] = useState<number | ''>('');
 
@@ -147,8 +148,16 @@ function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEd
     const consumedCalories = useMemo(() => {
         return todaysLog.reduce((sum, entry) => sum + entry.calories, 0);
     }, [todaysLog]);
+    
+    const burnedCaloriesToday = useMemo(() => {
+        return activities
+            .filter(activity => 
+                activity.caloriesBurned && isSameDay(parseISO(activity.date), startOfDay(new Date()))
+            )
+            .reduce((sum, activity) => sum + (activity.caloriesBurned || 0), 0);
+    }, [activities]);
 
-    const remainingCalories = profile.targetCalories - consumedCalories;
+    const remainingCalories = profile.targetCalories - consumedCalories + burnedCaloriesToday;
     const progress = (consumedCalories / profile.targetCalories) * 100;
 
     const handleAddFood = (e: React.FormEvent) => {
@@ -180,21 +189,21 @@ function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEd
                     <div className="flex justify-between items-start">
                         <div>
                             <CardTitle className="text-primary">داشبورد کالری روزانه</CardTitle>
-                            <CardDescription>بر اساس پروفایل شما، پیشنهاد ما این است:</CardDescription>
+                            <CardDescription>بر اساس پروفایل شما و فعالیت‌های امروزتان:</CardDescription>
                         </div>
                         <Button variant="ghost" size="icon" onClick={onEditProfile}><Edit className="h-5 w-5"/></Button>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">وزن ایده‌آل</p><p className="text-lg font-bold">{formatNumber(profile.idealWeight)} <span className="text-xs">کیلوگرم</span></p></div>
                         <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">کالری هدف</p><p className="text-lg font-bold text-green-600">{formatNumber(profile.targetCalories)}</p></div>
-                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">مصرفی امروز</p><p className="text-lg font-bold text-blue-600">{formatNumber(consumedCalories)}</p></div>
-                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">باقی‌مانده</p><p className={cn("text-lg font-bold", remainingCalories < 0 ? "text-red-600" : "text-orange-600")}>{formatNumber(remainingCalories)}</p></div>
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">مصرفی</p><p className="text-lg font-bold text-blue-600">{formatNumber(consumedCalories)}</p></div>
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">سوزانده شده (ورزش)</p><p className="text-lg font-bold text-orange-500">{formatNumber(burnedCaloriesToday)}</p></div>
+                        <div className="p-2 border rounded-lg bg-background"><p className="text-xs text-muted-foreground">خالص باقی‌مانده</p><p className={cn("text-lg font-bold", remainingCalories < 0 ? "text-red-600" : "text-yellow-600")}>{formatNumber(remainingCalories)}</p></div>
                     </div>
                     <div>
                         <Progress value={progress} className="h-3"/>
-                        <p className="text-xs text-muted-foreground text-center mt-1">{formatNumber(progress)}٪ از هدف روزانه</p>
+                        <p className="text-xs text-muted-foreground text-center mt-1">{formatNumber(progress)}٪ از کالری هدف مصرف شده</p>
                     </div>
                 </CardContent>
             </Card>
@@ -272,3 +281,6 @@ export function CalorieCalculator() {
 
   return <FoodTracker profile={profile} onEditProfile={startEditing} />;
 }
+
+
+    
