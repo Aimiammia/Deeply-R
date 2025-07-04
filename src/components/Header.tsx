@@ -20,12 +20,9 @@ const HeaderComponent = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 flex h-14 items-center justify-between">
-        {/* Left side (in RTL) */}
-        <div className="flex items-center gap-2">
+        {/* Right side in RTL */}
+        <div className="flex w-10 justify-start">
            <ThemeToggle />
-           <Button variant="ghost" size="icon" onClick={handleLock} title="قفل کردن برنامه">
-               <Lock className="h-5 w-5" />
-           </Button>
         </div>
         
         {/* Title group will be centered */}
@@ -36,8 +33,12 @@ const HeaderComponent = () => {
           </h1>
         </div>
 
-        {/* Spacer for balance, on the right in RTL */}
-        <div className="w-10 h-10 flex items-center gap-2" /> 
+        {/* Left side in RTL */}
+        <div className="flex w-10 justify-end"> 
+           <Button variant="ghost" size="icon" onClick={handleLock} title="قفل کردن برنامه">
+               <Lock className="h-5 w-5" />
+           </Button>
+        </div>
       </div>
     </header>
   );
