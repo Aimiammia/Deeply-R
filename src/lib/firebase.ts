@@ -1,8 +1,7 @@
-
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // IMPORTANT: Replace the following with your actual Firebase project configuration.
@@ -31,10 +30,28 @@ const firebaseConfig = {
 // 4. Make sure you have created a Firestore database in your Firebase project.
 
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
 
+// Initialize Firebase only if all the required environment variables are set.
+if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.authDomain) {
+    try {
+        app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+        auth = getAuth(app);
+        db = getFirestore(app);
+    } catch (e) {
+        console.error("Error initializing Firebase:", e);
+        // If initialization fails, keep app, auth, and db as null
+        app = null;
+        auth = null;
+        db = null;
+    }
+} else {
+    console.warn(
+      "Firebase config is missing or incomplete. Firebase services will be disabled. " +
+      "Please make sure all NEXT_PUBLIC_FIREBASE_* variables are set in your .env.local file."
+    );
+}
 
 export { app, auth, db };

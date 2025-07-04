@@ -3,14 +3,13 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { 
-  getAuth, 
   onAuthStateChanged, 
   type User, 
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut
 } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { auth } from '@/lib/firebase'; // Import auth, which can be null
 
 interface AuthContextType {
   user: User | null;
@@ -22,13 +21,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const auth = getAuth(app);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // If Firebase is not configured, we are not loading and there's no user.
+    if (!auth) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setIsLoading(false);
@@ -38,15 +42,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const firebaseNotConfiguredError = () => {
+    const error = new Error("Firebase is not configured. Please check your .env.local file.");
+    // Manually add a code to be more user-friendly on the login page
+    (error as any).code = 'auth/firebase-not-configured';
+    return Promise.reject(error);
+  }
+
   const signup = (email: string, password: string) => {
+    if (!auth) return firebaseNotConfiguredError();
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
   const login = (email: string, password: string) => {
+    if (!auth) return firebaseNotConfiguredError();
     return signInWithEmailAndPassword(auth, email, password);
   };
 
   const logout = () => {
+    if (!auth) return firebaseNotConfiguredError();
     return signOut(auth);
   };
 

@@ -17,7 +17,8 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     const loadData = async () => {
       setIsLoading(true);
 
-      if (user) {
+      // If db is not configured, we only work with localStorage
+      if (user && db) {
         // User is logged in, try Firestore first
         const docRef = doc(db, 'userData', user.uid, 'appData', key);
         try {
@@ -43,7 +44,7 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
           else setValue(initialValue);
         }
       } else {
-        // User is not logged in, use localStorage only
+        // User is not logged in or db is not configured, use localStorage only
         try {
           const item = window.localStorage.getItem(key);
           if (item) {
@@ -76,8 +77,8 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
         console.error(`Error setting localStorage key "${key}":`, error);
       }
 
-      // If user is logged in, also save to Firestore
-      if (user) {
+      // If user is logged in AND db is configured, also save to Firestore
+      if (user && db) {
         const docRef = doc(db, 'userData', user.uid, 'appData', key);
         setDoc(docRef, { value: valueToStore, updatedAt: serverTimestamp() }).catch(error => {
           console.error(`Error writing to Firestore for key "${key}":`, error);

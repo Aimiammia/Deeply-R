@@ -51,6 +51,9 @@ export default function LoginPage() {
           case 'auth/invalid-email':
             friendlyMessage = 'فرمت ایمیل نامعتبر است.';
             break;
+          case 'auth/firebase-not-configured':
+             friendlyMessage = 'پیکربندی Firebase یافت نشد. لطفاً فایل .env.local را بررسی کنید.';
+             break;
         }
       }
       setError(friendlyMessage);
