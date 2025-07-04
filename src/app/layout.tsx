@@ -4,8 +4,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { AuthGuard } from '@/components/auth/AuthGuard';
+import { LockProvider } from '@/contexts/LockContext';
+import { LockGuard } from '@/components/auth/LockGuard';
 
 const vazirmatnFont = Vazirmatn({
   subsets: ['arabic', 'latin'],
@@ -29,13 +29,13 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <AuthProvider>
+        <LockProvider>
           <ThemeManager />
-          <AuthGuard>
+          <LockGuard>
             {children}
-          </AuthGuard>
+          </LockGuard>
           <Toaster />
-        </AuthProvider>
+        </LockProvider>
       </body>
     </html>
   );

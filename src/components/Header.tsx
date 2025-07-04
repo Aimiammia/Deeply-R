@@ -1,20 +1,20 @@
 
 'use client';
 
-import { Brain, LogOut } from 'lucide-react';
+import { Brain, Lock } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { memo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useLock } from '@/contexts/LockContext';
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
 
 const HeaderComponent = () => {
-  const { user, logout } = useAuth();
+  const { lock } = useLock();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
+  const handleLock = () => {
+    lock();
+    router.push('/lock');
   };
 
   return (
@@ -23,11 +23,9 @@ const HeaderComponent = () => {
         {/* Left side (in RTL) */}
         <div className="flex items-center gap-2">
            <ThemeToggle />
-           {user && (
-             <Button variant="ghost" size="icon" onClick={handleLogout} title="خروج">
-               <LogOut className="h-5 w-5" />
-             </Button>
-           )}
+           <Button variant="ghost" size="icon" onClick={handleLock} title="قفل کردن برنامه">
+               <Lock className="h-5 w-5" />
+           </Button>
         </div>
         
         {/* Title group will be centered */}

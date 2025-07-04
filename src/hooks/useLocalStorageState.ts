@@ -1,92 +1,48 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+
+// This is a simplified version of the hook that only uses localStorage.
+// It is intended for a local-first, offline application without cloud sync.
 
 export function useLocalStorageState<T>(key: string, initialValue: T) {
-  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [value, setValue] = useState<T>(initialValue);
-  const isInitialLoad = useRef(true);
 
-  // Effect to load data from the correct source (Firestore or localStorage)
+  // Use a function for useState's initial value to prevent re-running logic on every render.
+  const [value, setValue] = useState<T>(() => {
+    // This part now only runs on the client, once.
+    if (typeof window === 'undefined') {
+      return initialValue;
+    }
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(`Error reading localStorage key “${key}”:`, error);
+      return initialValue;
+    }
+  });
+
+  // This effect runs only once after the component mounts to set loading to false.
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-
-      // If db is not configured, we only work with localStorage
-      if (user && db) {
-        // User is logged in, try Firestore first
-        const docRef = doc(db, 'userData', user.uid, 'appData', key);
-        try {
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setValue(docSnap.data().value);
-          } else {
-            // No data in Firestore, try localStorage as a fallback
-            const localItem = window.localStorage.getItem(key);
-            if (localItem) {
-                const parsedLocal = JSON.parse(localItem);
-                setValue(parsedLocal);
-                // Sync this local data to Firestore for other devices
-                await setDoc(docRef, { value: parsedLocal, updatedAt: serverTimestamp() });
-            } else {
-                setValue(initialValue);
-            }
-          }
-        } catch (error) {
-          console.error(`Error reading Firestore for key "${key}":`, error);
-          const localItem = window.localStorage.getItem(key);
-          if (localItem) setValue(JSON.parse(localItem));
-          else setValue(initialValue);
-        }
-      } else {
-        // User is not logged in or db is not configured, use localStorage only
-        try {
-          const item = window.localStorage.getItem(key);
-          if (item) {
-            setValue(JSON.parse(item));
-          } else {
-            setValue(initialValue);
-          }
-        } catch (error) {
-          console.error(`Error reading localStorage key "${key}":`, error);
-          setValue(initialValue);
-        }
-      }
-      setIsLoading(false);
-      isInitialLoad.current = false;
-    };
-
-    loadData();
-  }, [key, user, initialValue]);
-
+    setIsLoading(false);
+  }, []);
 
   const setStoredValue = useCallback(
     (newValue: T | ((val: T) => T)) => {
-      const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
-      setValue(valueToStore);
-
-      // Save to localStorage immediately for instant UI feedback and offline access
       try {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
+        setValue(valueToStore);
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        }
       } catch (error) {
-        console.error(`Error setting localStorage key "${key}":`, error);
-      }
-
-      // If user is logged in AND db is configured, also save to Firestore
-      if (user && db) {
-        const docRef = doc(db, 'userData', user.uid, 'appData', key);
-        setDoc(docRef, { value: valueToStore, updatedAt: serverTimestamp() }).catch(error => {
-          console.error(`Error writing to Firestore for key "${key}":`, error);
-        });
+        console.error(`Error setting localStorage key “${key}”:`, error);
       }
     },
-    [key, user, value]
+    [key, value]
   );
-
+  
   return [value, setStoredValue, isLoading] as const;
 }
