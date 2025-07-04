@@ -13,19 +13,22 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
 
   // Effect to load data from localStorage
   useEffect(() => {
+    // This effect should only run once on mount to read from localStorage.
+    // The dependency on `initialValue` was causing an infinite loop when it was an object or array literal.
+    // We now only depend on `key` to re-run if the key itself changes, which is rare.
     try {
       const item = window.localStorage.getItem(key);
       if (item) {
         setValue(JSON.parse(item));
-      } else {
-        setValue(initialValue);
       }
+      // If `item` is null, the state remains `initialValue` as set by `useState`.
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
-      setValue(initialValue);
+      // In case of an error, the state also remains `initialValue`.
     }
     setIsLoading(false);
-  }, [key, initialValue]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]); // Only re-run if the key changes. `initialValue` is intentionally omitted.
 
 
   const setStoredValue = useCallback(
