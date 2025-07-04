@@ -32,16 +32,24 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
   const setStoredValue = useCallback(
     (newValue: T | ((val: T) => T)) => {
       try {
-        const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
-        setValue(valueToStore);
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
-        }
+        // By using the updater function form of `setValue`, we get the latest state
+        // without needing `value` in the dependency array. This makes `setStoredValue`
+        // a stable function, preventing infinite loops in consuming components.
+        setValue(prevValue => {
+          const valueToStore =
+            newValue instanceof Function ? newValue(prevValue) : newValue;
+          
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          }
+          
+          return valueToStore;
+        });
       } catch (error) {
         console.error(`Error setting localStorage key “${key}”:`, error);
       }
     },
-    [key, value]
+    [key] // Now only depends on `key`, which is stable.
   );
   
   return [value, setStoredValue, isLoading] as const;
