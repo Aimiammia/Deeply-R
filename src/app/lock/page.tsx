@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Brain, KeyRound, ShieldLock } from 'lucide-react';
+import { Brain, Key, Lock } from 'lucide-react';
 
 export default function LockPage() {
   const { unlock, isPasswordSet } = useLock();
@@ -66,7 +66,7 @@ export default function LockPage() {
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground"></div>
               ) : (
                 <>
-                  {isPasswordSet ? <KeyRound className="ml-2 h-4 w-4" /> : <ShieldLock className="ml-2 h-4 w-4" />}
+                  {isPasswordSet ? <Key className="ml-2 h-4 w-4" /> : <Lock className="ml-2 h-4 w-4" />}
                   {isPasswordSet ? 'باز کردن قفل' : 'تنظیم رمز و ورود'}
                 </>
               )}
