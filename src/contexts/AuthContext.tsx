@@ -2,31 +2,56 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-
-// This is a placeholder context to prepare for a full cloud-based authentication system.
-// The previous local password and encryption system has been removed to allow for this upgrade.
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  type User, 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from 'firebase/auth';
+import { app } from '@/lib/firebase';
 
 interface AuthContextType {
+  user: User | null;
   isLoading: boolean;
-  // All other properties like isLocked, setPassword, etc., are removed for now.
+  signup: (email: string, password: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<any>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const auth = getAuth(app);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading check (e.g., checking for a Firebase user session in the future)
-    const timer = setTimeout(() => {
-        setIsLoading(false);
-    }, 500); // A small delay to show a loading indicator, similar to a real auth check
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setIsLoading(false);
+    });
     
-    return () => clearTimeout(timer);
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
+  const signup = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
+
+  const login = (email: string, password: string) => {
+    return signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const logout = () => {
+    return signOut(auth);
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading, signup, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
