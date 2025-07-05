@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Trophy, PlusCircle, Loader2 } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Challenge } from '@/types';
 import { generateId } from '@/lib/utils';
@@ -22,7 +22,7 @@ export default function ChallengesPage() {
     const sectionPageDescription = "با شروع چالش‌های یک ماهه، خود را به سمت پیشرفت و ایجاد عادت‌های جدید سوق دهید.";
 
     const { toast } = useToast();
-    const [challenges, setChallenges, challengesLoading] = useLocalStorageState<Challenge[]>('thirtyDayChallenges', []);
+    const [challenges, setChallenges, challengesLoading] = useFirestore<Challenge[]>('thirtyDayChallenges', []);
     
     // Form state for new challenge
     const [challengeName, setChallengeName] = useState('');
@@ -65,12 +65,8 @@ export default function ChallengesPage() {
     }, [setChallenges]);
 
     const handleDeleteChallenge = useCallback((challengeId: string) => {
-        const challengeToDelete = challenges.find(c => c.id === challengeId);
         setChallenges(prev => prev.filter(c => c.id !== challengeId));
-        if (challengeToDelete) {
-             toast({ title: "چالش حذف شد", description: `چالش "${challengeToDelete.name}" حذف شد.`, variant: "destructive" });
-        }
-    }, [challenges, setChallenges, toast]);
+    }, [setChallenges]);
 
     const sortedChallenges = [...challenges].sort((a,b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
 
@@ -154,9 +150,4 @@ export default function ChallengesPage() {
                     </div>
                 </main>
                  <footer className="text-center py-4 text-sm text-muted-foreground mt-8">
-                    <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-                </footer>
-            </div>
-        </ClientOnly>
-    );
-}
+                    <p>&copy; {new Date().getFullYear()} Deeply. All

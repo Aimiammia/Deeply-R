@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -113,21 +113,14 @@ export default function DailyActivityLogPage() {
   const sectionTitle = "صندوق ورودی و یادداشت سریع";
   const sectionPageDescription = "افکار، ایده‌ها، کارها و هرچیز دیگری که به ذهنتان می‌رسد را سریعاً در اینجا ثبت کنید تا بعداً به آن‌ها رسیدگی کنید.";
 
-  const [logs, setLogs, logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+  const [logs, setLogs, logsLoading] = useFirestore<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
   const [currentLogText, setCurrentLogText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
 
   const handleSaveLog = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    if (!currentLogText.trim()) {
-      toast({
-        title: "متن خالی",
-        description: "لطفاً موردی برای ثبت وارد کنید.",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!currentLogText.trim()) return;
 
     setIsSaving(true);
     const newLog: DailyActivityLogEntry = {
@@ -141,23 +134,11 @@ export default function DailyActivityLogPage() {
     setLogs(prevLogs => [newLog, ...prevLogs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     setCurrentLogText('');
     setIsSaving(false);
-    toast({
-      title: "مورد ثبت شد",
-      description: "یادداشت شما با موفقیت در لیست ثبت شد.",
-    });
-  }, [currentLogText, setLogs, toast]);
+  }, [currentLogText, setLogs]);
 
   const handleDeleteLog = useCallback((logId: string) => {
-    const logToDelete = logs.find(log => log.id === logId);
     setLogs(prevLogs => prevLogs.filter(log => log.id !== logId));
-    if (logToDelete) {
-        toast({
-        title: "مورد حذف شد",
-        description: "مورد انتخاب شده با موفقیت حذف شد.",
-        variant: "destructive",
-        });
-    }
-  }, [logs, setLogs, toast]);
+  }, [setLogs]);
   
   const sortedLogs = [...logs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -221,7 +202,4 @@ export default function DailyActivityLogPage() {
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
-    </div>
-    </ClientOnly>
-  );
-}
+    

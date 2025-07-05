@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaChart, ArrowLeft, BarChart as BarChartIcon, BookHeart, Calendar, CheckCircle, CircleDollarSign, ListChecks, Loader2 } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { ClientOnly } from '@/components/ClientOnly';
 import type { Task, FinancialTransaction, Habit, ReflectionEntry } from '@/types';
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, XAxis, YAxis } from 'recharts';
@@ -34,10 +33,10 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: string |
 export default function ReviewPage() {
     const [timeRange, setTimeRange] = useState<TimeRange>('7d');
 
-    const [tasks, , tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
-    const [transactions, , transactionsLoading] = useLocalStorageState<FinancialTransaction[]>('financialTransactions', []);
-    const [habits, , habitsLoading] = useLocalStorageState<Habit[]>('userHabitsDeeply', []);
-    const [reflections, , reflectionsLoading] = useLocalStorageState<ReflectionEntry[]>('dailyReflections', []);
+    const [tasks, , tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+    const [transactions, , transactionsLoading] = useFirestore<FinancialTransaction[]>('financialTransactions', []);
+    const [habits, , habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
+    const [reflections, , reflectionsLoading] = useFirestore<ReflectionEntry[]>('dailyReflections', []);
 
     const isLoading = tasksLoading || transactionsLoading || habitsLoading || reflectionsLoading;
 
@@ -54,6 +53,7 @@ export default function ReviewPage() {
     }, [timeRange]);
 
     const reviewData = useMemo(() => {
+        if (isLoading) return null;
         const interval = { start: dateRange.start, end: dateRange.end };
         
         // Tasks
@@ -100,7 +100,7 @@ export default function ReviewPage() {
             habitChartData,
         };
 
-    }, [dateRange, tasks, transactions, habits, reflections]);
+    }, [dateRange, tasks, transactions, habits, reflections, isLoading]);
 
     const taskChartConfig = {
       created: {
@@ -166,7 +166,7 @@ export default function ReviewPage() {
                             </Select>
                         </CardHeader>
                          <CardContent>
-                            {isLoading ? (
+                            {isLoading || !reviewData ? (
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                     <Skeleton className="h-28" />
                                     <Skeleton className="h-28" />
@@ -191,7 +191,7 @@ export default function ReviewPage() {
                                 <CardDescription>مقایسه وظایف ایجاد شده و تکمیل شده در روزهای اخیر.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {isLoading ? <Skeleton className="h-[300px]" /> : (
+                                {isLoading || !reviewData ? <Skeleton className="h-[300px]" /> : (
                                     <ChartContainer config={taskChartConfig} className="w-full h-[300px]">
                                         <BarChart accessibilityLayer data={reviewData.taskChartData}>
                                             <CartesianGrid vertical={false} />
@@ -225,7 +225,7 @@ export default function ReviewPage() {
                                 <CardDescription>نرخ موفقیت در انجام عادت‌ها در بازه زمانی انتخابی.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {isLoading ? <Skeleton className="h-[300px]" /> : (
+                                {isLoading || !reviewData ? <Skeleton className="h-[300px]" /> : (
                                      reviewData.habitChartData.length > 0 ? (
                                         <ChartContainer config={habitChartConfig} className="w-full h-[300px]">
                                             <BarChart accessibilityLayer data={reviewData.habitChartData} layout="vertical">

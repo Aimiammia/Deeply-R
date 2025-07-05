@@ -10,7 +10,7 @@ import { ArrowLeft, FolderKanban, PlusCircle, ListChecks, Loader2, CopyPlus } fr
 import { useState, useCallback } from 'react';
 import type { Project, Task, ProjectTemplate } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { generateId } from '@/lib/utils';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -48,9 +48,9 @@ export default function ProjectsPage() {
   const sectionPageDescription = "پروژه‌های خود را با وظایف، مهلت‌ها و وضعیت پیشرفت مدیریت کنید.";
   const { toast } = useToast();
 
-  const [projects, setProjects, projectsLoading] = useLocalStorageState<Project[]>('allProjects', []);
-  const [tasks, setTasks, tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
-  const [templates, , templatesLoading] = useLocalStorageState<ProjectTemplate[]>('projectTemplates', []);
+  const [projects, setProjects, projectsLoading] = useFirestore<Project[]>('allProjects', []);
+  const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+  const [templates, , templatesLoading] = useFirestore<ProjectTemplate[]>('projectTemplates', []);
   
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -109,12 +109,8 @@ export default function ProjectsPage() {
   }, [setTasks]);
 
   const handleDeleteTask = useCallback((id: string) => {
-    const taskToDelete = tasks.find(task => task.id === id);
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-    if (taskToDelete) {
-      toast({ title: "کار حذف شد", variant: "destructive" });
-    }
-  }, [tasks, setTasks, toast]);
+  }, [setTasks]);
   
   const handleEditTask = useCallback((id: string, newTitle: string) => {
     setTasks(prevTasks =>
@@ -238,7 +234,7 @@ export default function ProjectsPage() {
                         onEditProject={handleEditProject}
                         onToggleTask={handleToggleTask}
                         onDeleteTask={handleDeleteTask}
-                        onEditTask={onEditTask}
+                        onEditTask={handleEditTask}
                     />
                 )}
               </CardContent>
@@ -283,11 +279,4 @@ export default function ProjectsPage() {
                     {(!templatesLoading && templates.length === 0) && (
                         <p className="text-center text-muted-foreground p-4">
                             هیچ قالبی برای استفاده وجود ندارد. ابتدا از بخش «مدیریت قالب‌ها» یک قالب بسازید.
-                        </p>
-                    )}
-                </div>
-            </DialogContent>
-        </Dialog>
-    </ClientOnly>
-  );
-}
+                        </p

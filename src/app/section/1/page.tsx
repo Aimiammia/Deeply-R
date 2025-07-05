@@ -15,7 +15,7 @@ import type { Task, Project } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -44,8 +44,8 @@ export default function PlannerLandingPage() {
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   
-  const [tasks, setTasks, tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
-  const [projects, , projectsLoading] = useLocalStorageState<Project[]>('allProjects', []);
+  const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+  const [projects, , projectsLoading] = useFirestore<Project[]>('allProjects', []);
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
@@ -103,36 +103,20 @@ export default function PlannerLandingPage() {
   }, [setTasks, toast]);
 
   const handleToggleComplete = useCallback((id: string) => {
-    let taskTitle = "";
-    let isCompleted = false;
     setTasks(prevTasks =>
       prevTasks.map(task => {
         if (task.id === id) {
-          taskTitle = task.title;
-          isCompleted = !task.completed;
+          const isCompleted = !task.completed;
           return { ...task, completed: isCompleted, completedAt: isCompleted ? new Date().toISOString() : null };
         }
         return task;
       })
     );
-    toast({
-      title: isCompleted ? "وظیفه انجام شد" : "وظیفه باز شد",
-      description: `"${taskTitle}" ${isCompleted ? 'با موفقیت انجام شد.' : 'مجدداً باز شد.'}`,
-      variant: "default",
-    });
-  }, [setTasks, toast]);
+  }, [setTasks]);
 
   const handleDeleteTask = useCallback((id: string) => {
-    const taskToDelete = tasks.find(task => task.id === id);
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-    if (taskToDelete) {
-      toast({
-        title: "کار حذف شد",
-        description: `"${taskToDelete.title}" از برنامه شما حذف شد.`,
-        variant: "destructive",
-      });
-    }
-  }, [tasks, setTasks, toast]);
+  }, [setTasks]);
 
   const handleEditTask = useCallback((id: string, newTitle: string) => {
     setTasks(prevTasks =>
@@ -140,11 +124,7 @@ export default function PlannerLandingPage() {
         task.id === id ? { ...task, title: newTitle } : task
       )
     );
-     toast({
-      title: "کار ویرایش شد",
-      description: `عنوان کار با موفقیت به "${newTitle}" تغییر یافت.`,
-    });
-  }, [setTasks, toast]);
+  }, [setTasks]);
 
   const handlePomodoroComplete = useCallback((taskId: string) => {
     let taskTitle = "";
@@ -312,7 +292,3 @@ export default function PlannerLandingPage() {
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-      </footer>
-    </div>
-  );
-}

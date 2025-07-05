@@ -10,7 +10,7 @@ import { ArrowLeft, ListChecks, Repeat, CalendarClock, BarChart2, Award, Tags, L
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import type { Habit } from '@/types';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,7 +31,7 @@ export default function HabitsPage() {
   const sectionPageDescription = "در این بخش عادت‌های مثبت خود را ایجاد و پیگیری کنید تا به اهداف خود نزدیک‌تر شوید.";
   const { toast } = useToast();
 
-  const [habits, setHabits, habitsLoading] = useLocalStorageState<Habit[]>('userHabitsDeeply', []);
+  const [habits, setHabits, habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
 
   const handleAddHabit = useCallback((name: string) => {
     const newHabit: Habit = {
@@ -41,11 +41,7 @@ export default function HabitsPage() {
       completions: [],
     };
     setHabits(prevHabits => [newHabit, ...prevHabits].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-    toast({
-      title: "عادت جدید اضافه شد",
-      description: `عادت "${name}" با موفقیت ایجاد شد.`,
-    });
-  }, [setHabits, toast]);
+  }, [setHabits]);
 
   const handleToggleHabitCompletion = useCallback((habitId: string, date: string) => {
     setHabits(prevHabits =>
@@ -65,16 +61,8 @@ export default function HabitsPage() {
   }, [setHabits]);
 
   const handleDeleteHabit = useCallback((habitId: string) => {
-    const habitToDelete = habits.find(h => h.id === habitId);
     setHabits(prevHabits => prevHabits.filter(h => h.id !== habitId));
-    if (habitToDelete) {
-      toast({
-        title: "عادت حذف شد",
-        description: `عادت "${habitToDelete.name}" حذف شد.`,
-        variant: "destructive",
-      });
-    }
-  }, [habits, setHabits, toast]);
+  }, [setHabits]);
 
   return (
     <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
@@ -138,7 +126,3 @@ export default function HabitsPage() {
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
-    </div>
-    </ClientOnly>
-  );
-}

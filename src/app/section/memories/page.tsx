@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -7,7 +6,7 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, History, BookHeart, CheckCircle, FileText, Calendar, Camera } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { ClientOnly } from '@/components/ClientOnly';
 import type { Task, ReflectionEntry, DailyActivityLogEntry, CalendarEvent } from '@/types';
 import { parseISO, getMonth, getDate, getYear } from 'date-fns';
@@ -26,10 +25,10 @@ interface MemoriesByYear {
 }
 
 export default function MemoriesPage() {
-    const [tasks, , tasksLoading] = useLocalStorageState<Task[]>('dailyTasksPlanner', []);
-    const [reflections, , reflectionsLoading] = useLocalStorageState<ReflectionEntry[]>('dailyReflections', []);
-    const [logs, , logsLoading] = useLocalStorageState<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
-    const [events, , eventsLoading] = useLocalStorageState<CalendarEvent[]>('calendarEventsDeeply', []);
+    const [tasks, , tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+    const [reflections, , reflectionsLoading] = useFirestore<ReflectionEntry[]>('dailyReflections', []);
+    const [logs, , logsLoading] = useFirestore<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+    const [events, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
 
     const isLoading = tasksLoading || reflectionsLoading || logsLoading || eventsLoading;
 

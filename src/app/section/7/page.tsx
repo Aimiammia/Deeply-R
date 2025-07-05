@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { parseISO, format, startOfDay } from 'date-fns';
 import { faIR } from 'date-fns/locale'; 
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import type { EducationalLevelStorage, EducationalSubjectUserProgress, SubjectProgress } from '@/types';
 import { educationalSubjects, type Subject as EducationalSubjectType } from '@/lib/educational-data';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -463,12 +463,12 @@ export default function EducationPage() {
   const sectionTitle = "تحصیل و یادگیری";
   const sectionPageDescription = "مرکز جامع مدیریت امور تحصیلی شما. مقطع تحصیلی خود را تنظیم کنید، پیشرفت در دروس را پیگیری کرده و برنامه‌های درسی (از طریق بخش ۱ - برنامه‌ریز) ایجاد نمایید.";
   
-  const [educationalSettings, setEducationalSettings, settingsLoading] = useLocalStorageState<EducationalLevelStorage>(
+  const [educationalSettings, setEducationalSettings, settingsLoading] = useFirestore<EducationalLevelStorage>(
     'educationalLevelSettingsDeeply', 
     initialEducationalSettings
   );
   
-  const [subjectProgress, setSubjectProgress, progressLoading] = useLocalStorageState<EducationalSubjectUserProgress>(
+  const [subjectProgress, setSubjectProgress, progressLoading] = useFirestore<EducationalSubjectUserProgress>(
     'educationalSubjectProgressDeeply',
     {}
   );
@@ -599,8 +599,4 @@ export default function EducationPage() {
         </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-      </footer>
-    </div>
-  );
-}
+        <p>&copy; {new Date().getFullYear()}

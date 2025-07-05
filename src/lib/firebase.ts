@@ -35,7 +35,9 @@ let auth: Auth | null = null;
 let db: Firestore | null = null;
 
 // Initialize Firebase only if all the required environment variables are set.
-if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.authDomain) {
+const isConfigured = firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.authDomain;
+
+if (isConfigured) {
     try {
         app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
         auth = getAuth(app);
@@ -54,4 +56,4 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.authDoma
     );
 }
 
-export { app, auth, db };
+export { app, auth, db, isConfigured as isFirebaseConfigured };

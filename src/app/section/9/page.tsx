@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -10,7 +9,7 @@ import { ArrowLeft, Target, BookOpen, PlusCircle, ListChecks, Loader2 } from 'lu
 import { useState, useCallback } from 'react'; 
 import type { LongTermGoal, Book } from '@/types'; 
 import { useToast } from "@/hooks/use-toast";
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '@/components/ui/skeleton'; 
 import { generateId } from '@/lib/utils';
@@ -52,10 +51,10 @@ export default function SectionNineGoalsPage() {
   const sectionPageDescription = "اهداف بزرگ و کتاب‌های خود را در این بخش تعریف، پیگیری و مدیریت نمایید.";
   const { toast } = useToast();
   
-  const [goals, setGoals, goalsLoading] = useLocalStorageState<LongTermGoal[]>('longTermGoals', []);
+  const [goals, setGoals, goalsLoading] = useFirestore<LongTermGoal[]>('longTermGoals', []);
   const [editingGoal, setEditingGoal] = useState<LongTermGoal | null>(null);
 
-  const [books, setBooks, booksLoading] = useLocalStorageState<Book[]>('userBooksDeeply', []);
+  const [books, setBooks, booksLoading] = useFirestore<Book[]>('userBooksDeeply', []);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
 
   const pageIsLoading = goalsLoading || booksLoading;
@@ -81,19 +80,11 @@ export default function SectionNineGoalsPage() {
   }, [setGoals, editingGoal]); 
 
   const handleDeleteGoal = useCallback((id: string) => {
-    const goalToDelete = goals.find(g => g.id === id);
     setGoals(prevGoals => prevGoals.filter(g => g.id !== id));
-    if (goalToDelete) {
-      toast({
-        title: "هدف حذف شد",
-        description: `هدف "${goalToDelete.title}" حذف شد.`,
-        variant: "destructive",
-      });
-    }
      if (editingGoal?.id === id) {
       setEditingGoal(null);
     }
-  }, [goals, setGoals, toast, editingGoal]);
+  }, [setGoals, editingGoal]);
   
   const handleUpdateGoal = useCallback((id: string, updatedGoalData: Omit<LongTermGoal, 'id' | 'createdAt'>) => {
      setGoals(prevGoals =>
@@ -144,19 +135,11 @@ export default function SectionNineGoalsPage() {
   }, [setBooks]);
 
   const handleDeleteBook = useCallback((bookId: string) => {
-    const bookToDelete = books.find(b => b.id === bookId);
     setBooks(prevBooks => prevBooks.filter(b => b.id !== bookId));
-    if (bookToDelete) {
-      toast({
-        title: "کتاب حذف شد",
-        description: `کتاب "${bookToDelete.title}" حذف شد.`,
-        variant: "destructive",
-      });
-    }
     if (editingBook?.id === bookId) {
       setEditingBook(null);
     }
-  }, [books, setBooks, toast, editingBook]);
+  }, [setBooks, editingBook]);
 
   const handleTriggerEditBook = useCallback((book: Book) => {
     setEditingBook(book);

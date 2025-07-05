@@ -1,20 +1,26 @@
-
 'use client';
 
-import { Brain, Lock } from 'lucide-react';
+import { Brain, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { memo } from 'react';
-import { useLock } from '@/contexts/LockContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from './ui/button';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 const HeaderComponent = () => {
-  const { lock } = useLock();
+  const { logout, user } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLock = () => {
-    lock();
-    router.push('/lock');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/login');
+      toast({ title: "شما با موفقیت خارج شدید." });
+    } catch (error) {
+      toast({ title: "خطا در خروج", description: "مشکلی در فرآیند خروج پیش آمد.", variant: "destructive" });
+    }
   };
 
   return (
@@ -35,9 +41,11 @@ const HeaderComponent = () => {
 
         {/* Left side in RTL */}
         <div className="flex w-10 justify-end"> 
-           <Button variant="ghost" size="icon" onClick={handleLock} title="قفل کردن برنامه">
-               <Lock className="h-5 w-5" />
+          {user && (
+           <Button variant="ghost" size="icon" onClick={handleLogout} title="خروج از حساب">
+               <LogOut className="h-5 w-5" />
            </Button>
+          )}
         </div>
       </div>
     </header>

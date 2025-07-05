@@ -1,11 +1,10 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
-import { LockProvider } from '@/contexts/LockContext';
-import { LockGuard } from '@/components/auth/LockGuard';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 const vazirmatnFont = Vazirmatn({
   subsets: ['arabic', 'latin'],
@@ -29,13 +28,13 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <LockProvider>
+        <AuthProvider>
           <ThemeManager />
-          <LockGuard>
+          <AuthGuard>
             {children}
-          </LockGuard>
+          </AuthGuard>
           <Toaster />
-        </LockProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Header } from '@/components/Header';
@@ -12,7 +11,7 @@ import type { FinancialTransaction, Budget, FinancialAsset, FinancialInvestment,
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { ClientOnly } from '@/components/ClientOnly';
 import { cn, formatCurrency, generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton'; 
@@ -71,11 +70,11 @@ export default function FinancialManagementPage() {
 
   const { toast } = useToast();
   
-  const [transactions, setTransactions, transactionsLoading] = useLocalStorageState<FinancialTransaction[]>('financialTransactions', []);
-  const [budgets, setBudgets, budgetsLoading] = useLocalStorageState<Budget[]>('financialBudgets', []);
-  const [assets, setAssets, assetsLoading] = useLocalStorageState<FinancialAsset[]>('financialAssets', []);
-  const [investments, setInvestments, investmentsLoading] = useLocalStorageState<FinancialInvestment[]>('financialInvestments', []);
-  const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useLocalStorageState<SavingsGoal[]>('financialSavingsGoals', []);
+  const [transactions, setTransactions, transactionsLoading] = useFirestore<FinancialTransaction[]>('financialTransactions', []);
+  const [budgets, setBudgets, budgetsLoading] = useFirestore<Budget[]>('financialBudgets', []);
+  const [assets, setAssets, assetsLoading] = useFirestore<FinancialAsset[]>('financialAssets', []);
+  const [investments, setInvestments, investmentsLoading] = useFirestore<FinancialInvestment[]>('financialInvestments', []);
+  const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useFirestore<SavingsGoal[]>('financialSavingsGoals', []);
 
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [editingAsset, setEditingAsset] = useState<FinancialAsset | null>(null);
@@ -93,24 +92,11 @@ export default function FinancialManagementPage() {
       createdAt: new Date().toISOString(),
     };
     setTransactions(prevTransactions => [newTransaction, ...prevTransactions]);
-    toast({
-      title: "تراکنش ثبت شد",
-      description: `تراکنش "${transactionData.description}" با موفقیت ثبت شد.`,
-      variant: "default",
-    });
-  }, [setTransactions, toast]);
+  }, [setTransactions]);
 
   const handleDeleteTransaction = useCallback((id: string) => {
-    const transactionToDelete = transactions.find(t => t.id === id);
     setTransactions(prevTransactions => prevTransactions.filter(t => t.id !== id));
-    if (transactionToDelete) {
-      toast({
-        title: "تراکنش حذف شد",
-        description: `تراکنش "${transactionToDelete.description}" حذف شد.`,
-        variant: "destructive",
-      });
-    }
-  }, [transactions, setTransactions, toast]);
+  }, [setTransactions]);
   
   const handleSetBudget = useCallback((category: string, amount: number) => {
     setBudgets(prevBudgets => {
@@ -130,27 +116,15 @@ export default function FinancialManagementPage() {
       }
       return prevBudgets;
     });
-    toast({
-      title: editingBudget ? "بودجه ویرایش شد" : "بودجه تنظیم شد",
-      description: `بودجه برای دسته‌بندی "${category}" به مبلغ ${formatCurrency(amount)} تنظیم شد.`,
-    });
     setEditingBudget(null); 
-  }, [setBudgets, toast, editingBudget]);
+  }, [setBudgets, editingBudget]);
 
   const handleDeleteBudget = useCallback((budgetId: string) => { 
-    const budgetToDelete = budgets.find(b => b.id === budgetId);
     setBudgets(prevBudgets => prevBudgets.filter(b => b.id !== budgetId));
-     if (budgetToDelete) {
-        toast({
-        title: "بودجه حذف شد",
-        description: `بودجه برای دسته‌بندی "${budgetToDelete.category}" حذف شد.`,
-        variant: "destructive",
-        });
-    }
      if (editingBudget?.id === budgetId) {
       setEditingBudget(null);
     }
-  }, [budgets, setBudgets, toast, editingBudget]);
+  }, [setBudgets, editingBudget]);
   
   const handleEditBudget = useCallback((budgetToEdit: Budget) => {
     setEditingBudget(budgetToEdit);
@@ -164,7 +138,6 @@ export default function FinancialManagementPage() {
         lastValueUpdate: new Date().toISOString(),
       };
       setAssets(prevAssets => prevAssets.map(a => a.id === editingAsset.id ? updatedAsset : a));
-      toast({ title: "دارایی ویرایش شد", description: `دارایی "${assetData.name}" با موفقیت ویرایش شد.` });
       setEditingAsset(null);
     } else {
       const newAsset: FinancialAsset = {
@@ -174,20 +147,15 @@ export default function FinancialManagementPage() {
         lastValueUpdate: new Date().toISOString(),
       };
       setAssets(prevAssets => [newAsset, ...prevAssets]);
-      toast({ title: "دارایی اضافه شد", description: `دارایی "${assetData.name}" با موفقیت اضافه شد.` });
     }
-  }, [setAssets, toast, editingAsset]);
+  }, [setAssets, editingAsset]);
 
   const handleDeleteAsset = useCallback((id: string) => {
-    const assetToDelete = assets.find(a => a.id === id);
     setAssets(prevAssets => prevAssets.filter(a => a.id !== id));
-    if (assetToDelete) {
-      toast({ title: "دارایی حذف شد", description: `دارایی "${assetToDelete.name}" حذف شد.`, variant: "destructive" });
-    }
     if (editingAsset?.id === id) {
         setEditingAsset(null); 
     }
-  }, [assets, setAssets, toast, editingAsset]);
+  }, [setAssets, editingAsset]);
 
   const handleSaveInvestment = useCallback((investmentData: Omit<FinancialInvestment, 'id' | 'createdAt' | 'lastPriceUpdateDate'>, isEditingExisting: boolean) => {
     const nowISO = new Date().toISOString();
@@ -198,7 +166,6 @@ export default function FinancialManagementPage() {
             lastPriceUpdateDate: nowISO, 
         };
         setInvestments(prevInvestments => prevInvestments.map(i => i.id === editingInvestment.id ? updatedInvestment : i));
-        toast({ title: "سرمایه‌گذاری ویرایش شد", description: `سرمایه‌گذاری "${investmentData.name}" ویرایش شد.` });
         setEditingInvestment(null); 
     } else {
         const newInvestment: FinancialInvestment = {
@@ -208,31 +175,22 @@ export default function FinancialManagementPage() {
             lastPriceUpdateDate: nowISO,
         };
         setInvestments(prevInvestments => [newInvestment, ...prevInvestments]);
-        toast({ title: "سرمایه‌گذاری اضافه شد", description: `سرمایه‌گذاری "${investmentData.name}" اضافه شد.` });
     }
-  }, [setInvestments, toast, editingInvestment]);
+  }, [setInvestments, editingInvestment]);
 
   const handleDeleteInvestment = useCallback((id: string) => {
-    const investmentToDelete = investments.find(i => i.id === id);
     setInvestments(prevInvestments => prevInvestments.filter(i => i.id !== id));
-    if (investmentToDelete) {
-      toast({ title: "سرمایه‌گذاری حذف شد", description: `سرمایه‌گذاری "${investmentToDelete.name}" حذف شد.`, variant: "destructive" });
-    }
     if (editingInvestment?.id === id) {
         setEditingInvestment(null);
     }
-  }, [investments, setInvestments, toast, editingInvestment]);
+  }, [setInvestments, editingInvestment]);
 
   const handleUpdateInvestmentPrice = useCallback(async (investmentId: string) => {
     const investmentToUpdate = investments.find(inv => inv.id === investmentId);
-    if (!investmentToUpdate) {
-      toast({ title: "خطا", description: "سرمایه‌گذاری مورد نظر یافت نشد.", variant: "destructive" });
-      return;
-    }
+    if (!investmentToUpdate) return;
 
     setUpdatingPriceForId(investmentId);
     try {
-      toast({ title: "در حال دریافت قیمت...", description: `درحال شبیه‌سازی دریافت قیمت لحظه‌ای برای "${investmentToUpdate.name}"...` });
       const newPrice = await fetchMockLivePrice(investmentToUpdate.currentPricePerUnit, investmentToUpdate.type);
       
       setInvestments(prevInvestments => 
@@ -242,14 +200,12 @@ export default function FinancialManagementPage() {
             : inv
         )
       );
-      toast({ title: "قیمت به‌روز شد (شبیه‌سازی شده)", description: `قیمت "${investmentToUpdate.name}" به ${formatCurrency(newPrice)} تغییر یافت.` });
     } catch (error) {
       console.error("Error updating mock price:", error);
-      toast({ title: "خطا در به‌روزرسانی قیمت", description: "هنگام شبیه‌سازی دریافت قیمت مشکلی پیش آمد.", variant: "destructive" });
     } finally {
       setUpdatingPriceForId(null);
     }
-  }, [investments, setInvestments, toast]);
+  }, [investments, setInvestments]);
 
 
   const handleSaveSavingsGoal = useCallback((goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'status'>, isEditing: boolean) => {
@@ -261,7 +217,6 @@ export default function FinancialManagementPage() {
         targetDate: goalData.targetDate,
       };
       setSavingsGoals(prevGoals => prevGoals.map(g => g.id === editingSavingsGoal.id ? updatedGoal : g));
-      toast({ title: "هدف پس‌انداز ویرایش شد", description: `هدف "${goalData.name}" با موفقیت ویرایش شد.` });
       setEditingSavingsGoal(null);
     } else {
       const newGoal: SavingsGoal = {
@@ -272,20 +227,15 @@ export default function FinancialManagementPage() {
         createdAt: new Date().toISOString(),
       };
       setSavingsGoals(prevGoals => [newGoal, ...prevGoals]);
-      toast({ title: "هدف پس‌انداز اضافه شد", description: `هدف "${goalData.name}" با موفقیت اضافه شد.` });
     }
-  }, [setSavingsGoals, toast, editingSavingsGoal]);
+  }, [setSavingsGoals, editingSavingsGoal]);
 
   const handleDeleteSavingsGoal = useCallback((id: string) => {
-    const goalToDelete = savingsGoals.find(g => g.id === id);
     setSavingsGoals(prevGoals => prevGoals.filter(g => g.id !== id));
-    if (goalToDelete) {
-      toast({ title: "هدف پس‌انداز حذف شد", description: `هدف "${goalToDelete.name}" حذف شد.`, variant: "destructive" });
-    }
     if (editingSavingsGoal?.id === id) {
       setEditingSavingsGoal(null);
     }
-  }, [savingsGoals, setSavingsGoals, toast, editingSavingsGoal]);
+  }, [setSavingsGoals, editingSavingsGoal]);
 
   const handleAddFundsToSavingsGoal = useCallback((id: string, amount: number) => {
     setSavingsGoals(prevGoals =>
@@ -301,16 +251,13 @@ export default function FinancialManagementPage() {
         return goal;
       })
     );
-    toast({ title: "وجه اضافه شد", description: `مبلغ ${formatCurrency(amount)} به هدف اضافه شد.` });
-  }, [setSavingsGoals, toast]);
+  }, [setSavingsGoals]);
   
   const handleSetSavingsGoalStatus = useCallback((id: string, status: SavingsGoal['status']) => {
      setSavingsGoals(prevGoals =>
       prevGoals.map(goal => goal.id === id ? { ...goal, status } : goal)
     );
-    const statusText = status === 'achieved' ? 'رسیده شده' : status === 'cancelled' ? 'لغو شده' : 'فعال';
-    toast({ title: "وضعیت هدف تغییر کرد", description: `وضعیت هدف به "${statusText}" تغییر یافت.` });
-  }, [setSavingsGoals, toast]);
+  }, [setSavingsGoals]);
 
 
   const summaryData = useMemo(() => {

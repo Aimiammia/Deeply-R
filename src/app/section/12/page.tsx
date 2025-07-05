@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BrainCircuit, Loader2 } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { ClientOnly } from '@/components/ClientOnly';
 import { generateId } from '@/lib/utils';
 import type { KnowledgePage } from '@/types';
@@ -18,7 +17,7 @@ export default function KnowledgeBasePage() {
   const sectionTitle = "پایگاه دانش شخصی";
   const sectionPageDescription = "یادداشت‌ها، خلاصه‌ها و دانش خود را در یک ویکی شخصی سازماندهی و مدیریت کنید.";
   
-  const [pages, setPages, pagesLoading] = useLocalStorageState<KnowledgePage[]>('knowledgeBasePages', []);
+  const [pages, setPages, pagesLoading] = useFirestore<KnowledgePage[]>('knowledgeBasePages', []);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
 
   const handleSelectPage = useCallback((id: string) => {

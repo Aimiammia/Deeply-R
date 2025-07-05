@@ -3,15 +3,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-// This is a simplified version of the hook that only uses localStorage.
-// It is intended for a local-first, offline application without cloud sync.
+// NOTE: This hook is now primarily a fallback. 
+// For cloud-synced data, use the `useFirestore` hook instead.
+// This hook is still used for non-critical, device-specific settings like the theme.
 
 export function useLocalStorageState<T>(key: string, initialValue: T) {
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use a function for useState's initial value to prevent re-running logic on every render.
   const [value, setValue] = useState<T>(() => {
-    // This part now only runs on the client, once.
     if (typeof window === 'undefined') {
       return initialValue;
     }
@@ -24,7 +23,6 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     }
   });
 
-  // This effect runs only once after the component mounts to set loading to false.
   useEffect(() => {
     setIsLoading(false);
   }, []);
@@ -32,9 +30,6 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
   const setStoredValue = useCallback(
     (newValue: T | ((val: T) => T)) => {
       try {
-        // By using the updater function form of `setValue`, we get the latest state
-        // without needing `value` in the dependency array. This makes `setStoredValue`
-        // a stable function, preventing infinite loops in consuming components.
         setValue(prevValue => {
           const valueToStore =
             newValue instanceof Function ? newValue(prevValue) : newValue;
@@ -49,8 +44,6 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
         console.error(`Error setting localStorage key “${key}”:`, error);
       }
     },
-    [key] // Now only depends on `key`, which is stable.
+    [key]
   );
   
-  return [value, setStoredValue, isLoading] as const;
-}

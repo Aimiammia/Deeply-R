@@ -11,7 +11,7 @@ import { ArrowLeft, History, Edit3, BookHeart, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getDailySuccessQuote } from '@/lib/prompts';
 import type { ReflectionEntry } from '@/types';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -30,7 +30,7 @@ export default function ReflectionsPage() {
   const { toast } = useToast();
   const currentPrompt = getDailySuccessQuote();
 
-  const [reflections, setReflections, reflectionsLoading] = useLocalStorageState<ReflectionEntry[]>('dailyReflections', []);
+  const [reflections, setReflections, reflectionsLoading] = useFirestore<ReflectionEntry[]>('dailyReflections', []);
   const [selectedReflection, setSelectedReflection] = useState<ReflectionEntry | null>(null);
   const [isSavingReflection, setIsSavingReflection] = useState(false);
 
@@ -127,6 +127,4 @@ export default function ReflectionsPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
-    </ClientOnly>
-  );
-}
+    

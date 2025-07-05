@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Dumbbell, PlusCircle, ListChecks, Loader2, TimerOff, Calculator } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import type { SportsActivity, ActiveFast, FastingSession } from '@/types';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -73,13 +72,13 @@ export default function SportsPage() {
   const { toast } = useToast();
 
   // State for Sports Activities
-  const [activities, setActivities, activitiesLoading] = useLocalStorageState<SportsActivity[]>('userSportsActivitiesDeeply', []);
+  const [activities, setActivities, activitiesLoading] = useFirestore<SportsActivity[]>('userSportsActivitiesDeeply', []);
   const [editingActivity, setEditingActivity] = useState<SportsActivity | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   // State for Fasting
-  const [activeFast, setActiveFast, activeFastLoading] = useLocalStorageState<ActiveFast | null>('activeFastDeeply', null);
-  const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useLocalStorageState<FastingSession[]>('fastingHistoryDeeply', []);
+  const [activeFast, setActiveFast, activeFastLoading] = useFirestore<ActiveFast | null>('activeFastDeeply', null);
+  const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useFirestore<FastingSession[]>('fastingHistoryDeeply', []);
   
   const pageIsLoading = activitiesLoading || activeFastLoading || fastingSessionsLoading;
 
@@ -103,20 +102,12 @@ export default function SportsPage() {
   }, [setActivities, editingActivity, toast]);
 
   const handleDeleteActivity = useCallback((activityId: string) => {
-    const activityToDelete = activities.find(act => act.id === activityId);
     setActivities(prevActivities => prevActivities.filter(act => act.id !== activityId));
-    if (activityToDelete) {
-      toast({
-        title: "فعالیت ورزشی حذف شد",
-        description: `فعالیت ورزشی مورد نظر حذف شد.`,
-        variant: "destructive",
-      });
-    }
     if (editingActivity?.id === activityId) {
       setEditingActivity(null);
       setShowForm(false);
     }
-  }, [activities, setActivities, toast, editingActivity]);
+  }, [setActivities, editingActivity]);
   
   const handleTriggerEdit = (activity: SportsActivity) => {
     setEditingActivity(activity);
@@ -159,12 +150,8 @@ export default function SportsPage() {
   }, [activeFast, setActiveFast, setFastingSessions, toast]);
   
   const handleDeleteFastSession = useCallback((sessionId: string) => {
-    const sessionToDelete = fastingSessions.find(s => s.id === sessionId);
     setFastingSessions(prev => prev.filter(s => s.id !== sessionId));
-    if (sessionToDelete) {
-        toast({ title: "جلسه فستینگ حذف شد", variant: "destructive"});
-    }
-  }, [fastingSessions, setFastingSessions, toast]);
+  }, [setFastingSessions]);
 
 
   return (

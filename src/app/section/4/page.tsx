@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarDays, Loader2 } from 'lucide-react'; 
 import { getJalaliToday } from '@/lib/calendar-helpers';
 import { Skeleton } from '@/components/ui/skeleton'; 
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 
 const DynamicPersianCalendarView = dynamic(() => 
   import('@/components/calendar/PersianCalendarView').then(mod => mod.PersianCalendarView),
@@ -75,6 +75,3 @@ export default function CalendarPage() {
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
-    </div>
-  );
-}

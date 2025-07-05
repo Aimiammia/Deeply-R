@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, CopyPlus, Edit3, ListChecks, PlusCircle, Save, Trash2, X } from 'lucide-react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 import { useToast } from '@/hooks/use-toast';
 import type { ProjectTemplate, TemplateTask } from '@/types';
 import { generateId } from '@/lib/utils';
@@ -23,7 +23,7 @@ export default function TemplatesPage() {
     const sectionPageDescription = "برای پروژه‌های تکراری خود قالب بسازید تا با یک کلیک بتوانید آن‌ها را ایجاد کنید.";
 
     const { toast } = useToast();
-    const [templates, setTemplates, templatesLoading] = useLocalStorageState<ProjectTemplate[]>('projectTemplates', []);
+    const [templates, setTemplates, templatesLoading] = useFirestore<ProjectTemplate[]>('projectTemplates', []);
     const [editingTemplate, setEditingTemplate] = useState<ProjectTemplate | null>(null);
 
     // Form state
@@ -149,71 +149,4 @@ export default function TemplatesPage() {
                                         </div>
                                         <div className="flex gap-2 mt-2">
                                             <Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} placeholder="عنوان وظیفه جدید" onKeyDown={e => {if(e.key === 'Enter'){ e.preventDefault(); handleAddTask();}}}/>
-                                            <Button type="button" variant="outline" onClick={handleAddTask}><PlusCircle className="h-4 w-4" /></Button>
-                                        </div>
-                                    </div>
-                                    <Button type="submit" className="w-full">
-                                        <Save className="mr-2 h-4 w-4" />
-                                        {isEditing ? 'ذخیره تغییرات' : 'ذخیره قالب'}
-                                    </Button>
-                                </form>
-                            </CardContent>
-                        </Card>
-                        
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>قالب‌های شما</CardTitle>
-                                <CardDescription>لیست قالب‌های ذخیره شده.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {templatesLoading ? <Loader2 className="animate-spin" /> : (
-                                    templates.length > 0 ? (
-                                        <ul className="space-y-3">
-                                            {templates.map(template => (
-                                                <li key={template.id} className="p-3 border rounded-md flex justify-between items-center bg-card hover:bg-muted/50">
-                                                    <div>
-                                                        <p className="font-semibold">{template.name}</p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {template.tasks.length.toLocaleString('fa-IR')} وظیفه
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex gap-1">
-                                                        <Button variant="ghost" size="icon" onClick={() => setEditingTemplate(template)}>
-                                                            <Edit3 className="h-4 w-4 text-blue-500" />
-                                                        </Button>
-                                                        <AlertDialog>
-                                                          <AlertDialogTrigger asChild>
-                                                            <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                                          </AlertDialogTrigger>
-                                                          <AlertDialogContent dir="rtl">
-                                                              <AlertDialogHeader>
-                                                                  <AlertDialogTitle>تایید حذف قالب</AlertDialogTitle>
-                                                                  <AlertDialogDescription>
-                                                                  آیا از حذف قالب "{template.name}" مطمئن هستید؟ این عمل قابل بازگشت نیست.
-                                                                  </AlertDialogDescription>
-                                                              </AlertDialogHeader>
-                                                              <AlertDialogFooter>
-                                                                  <AlertDialogCancel>لغو</AlertDialogCancel>
-                                                                  <AlertDialogAction onClick={() => handleDeleteTemplate(template.id)} variant="destructive">حذف</AlertDialogAction>
-                                                              </AlertDialogFooter>
-                                                          </AlertDialogContent>
-                                                        </AlertDialog>
-                                                    </div>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="text-center text-muted-foreground p-4">هنوز قالبی نساخته‌اید.</p>
-                                    )
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                </main>
-                 <footer className="text-center py-4 text-sm text-muted-foreground mt-8">
-                    <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-                </footer>
-            </div>
-        </ClientOnly>
-    );
-}
+                                            <Button type="button" variant="outline" onClick={handleAddT
