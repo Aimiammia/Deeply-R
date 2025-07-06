@@ -10,7 +10,10 @@ import { ArrowLeft, Download, Upload, AlertTriangle, Loader2, Settings, Palette 
 import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
+import { Switch } from "@/components/ui/switch"; // Added Switch
+import { Label } from "@/components/ui/label"; // Added Label
 import { useColorTheme } from '@/components/ThemeManager';
+import { useDashboardSettings } from '@/hooks/useDashboardSettings'; // Added useDashboardSettings
 import { cn } from '@/lib/utils';
 import { ClientOnly } from '@/components/ClientOnly';
 
@@ -47,6 +50,7 @@ export default function SettingsPage() {
     const [restoreFile, setRestoreFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [colorTheme, setColorTheme, isThemeLoading] = useColorTheme();
+    const { configuredSections, setSectionVisibility, isLoadingSettings: isLoadingDashboardSettings } = useDashboardSettings();
 
     const handleBackup = useCallback(() => {
         try {
@@ -221,6 +225,37 @@ export default function SettingsPage() {
                                     قرمز تیره (Crimson)
                                 </Button>
                                 </div>
+                            </ClientOnly>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center"><Settings className="ml-2 h-5 w-5 rtl:mr-2 rtl:ml-0" />سفارشی‌سازی بخش‌های داشبورد</CardTitle>
+                            <CardDescription>انتخاب کنید کدام بخش‌ها در صفحه اصلی (داشبورد) نمایش داده شوند.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ClientOnly fallback={<div className="flex justify-center"><Loader2 className="animate-spin"/></div>}>
+                                {isLoadingDashboardSettings ? (
+                                    <div className="flex justify-center"><Loader2 className="animate-spin"/></div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {configuredSections.map(section => (
+                                            <div key={section.key} className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                                                <Label htmlFor={`switch-${section.key}`} className="text-base">
+                                                    {section.title}
+                                                </Label>
+                                                <Switch
+                                                    id={`switch-${section.key}`}
+                                                    checked={section.isVisible}
+                                                    onCheckedChange={(checked) => {
+                                                        setSectionVisibility(section.key, checked);
+                                                    }}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </ClientOnly>
                         </CardContent>
                     </Card>
