@@ -23,13 +23,11 @@ import {
   Home,
   type LucideIcon
 } from 'lucide-react';
-// Removed Button and ArrowLeft as they are not used here.
-// import { Button } from '@/components/ui/button';
-// import { ArrowLeft } from 'lucide-react'; // No longer used
-import { useDashboardSettings } from '@/hooks/useDashboardSettings'; // Added
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 
-export interface Section { // Exporting Section interface
+interface Section {
   key: string;
   link: string;
   icon: LucideIcon;
@@ -38,10 +36,7 @@ export interface Section { // Exporting Section interface
   content: string;
 }
 
-// The actual 'sections' constant is now primarily managed and augmented by the useDashboardSettings hook.
-// We keep the original data structure definition here for clarity and potential direct import if needed elsewhere,
-// but the page itself will use the hook's output.
-export const sections: Section[] = [
+const sections: Section[] = [
     {
         key: 'home',
         link: '/sections',
@@ -182,11 +177,6 @@ export const sections: Section[] = [
 
 
 export default function SectionsPage() {
-  const { configuredSections, isLoadingSettings } = useDashboardSettings();
-
-  // Filter sections based on visibility. While loading, configuredSections defaults to all visible.
-  const visibleSections = configuredSections.filter(section => section.isVisible);
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -201,67 +191,38 @@ export default function SectionsPage() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoadingSettings ? (
-            // Show skeleton loaders while settings are loading
-            Array.from({ length: 6 }).map((_, index) => (
-              <Card key={`skeleton-${index}`} className="h-full bg-card/50 backdrop-blur-sm border-border/20 opacity-50">
-                <CardHeader className="p-4">
-                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <div className="bg-primary/10 p-3 rounded-full w-12 h-12 animate-pulse"></div>
-                    <div className="space-y-1">
-                        <div className="h-5 bg-muted rounded w-32 animate-pulse"></div>
-                        <div className="h-3 bg-muted rounded w-48 animate-pulse"></div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 pt-0 space-y-1">
-                  <div className="h-3 bg-muted rounded w-full animate-pulse"></div>
-                  <div className="h-3 bg-muted rounded w-5/6 animate-pulse"></div>
-                </CardContent>
-              </Card>
-            ))
-          ) : visibleSections.length > 0 ? (
-            visibleSections.map((section, index) => {
-              const IconComponent = section.icon;
-              return (
-                <Link
-                  href={section.link}
-                  key={section.key}
-                  className="group block rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background opacity-0 animate-fade-in-up"
-                  style={{ animationDelay: `${index * 75}ms` }}
-                >
-                  <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50">
-                    <CardHeader className="flex-shrink-0 p-4">
-                      <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                        <div className="bg-primary/10 p-2 rounded-full">
-                          <IconComponent className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
-                        </div>
-                        <CardTitle className="text-lg font-headline font-semibold text-foreground">
-                          {section.title}
-                        </CardTitle>
+          {sections.map((section, index) => {
+            const IconComponent = section.icon;
+            return (
+              <Link
+                href={section.link}
+                key={section.key}
+                className="group block rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${index * 75}ms` }}
+              >
+                <Card className="h-full transform-gpu transition-all duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl hover:shadow-primary/20 bg-card/50 backdrop-blur-sm border-border/20 hover:border-primary/50">
+                  <CardHeader className="flex-shrink-0 p-4">
+                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                      <div className="bg-primary/10 p-2 rounded-full">
+                        <IconComponent className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
                       </div>
-                      <CardDescription className="text-sm text-muted-foreground pt-1">
-                        {section.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow p-4 pt-0 text-sm text-foreground/90">
-                      <p>
-                        {section.content}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <BrainCircuit className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">داشبورد شما خالی است</h3>
-              <p className="text-muted-foreground mb-4">
-                به نظر می‌رسد تمام بخش‌ها مخفی شده‌اند. می‌توانید از بخش <Link href="/section/settings" className="text-primary hover:underline">تنظیمات</Link> بخش‌های مورد نظر خود را فعال کنید.
-              </p>
-            </div>
-          )}
+                      <CardTitle className="text-lg font-headline font-semibold text-foreground">
+                        {section.title}
+                      </CardTitle>
+                    </div>
+                    <CardDescription className="text-sm text-muted-foreground pt-1">
+                      {section.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow p-4 pt-0 text-sm text-foreground/90">
+                    <p>
+                      {section.content}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </main>
       <footer className="text-center py-6 mt-8 border-t border-border/10 text-sm text-muted-foreground">
