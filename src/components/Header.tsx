@@ -1,23 +1,23 @@
 
 'use client';
 
-import { Brain, LogOut, Lock, Unlock } from 'lucide-react';
+import { Brain, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { memo } from 'react';
-import { useLock } from '@/contexts/LockContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from './ui/button';
 
 const HeaderComponent = () => {
-  const { lock, isUnlocked } = useLock();
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 flex h-14 items-center justify-between">
         
         <div className="flex w-10 justify-start">
-           {isUnlocked && (
-            <Button variant="ghost" size="icon" onClick={lock} title="قفل کردن برنامه">
-               <Lock className="h-5 w-5" />
+           {user && (
+            <Button variant="ghost" size="icon" onClick={logout} title="خروج از حساب کاربری">
+               <LogOut className="h-5 w-5" />
             </Button>
            )}
         </div>
