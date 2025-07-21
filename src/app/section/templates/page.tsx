@@ -149,4 +149,70 @@ export default function TemplatesPage() {
                                         </div>
                                         <div className="flex gap-2 mt-2">
                                             <Input value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} placeholder="عنوان وظیفه جدید" onKeyDown={e => {if(e.key === 'Enter'){ e.preventDefault(); handleAddTask();}}}/>
-                                            <Button type="button" variant="outline" onClick={handleAddT
+                                            <Button type="button" variant="outline" onClick={handleAddTask}>افزودن</Button>
+                                        </div>
+                                    </div>
+                                    <Button type="submit" className="w-full">
+                                        <Save className="mr-2 h-4 w-4" />
+                                        {isEditing ? 'ذخیره تغییرات' : 'ذخیره قالب'}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                        
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>قالب‌های موجود</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {templatesLoading ? <Loader2 className="animate-spin" /> : (
+                                    templates.length > 0 ? (
+                                        <ul className="space-y-3">
+                                            {templates.map(template => (
+                                                <li key={template.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                                                    <div>
+                                                        <p className="font-semibold">{template.name}</p>
+                                                        <p className="text-xs text-muted-foreground">{template.tasks.length.toLocaleString('fa-IR')} وظیفه</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <Button variant="ghost" size="icon" onClick={() => setEditingTemplate(template)}>
+                                                            <Edit3 className="h-4 w-4 text-blue-500" />
+                                                        </Button>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button variant="ghost" size="icon">
+                                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent dir="rtl">
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>تایید حذف قالب</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        آیا از حذف قالب "{template.name}" مطمئن هستید؟
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>لغو</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleDeleteTemplate(template.id)} variant="destructive">حذف</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-center text-muted-foreground py-4">هنوز قالبی ایجاد نشده است.</p>
+                                    )
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </main>
+                <footer className="text-center py-4 text-sm text-muted-foreground mt-8">
+                    <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+                </footer>
+            </div>
+        </ClientOnly>
+    );
+}
