@@ -127,4 +127,6 @@ export default function ReflectionsPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
-    
+    </ClientOnly>
+  );
+}
