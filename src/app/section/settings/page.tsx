@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
@@ -9,17 +10,15 @@ import { ArrowLeft, Loader2, Settings, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { useColorTheme } from '@/components/ThemeManager';
 import { ClientOnly } from '@/components/ClientOnly';
-import { useAuth } from '@/contexts/AuthContext';
+import { useLock } from '@/contexts/LockContext';
 
 
 export default function SettingsPage() {
     const { toast } = useToast();
-    const { isFirebaseConfigured } = useAuth();
     const [colorTheme, setColorTheme] = useColorTheme();
 
     // The backup and restore functionality is removed as it's not compatible
-    // with the Firestore cloud-based model. Data is now automatically backed up
-    // and synced to the cloud for authenticated users.
+    // with the local password model. Data is now automatically stored in localStorage.
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -51,22 +50,22 @@ export default function SettingsPage() {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                 <Button variant={colorTheme === 'default' ? 'default' : 'outline'} onClick={() => setColorTheme('default')} className="h-auto p-4 flex flex-col gap-2">
                                     <div className="flex gap-1">
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(217,91%,60%)] border-2 border-background shadow-md"></div>
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(222,47%,11%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(220,90%,55%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(0,0%,10%)] border-2 border-background shadow-md"></div>
                                     </div>
                                     پیش‌فرض (آبی)
                                 </Button>
                                 <Button variant={colorTheme === 'theme-jungle' ? 'default' : 'outline'} onClick={() => setColorTheme('theme-jungle')} className="h-auto p-4 flex flex-col gap-2">
                                     <div className="flex gap-1">
                                         <div className="w-6 h-6 rounded-full bg-[hsl(142,76%,36%)] border-2 border-background shadow-md"></div>
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(142,50%,10%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(142,40%,17%)] border-2 border-background shadow-md"></div>
                                     </div>
                                     جنگل (سبز)
                                 </Button>
                                  <Button variant={colorTheme === 'theme-crimson' ? 'default' : 'outline'} onClick={() => setColorTheme('theme-crimson')} className="h-auto p-4 flex flex-col gap-2">
                                     <div className="flex gap-1">
                                         <div className="w-6 h-6 rounded-full bg-[hsl(350,80%,55%)] border-2 border-background shadow-md"></div>
-                                        <div className="w-6 h-6 rounded-full bg-[hsl(0,10%,8%)] border-2 border-background shadow-md"></div>
+                                        <div className="w-6 h-6 rounded-full bg-[hsl(0,15%,15%)] border-2 border-background shadow-md"></div>
                                     </div>
                                     قرمز تیره (Crimson)
                                 </Button>
@@ -75,22 +74,19 @@ export default function SettingsPage() {
                         </CardContent>
                     </Card>
 
-                    {isFirebaseConfigured && (
-                         <Card>
-                            <CardHeader>
-                                <CardTitle>همگام‌سازی ابری</CardTitle>
-                                <CardDescription>
-                                    داده‌های شما به صورت خودکار و امن در حساب کاربری شما ذخیره و همگام‌سازی می‌شود. نیازی به پشتیبان‌گیری دستی نیست.
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                    )}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>پشتیبان‌گیری و بازیابی</CardTitle>
+                            <CardDescription>
+                                تمام اطلاعات شما در حافظه محلی (LocalStorage) مرورگرتان ذخیره می‌شود. در این نسخه، پشتیبان‌گیری دستی غیرفعال است.
+                            </CardDescription>
+                        </CardHeader>
+                    </Card>
                 </div>
             </main>
              <footer className="text-center py-4 text-sm text-muted-foreground">
                 <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
             </footer>
         </div>
-        </>
     );
 }
