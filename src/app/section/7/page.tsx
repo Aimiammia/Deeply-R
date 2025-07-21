@@ -599,4 +599,8 @@ export default function EducationPage() {
         </div>
       </main>
       <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()}
+        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+}
