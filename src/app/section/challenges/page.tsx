@@ -150,4 +150,9 @@ export default function ChallengesPage() {
                     </div>
                 </main>
                  <footer className="text-center py-4 text-sm text-muted-foreground mt-8">
-                    <p>&copy; {new Date().getFullYear()} Deeply. All
+                    <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+                </footer>
+            </div>
+        </ClientOnly>
+    );
+}
