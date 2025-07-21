@@ -75,3 +75,6 @@ export default function CalendarPage() {
       <footer className="text-center py-4 text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
+    </div>
+    );
+}

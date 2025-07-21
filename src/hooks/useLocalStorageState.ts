@@ -1,11 +1,10 @@
+// This hook is deprecated. Please use useFirestore for all application state
+// to ensure data is synced across devices. This file is kept to prevent
+// build errors from any lingering imports but should not be used for new features.
 
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-
-// NOTE: This hook is now primarily a fallback. 
-// For cloud-synced data, use the `useFirestore` hook instead.
-// This hook is still used for non-critical, device-specific settings like the theme.
 
 export function useLocalStorageState<T>(key: string, initialValue: T) {
   const [isLoading, setIsLoading] = useState(true);

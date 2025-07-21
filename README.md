@@ -1,13 +1,13 @@
 # Firebase Studio - Deeply App
 
-This is a NextJS starter application for "Deeply", a personal organization and reflection app, built in Firebase Studio.
+This is a Next.js application for "Deeply", a personal organization and reflection app, built in Firebase Studio.
 
-To get started, take a look at `src/app/page.tsx`.
+This version uses **Firebase Authentication** for user accounts and **Cloud Firestore** for real-time data synchronization across devices.
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
-*   **Node.js**: **Version 18.x or later is strongly recommended.** You can download it from [https://nodejs.org/](https://nodejs.org/). The application uses `crypto.randomUUID()` which is generally available in Node.js v16.7.0+ and modern browsers, but v18+ ensures better compatibility with the overall Next.js ecosystem.
+*   **Node.js**: **Version 18.x or later is strongly recommended.** You can download it from [https://nodejs.org/](https://nodejs.org/).
 *   **npm** (comes with Node.js) or **Yarn** (optional).
 
 ## Getting Started Locally
@@ -22,59 +22,57 @@ Follow these steps to run the application on your local machine:
     ```bash
     npm install
     ```
-    Or, if you prefer Yarn:
-    ```bash
-    yarn install
-    ```
-    This command will install all the necessary packages defined in `package.json`.
 
-3.  **Set Up Environment Variables:**
+3.  **Set Up Environment Variables (`.env.local`):**
+    *   This application requires a Firebase project to handle user authentication and cloud data storage.
     *   Create a new file named `.env.local` in the root directory of the project (next to `package.json`).
-    *   The application uses Genkit for AI features, which requires a Google AI API key. Add your API key to the `.env.local` file:
+    *   **Copy the contents of the `.env` file** into your new `.env.local` file.
+    *   **Fill in the values** for your Firebase project. You can find these values in your Firebase project settings under "General" -> "Your apps" -> "SDK setup and configuration".
         ```env
         # .env.local
-        GOOGLE_API_KEY=YOUR_GOOGLE_AI_API_KEY_HERE
-        ```
-        Replace `YOUR_GOOGLE_AI_API_KEY_HERE` with your actual Google AI API key. If you don't have one, AI-powered features may not work correctly or might cause errors. You can obtain a key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-    *   **Note:** The `.env.local` file is ignored by Git (if you are using version control) and should not be committed. If you don't provide an API key, the application will still run, but AI-related features will likely fail or produce warnings.
+        NEXT_PUBLIC_FIREBASE_API_KEY=YOUR_KEY_HERE
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=YOUR_DOMAIN_HERE
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID_HERE
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=YOUR_BUCKET_HERE
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=YOUR_SENDER_ID_HERE
+        NEXT_PUBLIC_FIREBASE_APP_ID=YOUR_APP_ID_HERE
 
-4.  **Run the Next.js Development Server:**
-    To start the main application, run the following command in your terminal:
+        # You can optionally add a Google AI API key for Genkit features
+        GOOGLE_API_KEY=
+        ```
+    *   **Important:** Without these Firebase credentials, user login, registration, and data synchronization will **not** work.
+
+4.  **Set Up Firebase:**
+    *   Go to the [Firebase Console](https://console.firebase.google.com/).
+    *   Create a new project (or use an existing one).
+    *   In the project dashboard, go to **Authentication** (in the Build menu). Click "Get started" and enable the **Email/Password** sign-in provider.
+    *   Go to **Cloud Firestore** (in the Build menu). Click "Create database", start in **production mode**, and choose a location.
+    *   In the Firestore data view, go to the **Rules** tab and paste the following rules. This ensures that users can only read and write their own data. Click **Publish**.
+        ```
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            // Users can only read/write their own data, stored under /users/{userId}
+            match /users/{userId}/{document=**} {
+              allow read, write: if request.auth != null && request.auth.uid == userId;
+            }
+          }
+        }
+        ```
+
+5.  **Run the Next.js Development Server:**
+    To start the application, run the following command in your terminal:
     ```bash
     npm run dev
     ```
-    Or, with Yarn:
-    ```bash
-    yarn dev
-    ```
-    This will start the Next.js development server, typically on `http://localhost:9002` (as configured in `package.json`). Open this URL in your browser to see the application.
-
-5.  **Run the Genkit Development Server (Optional, for AI development/testing):**
-    If you intend to work on or test the Genkit AI flows independently, you'll need to run the Genkit development server.
-    *   Open a **new terminal window/tab**.
-    *   Navigate to the project's root directory.
-    *   Run:
-        ```bash
-        npm run genkit:dev
-        ```
-        Or, for automatic reloading when AI flow files change:
-        ```bash
-        npm run genkit:watch
-        ```
-    *   The Genkit development server usually starts on `http://localhost:4000`, and its developer UI can be accessed at `http://localhost:4000/flows`.
+    This will start the Next.js development server, typically on `http://localhost:9002`. Open this URL in your browser to see the application. You should be redirected to the login page.
 
 ## Available Scripts
 
 In the `package.json`, you'll find several scripts:
 
 *   `npm run dev`: Starts the Next.js application in development mode.
-*   `npm run genkit:dev`: Starts the Genkit development server.
-*   `npm run genkit:watch`: Starts the Genkit development server in watch mode.
 *   `npm run build`: Builds the Next.js application for production.
 *   `npm run start`: Starts a Next.js production server (after running `build`).
 *   `npm run lint`: Runs ESLint to check for code quality issues.
 *   `npm run typecheck`: Runs TypeScript compiler to check for type errors.
-
-Now you should be all set to run and develop the application locally! If you encounter issues, ensure your Node.js version is up to date (18.x or later) and that you have correctly set up the `.env.local` file if you're using AI features.
-# Deeply-R
-# Deeply-R

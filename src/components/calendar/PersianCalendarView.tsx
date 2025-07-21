@@ -26,7 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { format as formatGregorian, parseISO as parseISOGregorian } from 'date-fns';
 import { faIR as faIRLocale } from 'date-fns/locale';
 import { generateId } from '@/lib/utils';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useFirestore } from '@/hooks/useFirestore';
 
 
 interface PersianCalendarViewProps {
@@ -42,8 +42,8 @@ export function PersianCalendarView({ initialYear, initialMonth }: PersianCalend
   const [daysInMonthArray, setDaysInMonthArray] = useState<number[]>([]);
   const [firstDayOfWeekIndex, setFirstDayOfWeekIndex] = useState(0);
 
-  const [birthdays, setBirthdays, birthdaysLoading] = useLocalStorageState<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
-  const [events, setEvents, eventsLoading] = useLocalStorageState<CalendarEvent[]>('calendarEventsDeeply', []);
+  const [birthdays, setBirthdays, birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
+  const [events, setEvents, eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
 
   const [showAddBirthdayForm, setShowAddBirthdayForm] = useState(false);
   const [newBirthdayName, setNewBirthdayName] = useState('');
