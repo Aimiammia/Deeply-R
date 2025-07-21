@@ -46,4 +46,6 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     },
     [key]
   );
-  
+
+  return [value, setStoredValue, isLoading] as const;
+}
