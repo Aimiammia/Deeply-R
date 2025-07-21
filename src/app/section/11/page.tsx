@@ -279,4 +279,11 @@ export default function ProjectsPage() {
                     {(!templatesLoading && templates.length === 0) && (
                         <p className="text-center text-muted-foreground p-4">
                             هیچ قالبی برای استفاده وجود ندارد. ابتدا از بخش «مدیریت قالب‌ها» یک قالب بسازید.
-                        </p
+                        </p>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
+    </ClientOnly>
+  );
+}
