@@ -112,4 +112,10 @@ export default function LoginPage() {
                 <Link href="/signup" className="underline text-primary">
                     ثبت‌نام کنید
                 </Link>
-            </p
+            </p>
+            </CardContent>
+          </form>
+        </Card>
+      </div>
+    );
+}
