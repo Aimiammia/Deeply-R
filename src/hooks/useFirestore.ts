@@ -1,80 +1,50 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { db } from '@/lib/firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
-// This hook replaces useLocalStorageState to sync data with Firestore
-// for the currently authenticated user.
+// This hook has been deprecated in favor of a local-first architecture.
+// It is now an alias for useLocalStorageState to maintain compatibility
+// with existing components while the transition is finalized.
 
-export function useFirestore<T>(collectionKey: string, initialValue: T) {
-  const { user, isFirebaseConfigured } = useAuth();
-  const [data, setData] = useState<T>(initialValue);
+export function useFirestore<T>(key: string, initialValue: T) {
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fallback to localStorage if Firebase is not configured or user is not logged in
-  useEffect(() => {
-    if (!isFirebaseConfigured) {
-        const item = window.localStorage.getItem(collectionKey);
-        if (item) {
-            setData(JSON.parse(item));
-        }
-        setIsLoading(false);
+  const [value, setValue] = useState<T>(() => {
+    if (typeof window === 'undefined') {
+      return initialValue;
     }
-  }, [isFirebaseConfigured, collectionKey]);
-
-  // Firestore effect
-  useEffect(() => {
-    if (!user || !isFirebaseConfigured || !db) {
-      if (!isFirebaseConfigured) {
-          // Already handled by the other effect
-      } else {
-        setIsLoading(false);
-      }
-      return;
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(`Error reading localStorage key “${key}”:`, error);
+      return initialValue;
     }
-    
-    setIsLoading(true);
-    // Path: userData/{userId}/appData/{collectionKey}
-    const docRef = doc(db, 'userData', user.uid, 'appData', collectionKey);
+  });
 
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setData(docSnap.data().value);
-      } else {
-        // Doc doesn't exist for this user, set it with initialValue
-        setData(initialValue);
-        setDoc(docRef, { value: initialValue }).catch(e => console.error("Error creating initial Firestore doc", e));
-      }
-      setIsLoading(false);
-    }, (error) => {
-      console.error(`Firestore snapshot error for ${collectionKey}:`, error);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-    
-  }, [user, collectionKey, initialValue, isFirebaseConfigured]);
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   const setStoredValue = useCallback(
     (newValue: T | ((val: T) => T)) => {
-      const valueToStore = newValue instanceof Function ? newValue(data) : newValue;
-      setData(valueToStore); // Optimistic update
-
-      if (user && isFirebaseConfigured && db) {
-        const docRef = doc(db, 'userData', user.uid, 'appData', collectionKey);
-        setDoc(docRef, { value: valueToStore }).catch(error => {
-          console.error(`Error setting Firestore document for ${collectionKey}:`, error);
-          // Here you might want to add a toast or revert the optimistic update
+      try {
+        setValue(prevValue => {
+          const valueToStore =
+            newValue instanceof Function ? newValue(prevValue) : newValue;
+          
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          }
+          
+          return valueToStore;
         });
-      } else if (!isFirebaseConfigured) {
-        // Fallback to localStorage if Firebase is not set up
-        window.localStorage.setItem(collectionKey, JSON.stringify(valueToStore));
+      } catch (error) {
+        console.error(`Error setting localStorage key “${key}”:`, error);
       }
     },
-    [data, user, isFirebaseConfigured, collectionKey]
+    [key]
   );
-  
-  return [data, setStoredValue, isLoading] as const;
+
+  return [value, setStoredValue, isLoading] as const;
 }
