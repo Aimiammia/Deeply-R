@@ -6,19 +6,117 @@ import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Loader2, Settings, Palette } from 'lucide-react';
+import { ArrowLeft, Loader2, Settings, Palette, Download, Upload, AlertTriangle, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useColorTheme } from '@/components/ThemeManager';
 import { ClientOnly } from '@/components/ClientOnly';
-import { useLock } from '@/contexts/LockContext';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
     const { toast } = useToast();
     const [colorTheme, setColorTheme] = useColorTheme();
+    const [isExporting, setIsExporting] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
+    const [showImportConfirm, setShowImportConfirm] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [fileToImport, setFileToImport] = useState<File | null>(null);
 
-    // The backup and restore functionality is removed as it's not compatible
-    // with the local password model. Data is now automatically stored in localStorage.
+    const handleExport = useCallback(() => {
+        setIsExporting(true);
+        try {
+            const dataToExport: { [key: string]: any } = {};
+            // Assuming your local API keys are stored with a specific prefix,
+            // or you can explicitly list them. For now, we'll try to find keys.
+            // This logic might need adjustment based on final keys used in useFirestore.
+            const keysToExport = Object.keys(localStorage);
+            
+            keysToExport.forEach(key => {
+                 // A simple check to see if it's likely our data, might need refinement
+                if (key.includes('Deeply')) {
+                    dataToExport[key] = JSON.parse(localStorage.getItem(key)!);
+                }
+            });
+
+            const jsonString = JSON.stringify(dataToExport, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `deeply-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            toast({ title: 'موفقیت‌آمیز', description: 'فایل پشتیبان با موفقیت دانلود شد.' });
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            toast({ title: 'خطا', description: 'خطایی در هنگام تهیه فایل پشتیبان رخ داد.', variant: 'destructive' });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [toast]);
+
+    const handleImportTrigger = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && file.type === 'application/json') {
+            setFileToImport(file);
+            setShowImportConfirm(true);
+        } else {
+            toast({ title: 'فایل نامعتبر', description: 'لطفاً یک فایل پشتیبان با فرمت .json انتخاب کنید.', variant: 'destructive' });
+        }
+        event.target.value = ''; // Reset file input
+    };
+
+    const handleImportConfirm = () => {
+        if (!fileToImport) return;
+        
+        setIsImporting(true);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target?.result;
+                if (typeof text !== 'string') {
+                    throw new Error("File content is not text.");
+                }
+                const data = JSON.parse(text);
+                if (typeof data !== 'object' || data === null) {
+                    throw new Error("Invalid JSON structure.");
+                }
+
+                Object.keys(data).forEach(key => {
+                     localStorage.setItem(key, JSON.stringify(data[key]));
+                });
+                
+                toast({ title: 'موفقیت‌آمیز', description: 'اطلاعات با موفقیت بازیابی شد. لطفاً صفحه را رفرش کنید تا تغییرات اعمال شود.' });
+            } catch (error) {
+                console.error('Error importing data:', error);
+                toast({ title: 'خطا در بازیابی', description: 'فایل پشتیبان نامعتبر است یا در خواندن آن مشکلی پیش آمد.', variant: 'destructive' });
+            } finally {
+                setIsImporting(false);
+                setShowImportConfirm(false);
+                setFileToImport(null);
+            }
+        };
+        reader.onerror = () => {
+            toast({ title: 'خطا', description: 'خطایی در هنگام خواندن فایل رخ داد.', variant: 'destructive' });
+            setIsImporting(false);
+        };
+        reader.readAsText(fileToImport);
+    };
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -36,7 +134,7 @@ export default function SettingsPage() {
                         <h1 className="text-3xl font-bold text-primary">تنظیمات</h1>
                     </div>
                     <p className="text-lg text-muted-foreground">
-                        مدیریت پوسته و سایر تنظیمات برنامه.
+                        مدیریت پوسته و داده‌های برنامه.
                     </p>
                 </div>
                 <div className="space-y-8">
@@ -78,15 +176,48 @@ export default function SettingsPage() {
                         <CardHeader>
                             <CardTitle>پشتیبان‌گیری و بازیابی</CardTitle>
                             <CardDescription>
-                                تمام اطلاعات شما در حافظه محلی (LocalStorage) مرورگرتان ذخیره می‌شود. در این نسخه، پشتیبان‌گیری دستی غیرفعال است.
+                                از اطلاعات خود که در این مرورگر ذخیره شده، یک فایل پشتیبان JSON تهیه کنید یا فایل پشتیبان قبلی را بازیابی نمایید.
+                                <br/>
+                                <strong className="text-destructive">توجه:</strong> بازیابی اطلاعات، تمام اطلاعات فعلی شما را بازنویسی خواهد کرد.
                             </CardDescription>
                         </CardHeader>
+                        <CardContent className="flex flex-col sm:flex-row gap-4">
+                            <Button onClick={handleExport} disabled={isExporting} className="w-full sm:w-auto">
+                                {isExporting ? <Loader2 className="animate-spin ml-2"/> : <Download className="ml-2 h-4 w-4" />}
+                                تهیه فایل پشتیبان (Export)
+                            </Button>
+                            <Button onClick={handleImportTrigger} disabled={isImporting} variant="outline" className="w-full sm:w-auto">
+                                {isImporting ? <Loader2 className="animate-spin ml-2"/> : <Upload className="ml-2 h-4 w-4" />}
+                                بازیابی از فایل (Import)
+                            </Button>
+                            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" />
+                        </CardContent>
                     </Card>
                 </div>
             </main>
              <footer className="text-center py-4 text-sm text-muted-foreground">
                 <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
             </footer>
+
+            <AlertDialog open={showImportConfirm} onOpenChange={setShowImportConfirm}>
+                <AlertDialogContent dir="rtl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>تایید بازیابی اطلاعات</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            آیا مطمئن هستید که می‌خواهید اطلاعات را از فایل <span className="font-mono text-primary">{fileToImport?.name}</span> بازیابی کنید؟
+                            <br/>
+                            <strong className="text-destructive mt-2 block">این عمل تمام اطلاعات فعلی شما در این مرورگر را پاک کرده و اطلاعات فایل پشتیبان را جایگزین آن می‌کند. این کار غیرقابل بازگشت است.</strong>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setFileToImport(null)}>لغو</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleImportConfirm} disabled={isImporting}>
+                            {isImporting && <Loader2 className="animate-spin ml-2" />}
+                            تایید و بازیابی
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
