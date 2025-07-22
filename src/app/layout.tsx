@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
 import { AppGuard } from '@/components/AppGuard';
+import { DataProvider } from '@/contexts/DataContext';
 
 
 const vazirmatnFont = Vazirmatn({
@@ -29,10 +30,12 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <ThemeManager />
-        <AppGuard>
-          {children}
-        </AppGuard>
+        <DataProvider>
+            <ThemeManager />
+            <AppGuard>
+            {children}
+            </AppGuard>
+        </DataProvider>
         <Toaster />
       </body>
     </html>

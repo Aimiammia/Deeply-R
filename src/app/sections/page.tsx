@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useFirestore } from '@/hooks/useFirestore';
+import { useData } from '@/contexts/DataContext';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
 import type { Task, Habit, CalendarEvent, BirthdayEntry } from '@/types';
 import { Loader2, ArrowRight, BookHeart, CalendarCheck, ClipboardList, Clock, Sparkle, LayoutGrid } from 'lucide-react';
@@ -16,12 +16,13 @@ import { TodayEvents } from '@/components/dashboard/TodayEvents';
 import { getDailySuccessQuote } from '@/lib/prompts';
 
 export default function TodayDashboardPage() {
-  const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
-  const [habits, setHabits, habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
-  const [events, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
-  const [birthdays, , birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
-  
-  const isLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
+  const { 
+    tasks, setTasks, 
+    habits, setHabits, 
+    events, 
+    birthdays 
+  } = useData();
+
   const today = startOfDay(new Date());
 
   const todaysTasks = useMemo(() => {
@@ -75,19 +76,6 @@ export default function TodayDashboardPage() {
         })
     );
   };
-
-  if (isLoading) {
-    return (
-        <div className="flex flex-col min-h-screen">
-          <Header />
-           <main className="flex-grow container mx-auto px-4 py-8">
-             <div className="flex justify-center items-center p-20">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-             </div>
-           </main>
-        </div>
-    );
-  }
 
   return (
       <div className="flex flex-col min-h-screen">

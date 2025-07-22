@@ -15,7 +15,7 @@ import type { Task, Project } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
-import { useFirestore } from '@/hooks/useFirestore';
+import { useData } from '@/contexts/DataContext';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClientOnly } from '@/components/ClientOnly';
@@ -44,8 +44,7 @@ export default function PlannerLandingPage() {
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   
-  const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
-  const [projects, , projectsLoading] = useFirestore<Project[]>('allProjects', []);
+  const { tasks, setTasks, projects } = useData();
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
@@ -207,64 +206,46 @@ export default function PlannerLandingPage() {
                         <div className="p-4 rounded-xl border bg-primary/10 shadow-sm mb-6">
                             <DailyPromptDisplay prompt={currentSuccessQuote} />
                         </div>
-                        <ClientOnly fallback={
-                            <div className="space-y-4">
-                                <Skeleton className="h-32 w-full" />
-                                <Skeleton className="h-48 w-full" />
+                        
+                        <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
+                        
+                        <div className="mt-6">
+                            <Tabs value={taskFilter} onValueChange={(value) => setTaskFilter(value as TaskFilter)} className="w-full">
+                                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+                                    <TabsTrigger value="all">همه فعال</TabsTrigger>
+                                    <TabsTrigger value="today">امروز</TabsTrigger>
+                                    <TabsTrigger value="upcoming">آینده</TabsTrigger>
+                                    <TabsTrigger value="overdue">گذشته</TabsTrigger>
+                                    <TabsTrigger value="completed">تکمیل‌شده</TabsTrigger>
+                                </TabsList>
+                            </Tabs>
+                            <div className="mt-4">
+                                {filteredTasks.length > 0 ? (
+                                    <DynamicTaskList
+                                        tasks={filteredTasks}
+                                        onToggleComplete={handleToggleComplete}
+                                        onDeleteTask={handleDeleteTask}
+                                        onEditTask={handleEditTask}
+                                    />
+                                ) : (
+                                    <div className="text-center py-10 text-muted-foreground border rounded-lg bg-muted/50 mt-4">
+                                        <ListChecks className="mx-auto h-12 w-12 mb-4 text-primary" />
+                                        <p className="text-lg font-semibold">
+                                            {tasks.length === 0 ? 'هنوز وظیفه‌ای اضافه نشده است' : 'هیچ وظیفه‌ای با فیلتر فعلی مطابقت ندارد'}
+                                        </p>
+                                        {tasks.length === 0 && <p className="text-sm mt-1">اولین وظیفه خود را از طریق فرم بالا اضافه کنید!</p>}
+                                    </div>
+                                )}
                             </div>
-                        }>
-                            {projectsLoading ? (
-                                <Skeleton className="h-48 w-full" />
-                            ) : (
-                                <DynamicCreateTaskForm onAddTask={handleAddTask} projects={projects} />
-                            )}
-                            
-                            <div className="mt-6">
-                                <Tabs value={taskFilter} onValueChange={(value) => setTaskFilter(value as TaskFilter)} className="w-full">
-                                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
-                                        <TabsTrigger value="all">همه فعال</TabsTrigger>
-                                        <TabsTrigger value="today">امروز</TabsTrigger>
-                                        <TabsTrigger value="upcoming">آینده</TabsTrigger>
-                                        <TabsTrigger value="overdue">گذشته</TabsTrigger>
-                                        <TabsTrigger value="completed">تکمیل‌شده</TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
-                                <div className="mt-4">
-                                    {tasksLoading ? (
-                                        <Skeleton className="h-64 w-full" />
-                                    ) : (
-                                        <>
-                                            {filteredTasks.length > 0 ? (
-                                                <DynamicTaskList
-                                                    tasks={filteredTasks}
-                                                    onToggleComplete={handleToggleComplete}
-                                                    onDeleteTask={handleDeleteTask}
-                                                    onEditTask={handleEditTask}
-                                                />
-                                            ) : (
-                                                <div className="text-center py-10 text-muted-foreground border rounded-lg bg-muted/50 mt-4">
-                                                    <ListChecks className="mx-auto h-12 w-12 mb-4 text-primary" />
-                                                    <p className="text-lg font-semibold">
-                                                        {tasks.length === 0 ? 'هنوز وظیفه‌ای اضافه نشده است' : 'هیچ وظیفه‌ای با فیلتر فعلی مطابقت ندارد'}
-                                                    </p>
-                                                    {tasks.length === 0 && <p className="text-sm mt-1">اولین وظیفه خود را از طریق فرم بالا اضافه کنید!</p>}
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </ClientOnly>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
             <div className="md:col-span-1 space-y-6">
-                <ClientOnly fallback={<Skeleton className="h-64 w-full" />}>
-                    <DynamicPomodoroTimer 
-                        tasks={tasks}
-                        onPomodoroComplete={handlePomodoroComplete}
-                    />
-                </ClientOnly>
+                <DynamicPomodoroTimer 
+                    tasks={tasks}
+                    onPomodoroComplete={handlePomodoroComplete}
+                />
                  <Card className="shadow-lg bg-card/70 border-primary/20 hover:border-primary/50 transition-colors">
                     <CardHeader>
                         <CardTitle className="flex items-center text-primary">

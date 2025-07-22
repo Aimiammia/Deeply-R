@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Calculator, Flame, Goal, Dna, Loader2, Edit, PlusCircle, Trash2, TrendingUp, Dumbbell } from 'lucide-react';
-import { useFirestore } from '@/hooks/useFirestore';
+import { useData } from '@/contexts/DataContext';
 import type { CalorieProfile, FoodLogEntry, SportsActivity } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
@@ -136,8 +136,7 @@ function CalorieProfileForm({ onProfileSet, existingProfile }: { onProfileSet: (
 // #region Food Tracker Component
 function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEditProfile: () => void }) {
     const { toast } = useToast();
-    const [foodLog, setFoodLog] = useFirestore<FoodLogEntry[]>('foodLogDeeply', []);
-    const [activities] = useFirestore<SportsActivity[]>('userSportsActivitiesDeeply', []);
+    const { foodLog, setFoodLog, activities } = useData();
     const [foodName, setFoodName] = useState('');
     const [calories, setCalories] = useState<number | ''>('');
 
@@ -250,11 +249,11 @@ function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEd
 
 export function CalorieCalculator() {
   const { toast } = useToast();
-  const [profile, setProfile, profileLoading] = useFirestore<CalorieProfile | null>('calorieProfileDeeply', null);
+  const { calorieProfile, setCalorieProfile } = useData();
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSetProfile = (newProfile: CalorieProfile) => {
-    setProfile(newProfile);
+    setCalorieProfile(newProfile);
     setIsEditing(false); // Exit editing mode after saving
     toast({
       title: "پروفایل شما تنظیم شد",
@@ -267,17 +266,9 @@ export function CalorieCalculator() {
     setIsEditing(true);
   };
 
-  if (profileLoading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+  if (!calorieProfile || isEditing) {
+    return <CalorieProfileForm onProfileSet={handleSetProfile} existingProfile={calorieProfile} />;
   }
 
-  if (!profile || isEditing) {
-    return <CalorieProfileForm onProfileSet={handleSetProfile} existingProfile={profile} />;
-  }
-
-  return <FoodTracker profile={profile} onEditProfile={startEditing} />;
+  return <FoodTracker profile={calorieProfile} onEditProfile={startEditing} />;
 }
