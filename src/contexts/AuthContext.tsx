@@ -1,8 +1,7 @@
-
 'use client';
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { 
     getAuth, 
     onAuthStateChanged, 
@@ -13,6 +12,8 @@ import {
 } from 'firebase/auth';
 import { app, isFirebaseConfigured } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Brain } from 'lucide-react';
+
 
 interface AuthContextType {
   user: User | null;
@@ -39,6 +40,7 @@ const mapFirebaseError = (errorCode: string): string => {
         case 'auth/weak-password':
             return 'رمز عبور باید حداقل ۶ کاراکتر باشد.';
         default:
+            console.error("Firebase Auth Error:", errorCode);
             return 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
     }
 }
@@ -49,24 +51,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
       setIsLoading(false);
+      // If on a protected route, redirect to login which will show the config error
+      if (pathname !== '/login' && pathname !== '/signup') {
+        router.push('/login');
+      }
       return;
     }
+
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setIsLoading(false);
+       if (user && (pathname === '/login' || pathname === '/signup')) {
+        router.push('/');
+      } else if (!user && pathname !== '/login' && pathname !== '/signup') {
+        router.push('/login');
+      }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isFirebaseConfigured, pathname, router]);
 
   const login = async (email: string, password: string) => {
     setAuthError(null);
+    if (!isFirebaseConfigured) return;
     const auth = getAuth(app);
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -78,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (email: string, password: string) => {
     setAuthError(null);
+    if (!isFirebaseConfigured) return;
     const auth = getAuth(app);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
@@ -88,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    if (!isFirebaseConfigured) return;
     const auth = getAuth(app);
     try {
       await signOut(auth);
@@ -110,6 +126,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     authError
   };
+  
+  // This guard prevents flicker by showing a loading screen until auth state is resolved.
+  if (isLoading) {
+     return (
+       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <Brain className="h-16 w-16 text-primary animate-pulse-slow" />
+        <p className="mt-4 text-muted-foreground">در حال بارگذاری...</p>
+      </div>
+    );
+  }
+
+  // This guard handles routing based on auth state.
+  if (!user && pathname !== '/login' && pathname !== '/signup') {
+    // This will be handled by the useEffect, but we can return the loading screen
+    // to prevent rendering children components that might depend on a user.
+    return (
+       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <Brain className="h-16 w-16 text-primary animate-pulse-slow" />
+        <p className="mt-4 text-muted-foreground">در حال انتقال به صفحه ورود...</p>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={value}>

@@ -4,7 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
-import { AppGuard } from '@/components/AppGuard';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
 
 
@@ -30,12 +30,12 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <DataProvider>
-            <ThemeManager />
-            <AppGuard>
-            {children}
-            </AppGuard>
-        </DataProvider>
+        <AuthProvider>
+            <DataProvider>
+                <ThemeManager />
+                {children}
+            </DataProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
