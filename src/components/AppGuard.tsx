@@ -5,7 +5,7 @@ import { type ReactNode, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useFirestore } from '@/hooks/useFirestore';
 import { Brain } from 'lucide-react';
-import type { Task, Habit, CalendarEvent, BirthdayEntry } from '@/types';
+import type { Task, Habit, CalendarEvent, BirthdayEntry, CalorieProfile, FoodLogEntry } from '@/types';
 
 /**
  * AppGuard handles the initial loading state for the application.
@@ -19,9 +19,11 @@ export function AppGuard({ children }: { children: ReactNode }) {
   const [, , habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
   const [, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
   const [, , birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
+  const [, , calorieProfileLoading] = useFirestore<CalorieProfile | null>('calorieProfileDeeply', null);
+  const [, , foodLogLoading] = useFirestore<FoodLogEntry[]>('foodLogDeeply', []);
 
   // Combine all loading states into one. The app is loading if any data source is loading.
-  const isAppLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
+  const isAppLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading || calorieProfileLoading || foodLogLoading;
 
   if (isAppLoading) {
     return (
