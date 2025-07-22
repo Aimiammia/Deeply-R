@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2, Settings, Palette, Download, Upload, AlertTriangle, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useColorTheme } from '@/components/ThemeManager';
-import { ClientOnly } from '@/components/ClientOnly';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +22,7 @@ import {
 
 export default function SettingsPage() {
     const { toast } = useToast();
-    const [colorTheme, setColorTheme] = useColorTheme();
+    const [colorTheme, setColorTheme, isThemeLoading] = useColorTheme();
     const [isExporting, setIsExporting] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const [showImportConfirm, setShowImportConfirm] = useState(false);
@@ -144,7 +143,7 @@ export default function SettingsPage() {
                             <CardDescription>ظاهر و رنگ‌بندی کلی برنامه را به سلیقه خود تغییر دهید. این تنظیم در همین دستگاه ذخیره می‌شود.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ClientOnly fallback={<div className="flex justify-center"><Loader2 className="animate-spin"/></div>}>
+                            {isThemeLoading ? <div className="flex justify-center"><Loader2 className="animate-spin"/></div> : (
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                 <Button variant={colorTheme === 'default' ? 'default' : 'outline'} onClick={() => setColorTheme('default')} className="h-auto p-4 flex flex-col gap-2">
                                     <div className="flex gap-1">
@@ -168,7 +167,7 @@ export default function SettingsPage() {
                                     قرمز تیره (Crimson)
                                 </Button>
                                 </div>
-                            </ClientOnly>
+                            )}
                         </CardContent>
                     </Card>
 

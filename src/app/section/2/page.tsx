@@ -14,7 +14,6 @@ import type { ReflectionEntry } from '@/types';
 import { useFirestore } from '@/hooks/useFirestore';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ClientOnly } from '@/components/ClientOnly';
 
 const DynamicReflectionForm = dynamic(() => import('@/components/ReflectionForm').then(mod => mod.ReflectionForm), {
   loading: () => <Skeleton className="h-48 w-full" />,
@@ -58,8 +57,20 @@ export default function ReflectionsPage() {
   
   const sortedReflections = [...reflections].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  if (reflectionsLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
+
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -127,6 +138,5 @@ export default function ReflectionsPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
-    </ClientOnly>
   );
 }

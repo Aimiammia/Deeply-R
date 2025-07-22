@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -14,7 +15,6 @@ import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { differenceInHours } from 'date-fns';
-import { ClientOnly } from '@/components/ClientOnly';
 
 
 const FormLoadingSkeleton = () => (
@@ -153,116 +153,126 @@ export default function SportsPage() {
     setFastingSessions(prev => prev.filter(s => s.id !== sessionId));
   }, [setFastingSessions]);
 
+  if (pageIsLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
 
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
-        <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow container mx-auto px-4 py-8">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <Dumbbell className="h-8 w-8 text-primary" />
-                    <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
-                </div>
-                <Button asChild variant="outline">
-                    <Link href="/">
-                        <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
-                        بازگشت به خانه
-                    </Link>
-                </Button>
+    <div className="flex flex-col min-h-screen">
+    <Header />
+    <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <Dumbbell className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-bold text-primary">{sectionTitle}</h1>
             </div>
-            <p className="text-lg text-muted-foreground mb-8">
-                {sectionPageDescription}
-            </p>
+            <Button asChild variant="outline">
+                <Link href="/">
+                    <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                    بازگشت به خانه
+                </Link>
+            </Button>
+        </div>
+        <p className="text-lg text-muted-foreground mb-8">
+            {sectionPageDescription}
+        </p>
 
-            <Card className="shadow-lg bg-card">
-                <CardContent className="p-6">
-                    <Tabs defaultValue="activities" className="w-full">
-                        <div className="w-full overflow-x-auto pb-2">
-                            <TabsList>
-                                <TabsTrigger value="activities">
-                                    <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
-                                </TabsTrigger>
-                                <TabsTrigger value="fasting">
-                                    <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
-                                </TabsTrigger>
-                                <TabsTrigger value="calories">
-                                    <Calculator className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> محاسبه‌گر کالری
-                                </TabsTrigger>
-                            </TabsList>
-                        </div>
-                        
-                        <TabsContent value="activities" className="space-y-8 mt-6">
-                             <Card id="activity-form-card" className="scroll-mt-20">
-                                <CardHeader className="flex flex-row items-center justify-between">
-                                    <div>
-                                    <CardTitle className="text-xl flex items-center text-foreground">
-                                        <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                                        {showForm ? (editingActivity ? 'ویرایش فعالیت' : 'افزودن فعالیت جدید') : 'افزودن فعالیت جدید'}
-                                    </CardTitle>
-                                    {!showForm && <CardDescription>برای افزودن فعالیت جدید روی دکمه کلیک کنید.</CardDescription>}
-                                    </div>
-                                    <Button onClick={() => {
-                                        if (showForm) { 
-                                            setShowForm(false);
-                                            setEditingActivity(null);
-                                        } else {
-                                            handleAddNew();
-                                        }
-                                    }} variant={showForm ? "outline" : "default"}>
-                                        {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:mr-0"/> افزودن</>)}
-                                    </Button>
-                                </CardHeader>
-                                {showForm && (
-                                    <CardContent>
-                                        <DynamicAddSportsActivityForm 
-                                            onSaveActivity={handleSaveActivity} 
-                                            existingActivity={editingActivity} 
-                                        />
-                                    </CardContent>
-                                )}
-                            </Card>
-
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-xl flex items-center text-foreground">
-                                        <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
-                                        لیست فعالیت‌های ثبت شده
-                                    </CardTitle>
-                                </CardHeader>
+        <Card className="shadow-lg bg-card">
+            <CardContent className="p-6">
+                <Tabs defaultValue="activities" className="w-full">
+                    <div className="w-full overflow-x-auto pb-2">
+                        <TabsList>
+                            <TabsTrigger value="activities">
+                                <Dumbbell className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فعالیت‌های ورزشی
+                            </TabsTrigger>
+                            <TabsTrigger value="fasting">
+                                <TimerOff className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> فستینگ
+                            </TabsTrigger>
+                            <TabsTrigger value="calories">
+                                <Calculator className="ml-2 h-4 w-4 rtl:mr-2 rtl:ml-0"/> محاسبه‌گر کالری
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
+                    
+                    <TabsContent value="activities" className="space-y-8 mt-6">
+                         <Card id="activity-form-card" className="scroll-mt-20">
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                <CardTitle className="text-xl flex items-center text-foreground">
+                                    <PlusCircle className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                    {showForm ? (editingActivity ? 'ویرایش فعالیت' : 'افزودن فعالیت جدید') : 'افزودن فعالیت جدید'}
+                                </CardTitle>
+                                {!showForm && <CardDescription>برای افزودن فعالیت جدید روی دکمه کلیک کنید.</CardDescription>}
+                                </div>
+                                <Button onClick={() => {
+                                    if (showForm) { 
+                                        setShowForm(false);
+                                        setEditingActivity(null);
+                                    } else {
+                                        handleAddNew();
+                                    }
+                                }} variant={showForm ? "outline" : "default"}>
+                                    {showForm ? 'انصراف' : (<><PlusCircle className="ml-2 h-4 w-4 rtl:mr-2 rtl:mr-0"/> افزودن</>)}
+                                </Button>
+                            </CardHeader>
+                            {showForm && (
                                 <CardContent>
-                                     <DynamicSportsActivityList 
-                                        activities={activities} 
-                                        onDeleteActivity={handleDeleteActivity}
-                                        onEditActivity={handleTriggerEdit} 
+                                    <DynamicAddSportsActivityForm 
+                                        onSaveActivity={handleSaveActivity} 
+                                        existingActivity={editingActivity} 
                                     />
                                 </CardContent>
-                            </Card>
-                        </TabsContent>
+                            )}
+                        </Card>
 
-                        <TabsContent value="fasting" className="space-y-8 mt-6">
-                            <DynamicFastingTracker 
-                                activeFast={activeFast}
-                                onStartFast={handleStartFast}
-                                onEndFast={handleEndFast}
-                            />
-                            <DynamicFastingHistory
-                                sessions={fastingSessions}
-                                onDelete={handleDeleteFastSession}
-                            />
-                        </TabsContent>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-xl flex items-center text-foreground">
+                                    <ListChecks className="ml-2 h-5 w-5 text-primary rtl:ml-2 rtl:mr-0" />
+                                    لیست فعالیت‌های ثبت شده
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                 <DynamicSportsActivityList 
+                                    activities={activities} 
+                                    onDeleteActivity={handleDeleteActivity}
+                                    onEditActivity={handleTriggerEdit} 
+                                />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
 
-                         <TabsContent value="calories" className="space-y-8 mt-6">
-                            <DynamicCalorieCalculator />
-                        </TabsContent>
-                    </Tabs>
-                </CardContent>
-            </Card>
-        </main>
-        <footer className="text-center py-4 text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-        </footer>
-        </div>
-    </ClientOnly>
+                    <TabsContent value="fasting" className="space-y-8 mt-6">
+                        <DynamicFastingTracker 
+                            activeFast={activeFast}
+                            onStartFast={handleStartFast}
+                            onEndFast={handleEndFast}
+                        />
+                        <DynamicFastingHistory
+                            sessions={fastingSessions}
+                            onDelete={handleDeleteFastSession}
+                        />
+                    </TabsContent>
+
+                     <TabsContent value="calories" className="space-y-8 mt-6">
+                        <DynamicCalorieCalculator />
+                    </TabsContent>
+                </Tabs>
+            </CardContent>
+        </Card>
+    </main>
+    <footer className="text-center py-4 text-sm text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+    </footer>
+    </div>
   );
 }

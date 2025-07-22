@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { parseISO, isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFirestore } from '@/hooks/useFirestore';
-import { ClientOnly } from '@/components/ClientOnly';
 import { cn, formatCurrency, generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton'; 
 
@@ -282,9 +281,20 @@ export default function FinancialManagementPage() {
     return { totalIncome, totalExpenses, netWorth, investmentProfitLoss };
   }, [transactions, assets, investments]);
 
+  if (pageIsLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
 
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -431,6 +441,5 @@ export default function FinancialManagementPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
-    </ClientOnly>
   );
 }

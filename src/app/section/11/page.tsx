@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useFirestore } from '@/hooks/useFirestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { generateId } from '@/lib/utils';
-import { ClientOnly } from '@/components/ClientOnly';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const FormLoadingSkeleton = () => (
@@ -161,9 +160,20 @@ export default function ProjectsPage() {
     setIsTemplateDialogOpen(false);
   }, [setProjects, setTasks, toast]);
 
+  if (pageIsLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
 
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
@@ -245,45 +255,5 @@ export default function ProjectsPage() {
           <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
         </footer>
       </div>
-
-        <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>استفاده از قالب پروژه</DialogTitle>
-                    <DialogDescription>
-                        یک قالب را برای ایجاد پروژه جدید انتخاب کنید.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                    {templatesLoading ? <Loader2 className="animate-spin" /> : (
-                        <ul className="space-y-2 max-h-[400px] overflow-y-auto">
-                            {templates.map(template => (
-                                <li key={template.id}>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full justify-between h-auto py-2"
-                                        onClick={() => handleUseTemplate(template)}
-                                    >
-                                        <div className="text-right">
-                                            <p className="font-semibold">{template.name}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {template.tasks.length.toLocaleString('fa-IR')} وظیفه
-                                            </p>
-                                        </div>
-                                        <PlusCircle className="h-5 w-5 text-primary" />
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    {(!templatesLoading && templates.length === 0) && (
-                        <p className="text-center text-muted-foreground p-4">
-                            هیچ قالبی برای استفاده وجود ندارد. ابتدا از بخش «مدیریت قالب‌ها» یک قالب بسازید.
-                        </p>
-                    )}
-                </div>
-            </DialogContent>
-        </Dialog>
-    </ClientOnly>
   );
 }

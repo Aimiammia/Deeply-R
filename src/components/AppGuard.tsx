@@ -1,39 +1,34 @@
 
 'use client';
 
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useFirestore } from '@/hooks/useFirestore';
 import { Brain } from 'lucide-react';
-import type { Task, Habit, CalendarEvent, BirthdayEntry, CalorieProfile, FoodLogEntry } from '@/types';
 
 /**
- * AppGuard handles the initial loading state for the application.
- * It ensures that essential data is fetched before rendering any page,
- * displaying a global loading screen in the meantime.
+ * AppGuard ensures that a component is only rendered on the client side.
+ * It prevents hydration mismatches by showing a fallback on the server
+ * and during the initial client render, then showing the children.
  */
 export function AppGuard({ children }: { children: ReactNode }) {
-  // Pre-fetch all data needed for the main dashboard to ensure a smooth initial load.
-  // The 'isLoading' states from these hooks will determine the global loading screen.
-  const [, , tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
-  const [, , habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
-  const [, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
-  const [, , birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
-  const [, , calorieProfileLoading] = useFirestore<CalorieProfile | null>('calorieProfileDeeply', null);
-  const [, , foodLogLoading] = useFirestore<FoodLogEntry[]>('foodLogDeeply', []);
+  const [isClient, setIsClient] = useState(false);
 
-  // Combine all loading states into one. The app is loading if any data source is loading.
-  const isAppLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading || calorieProfileLoading || foodLogLoading;
+  useEffect(() => {
+    // This effect runs only on the client, after the initial render.
+    setIsClient(true);
+  }, []);
 
-  if (isAppLoading) {
+  // On the server and during the first client render, show nothing or a placeholder.
+  // This avoids rendering anything that might depend on client-specific APIs or state.
+  if (!isClient) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Brain className="h-16 w-16 text-primary animate-pulse-slow" />
         <p className="mt-4 text-muted-foreground">در حال بارگذاری...</p>
       </div>
     );
   }
 
-  // Once all data is loaded, render the actual page content.
+  // Once the client has mounted, render the actual page content.
   return <>{children}</>;
 }

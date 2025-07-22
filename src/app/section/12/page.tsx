@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
@@ -6,7 +7,6 @@ import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BrainCircuit, Loader2 } from 'lucide-react';
 import { useFirestore } from '@/hooks/useFirestore';
-import { ClientOnly } from '@/components/ClientOnly';
 import { generateId } from '@/lib/utils';
 import type { KnowledgePage } from '@/types';
 import { KnowledgePageList } from '@/components/knowledge/KnowledgePageList';
@@ -63,8 +63,20 @@ export default function KnowledgeBasePage() {
 
   const selectedPage = useMemo(() => pages.find(p => p.id === selectedPageId) || null, [pages, selectedPageId]);
 
+  if (pagesLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
+
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -111,6 +123,5 @@ export default function KnowledgeBasePage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
-    </ClientOnly>
   );
 }

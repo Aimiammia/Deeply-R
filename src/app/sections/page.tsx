@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useFirestore } from '@/hooks/useFirestore';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
 import type { Task, Habit, CalendarEvent, BirthdayEntry } from '@/types';
-import { ClientOnly } from '@/components/ClientOnly';
 import { Loader2, ArrowRight, BookHeart, CalendarCheck, ClipboardList, Clock, Sparkle, LayoutGrid } from 'lucide-react';
 import { TodayTasks } from '@/components/dashboard/TodayTasks';
 import { TodayHabits } from '@/components/dashboard/TodayHabits';
@@ -22,6 +21,7 @@ export default function TodayDashboardPage() {
   const [events, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
   const [birthdays, , birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
   
+  const isLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
   const today = startOfDay(new Date());
 
   const todaysTasks = useMemo(() => {
@@ -76,8 +76,20 @@ export default function TodayDashboardPage() {
     );
   };
 
+  if (isLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
+
   return (
-    <ClientOnly>
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
@@ -157,6 +169,5 @@ export default function TodayDashboardPage() {
           <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
         </footer>
       </div>
-    </ClientOnly>
   );
 }

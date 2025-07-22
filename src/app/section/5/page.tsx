@@ -14,7 +14,6 @@ import { useFirestore } from '@/hooks/useFirestore';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ClientOnly } from '@/components/ClientOnly';
 
 const DynamicCreateHabitForm = dynamic(() => import('@/components/habits/CreateHabitForm').then(mod => mod.CreateHabitForm), {
   loading: () => <Skeleton className="h-24 w-full" />,
@@ -64,8 +63,20 @@ export default function HabitsPage() {
     setHabits(prevHabits => prevHabits.filter(h => h.id !== habitId));
   }, [setHabits]);
 
+  if (habitsLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
+
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -127,6 +138,5 @@ export default function HabitsPage() {
         <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
       </footer>
     </div>
-    </ClientOnly>
   );
 }
