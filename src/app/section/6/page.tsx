@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Dumbbell, PlusCircle, ListChecks, Loader2, TimerOff, Calculator } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import type { SportsActivity, ActiveFast, FastingSession } from '@/types';
-import { useFirestore } from '@/hooks/useFirestore';
 import { useToast } from '@/hooks/use-toast';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { differenceInHours } from 'date-fns';
+import { useData } from '@/contexts/DataContext';
 
 
 const FormLoadingSkeleton = () => (
@@ -70,16 +70,17 @@ export default function SportsPage() {
   const sectionTitle = "ورزشی";
   const sectionPageDescription = "فعالیت‌های ورزشی و روزه‌داری متناوب (فستینگ) خود را در این بخش ثبت، پیگیری و تحلیل کنید.";
   const { toast } = useToast();
+  
+  const { 
+    activities, setActivities, activitiesLoading, 
+    activeFast, setActiveFast, activeFastLoading,
+    fastingSessions, setFastingSessions, fastingSessionsLoading
+  } = useData();
 
   // State for Sports Activities
-  const [activities, setActivities, activitiesLoading] = useFirestore<SportsActivity[]>('userSportsActivitiesDeeply', []);
   const [editingActivity, setEditingActivity] = useState<SportsActivity | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  // State for Fasting
-  const [activeFast, setActiveFast, activeFastLoading] = useFirestore<ActiveFast | null>('activeFastDeeply', null);
-  const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useFirestore<FastingSession[]>('fastingHistoryDeeply', []);
-  
   const pageIsLoading = activitiesLoading || activeFastLoading || fastingSessionsLoading;
 
   const handleSaveActivity = useCallback((activityData: Omit<SportsActivity, 'id' | 'createdAt'>, isEditing: boolean) => {

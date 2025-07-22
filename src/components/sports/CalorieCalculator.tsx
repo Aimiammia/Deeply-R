@@ -13,12 +13,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Calculator, Flame, Goal, Dna, Loader2, Edit, PlusCircle, Trash2, TrendingUp, Dumbbell } from 'lucide-react';
-import { useData } from '@/contexts/DataContext';
-import type { CalorieProfile, FoodLogEntry, SportsActivity } from '@/types';
+import type { CalorieProfile, FoodLogEntry } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
 import { generateId, cn } from '@/lib/utils';
 import { formatJalaliDateDisplay } from '@/lib/calendar-helpers';
+import { useData } from '@/contexts/DataContext';
 
 // Helper for formatting numbers with Persian digits
 function formatNumber(value: number) {
@@ -249,7 +249,7 @@ function FoodTracker({ profile, onEditProfile }: { profile: CalorieProfile, onEd
 
 export function CalorieCalculator() {
   const { toast } = useToast();
-  const { calorieProfile, setCalorieProfile } = useData();
+  const { calorieProfile, setCalorieProfile, calorieProfileLoading } = useData();
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSetProfile = (newProfile: CalorieProfile) => {
@@ -265,6 +265,14 @@ export function CalorieCalculator() {
   const startEditing = () => {
     setIsEditing(true);
   };
+  
+  if (calorieProfileLoading) {
+      return (
+          <div className="flex justify-center items-center p-10">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+      )
+  }
 
   if (!calorieProfile || isEditing) {
     return <CalorieProfileForm onProfileSet={handleSetProfile} existingProfile={calorieProfile} />;

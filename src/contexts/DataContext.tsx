@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useFirestore } from '@/hooks/useFirestore';
 import type { 
     Task, 
@@ -121,6 +121,8 @@ interface DataContextType {
     subjectProgress: EducationalSubjectUserProgress;
     setSubjectProgress: (value: EducationalSubjectUserProgress | ((val: EducationalSubjectUserProgress) => EducationalSubjectUserProgress)) => void;
     subjectProgressLoading: boolean;
+
+    isLoading: boolean; // Aggregate loading state
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -156,6 +158,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const [educationalSettings, setEducationalSettings, educationalSettingsLoading] = useFirestore<EducationalLevelStorage>('educationalLevelSettingsDeeply', initialEducationalSettings);
     const [subjectProgress, setSubjectProgress, subjectProgressLoading] = useFirestore<EducationalSubjectUserProgress>('educationalSubjectProgressDeeply', {});
 
+    const isLoading = useMemo(() => (
+        tasksLoading || projectsLoading || reflectionsLoading || transactionsLoading || 
+        budgetsLoading || assetsLoading || investmentsLoading || savingsGoalsLoading || 
+        habitsLoading || booksLoading || activitiesLoading || activeFastLoading || 
+        fastingSessionsLoading || knowledgePagesLoading || projectTemplatesLoading || 
+        challengesLoading || calorieProfileLoading || foodLogLoading || birthdaysLoading || 
+        eventsLoading || activityLogsLoading || educationalSettingsLoading || subjectProgressLoading
+    ), [
+        tasksLoading, projectsLoading, reflectionsLoading, transactionsLoading, 
+        budgetsLoading, assetsLoading, investmentsLoading, savingsGoalsLoading, 
+        habitsLoading, booksLoading, activitiesLoading, activeFastLoading, 
+        fastingSessionsLoading, knowledgePagesLoading, projectTemplatesLoading, 
+        challengesLoading, calorieProfileLoading, foodLogLoading, birthdaysLoading, 
+        eventsLoading, activityLogsLoading, educationalSettingsLoading, subjectProgressLoading
+    ]);
+
     const value = {
         tasks, setTasks, tasksLoading,
         projects, setProjects, projectsLoading,
@@ -180,6 +198,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         activityLogs, setActivityLogs, activityLogsLoading,
         educationalSettings, setEducationalSettings, educationalSettingsLoading,
         subjectProgress, setSubjectProgress, subjectProgressLoading,
+        isLoading
     };
 
     return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

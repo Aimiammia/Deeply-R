@@ -9,26 +9,37 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Brain, KeyRound, Lock, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export default function LockPage() {
-  const { isUnlocked, hasPassword, unlock, setPassword } = useLock();
+  const { isUnlocked, hasPassword, unlock, setPassword, isLoading } = useLock();
   const [inputPassword, setInputPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If already unlocked, redirect away from the lock page
+    if (isUnlocked) {
+        router.push('/');
+    }
+  }, [isUnlocked, router]);
 
   const handleUnlock = (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!unlock(inputPassword)) {
       setError('رمز عبور اشتباه است.');
     } else {
-      setError(null);
+      // successful unlock is handled by context, which will trigger useEffect
     }
   };
 
   const handleSetPassword = (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (newPassword.length < 4) {
       setError('رمز عبور باید حداقل ۴ کاراکتر باشد.');
       return;
@@ -38,16 +49,20 @@ export default function LockPage() {
       return;
     }
     setPassword(newPassword);
-    setError(null);
     toast({
         title: "رمز عبور تنظیم شد",
         description: "اکنون می‌توانید با رمز جدید خود وارد شوید.",
-    })
+    });
+    // Setting password will also unlock and redirect via context state change
   };
 
-  if (isUnlocked) {
-    // This component shouldn't be rendered if unlocked, but as a fallback:
-    return null;
+  // Prevent rendering form while lock status is initializing or if already unlocked
+  if (isLoading || isUnlocked) {
+    return (
+         <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+            <Brain className="h-16 w-16 text-primary animate-pulse-slow" />
+        </div>
+    );
   }
 
   return (
@@ -59,7 +74,7 @@ export default function LockPage() {
         </h1>
       </div>
       <Card className="w-full max-w-sm shadow-2xl">
-        {hasPassword ? (
+        {hasPassword() ? (
           <form onSubmit={handleUnlock}>
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">ورود به برنامه</CardTitle>

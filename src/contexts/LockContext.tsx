@@ -18,7 +18,7 @@ const LockContext = createContext<LockContextType | undefined>(undefined);
 
 export function LockProvider({ children }: { children: ReactNode }) {
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [storedPassword, setStoredPassword, isPasswordLoading] = useLocalStorageState<string | null>('app-lock-password', null);
+  const [storedPassword, setStoredPassword, isPasswordLoading] = useLocalStorageState<string | null>('app-lock-password-v2', null);
   const router = useRouter();
   
   const hasPassword = useCallback(() => {
