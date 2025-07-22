@@ -5,36 +5,38 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useData } from '@/contexts/DataContext';
+import { useFirestore } from '@/hooks/useFirestore';
 import { isSameDay, parseISO, startOfDay } from 'date-fns';
 import type { Task, Habit, CalendarEvent, BirthdayEntry } from '@/types';
-import { Loader2, ArrowRight, BookHeart, CalendarCheck, ClipboardList, Clock, Sparkle, LayoutGrid } from 'lucide-react';
+import { Loader2, ArrowRight, BookHeart, CalendarCheck, ClipboardList, Sparkle, LayoutGrid } from 'lucide-react';
 import { TodayTasks } from '@/components/dashboard/TodayTasks';
 import { TodayHabits } from '@/components/dashboard/TodayHabits';
 import { TodayEvents } from '@/components/dashboard/TodayEvents';
 import { getDailySuccessQuote } from '@/lib/prompts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function TodayDashboardPage() {
-  const { 
-    tasks, setTasks, 
-    habits, setHabits, 
-    events, 
-    birthdays 
-  } = useData();
+  const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+  const [habits, setHabits, habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
+  const [events, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
+  const [birthdays, , birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
 
+  const isLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
   const today = startOfDay(new Date());
 
   const todaysTasks = useMemo(() => {
+    if (isLoading) return [];
     return tasks.filter(task => !task.completed && task.dueDate && isSameDay(parseISO(task.dueDate), today));
-  }, [tasks, today]);
+  }, [tasks, today, isLoading]);
 
   const todaysHabits = useMemo(() => {
+    if (isLoading) return [];
     const todayISOString = today.toISOString().split('T')[0];
     return habits.filter(habit => !(habit.completions || []).includes(todayISOString));
-  }, [habits, today]);
+  }, [habits, today, isLoading]);
 
   const todaysEventsAndBirthdays = useMemo(() => {
+    if (isLoading) return [];
     const todaysEvents = events.filter(event => isSameDay(parseISO(event.gDate), today));
     const todaysBirthdays = birthdays.filter(bday => {
         const bdayDate = parseISO(bday.gDate);
@@ -46,7 +48,7 @@ export default function TodayDashboardPage() {
         ...todaysBirthdays.map(b => ({ type: 'birthday' as const, name: `تولد ${b.name}` }))
     ];
     return combined;
-  }, [events, birthdays, today]);
+  }, [events, birthdays, today, isLoading]);
   
   const dailyQuote = getDailySuccessQuote();
 
@@ -76,6 +78,19 @@ export default function TodayDashboardPage() {
         })
     );
   };
+
+  if (isLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
 
   return (
       <div className="flex flex-col min-h-screen">

@@ -121,8 +121,6 @@ interface DataContextType {
     subjectProgress: EducationalSubjectUserProgress;
     setSubjectProgress: (value: EducationalSubjectUserProgress | ((val: EducationalSubjectUserProgress) => EducationalSubjectUserProgress)) => void;
     subjectProgressLoading: boolean;
-    
-    isInitialLoadComplete: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -158,13 +156,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const [educationalSettings, setEducationalSettings, educationalSettingsLoading] = useFirestore<EducationalLevelStorage>('educationalLevelSettingsDeeply', initialEducationalSettings);
     const [subjectProgress, setSubjectProgress, subjectProgressLoading] = useFirestore<EducationalSubjectUserProgress>('educationalSubjectProgressDeeply', {});
 
-    const isInitialLoadComplete =
-        !tasksLoading && !projectsLoading && !reflectionsLoading && !transactionsLoading && !budgetsLoading &&
-        !assetsLoading && !investmentsLoading && !savingsGoalsLoading && !habitsLoading && !booksLoading &&
-        !activitiesLoading && !activeFastLoading && !fastingSessionsLoading && !knowledgePagesLoading &&
-        !projectTemplatesLoading && !challengesLoading && !calorieProfileLoading && !foodLogLoading &&
-        !birthdaysLoading && !eventsLoading && !activityLogsLoading && !educationalSettingsLoading && !subjectProgressLoading;
-
     const value = {
         tasks, setTasks, tasksLoading,
         projects, setProjects, projectsLoading,
@@ -189,7 +180,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         activityLogs, setActivityLogs, activityLogsLoading,
         educationalSettings, setEducationalSettings, educationalSettingsLoading,
         subjectProgress, setSubjectProgress, subjectProgressLoading,
-        isInitialLoadComplete
     };
 
     return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

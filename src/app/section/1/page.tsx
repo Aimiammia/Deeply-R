@@ -15,10 +15,9 @@ import type { Task, Project } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { getDailySuccessQuote } from '@/lib/prompts';
 import { DailyPromptDisplay } from '@/components/DailyPromptDisplay';
-import { useData } from '@/contexts/DataContext';
+import { useFirestore } from '@/hooks/useFirestore';
 import { generateId } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ClientOnly } from '@/components/ClientOnly';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isSameDay, isAfter, isBefore, startOfDay, parseISO } from 'date-fns';
 
@@ -44,7 +43,8 @@ export default function PlannerLandingPage() {
   const { toast } = useToast();
   const [currentSuccessQuote, setCurrentSuccessQuote] = useState<string>("در حال بارگذاری نقل قول روز...");
   
-  const { tasks, setTasks, projects } = useData();
+  const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+  const [projects, , projectsLoading] = useFirestore<Project[]>('allProjects', []);
 
   useEffect(() => {
     setCurrentSuccessQuote(getDailySuccessQuote());
@@ -178,6 +178,18 @@ export default function PlannerLandingPage() {
     }
   }, [tasks, taskFilter]);
 
+  if (tasksLoading || projectsLoading) {
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+           <main className="flex-grow container mx-auto px-4 py-8">
+             <div className="flex justify-center items-center p-20">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+             </div>
+           </main>
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
