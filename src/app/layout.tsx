@@ -6,6 +6,7 @@ import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
 import { LockProvider } from '@/contexts/LockContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { DataProvider } from '@/contexts/DataContext';
 
 
 const vazirmatnFont = Vazirmatn({
@@ -32,8 +33,10 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen flex flex-col">
         <LockProvider>
           <AuthGuard>
-            <ThemeManager />
-            {children}
+            <DataProvider>
+              <ThemeManager />
+              {children}
+            </DataProvider>
           </AuthGuard>
         </LockProvider>
         <Toaster />
