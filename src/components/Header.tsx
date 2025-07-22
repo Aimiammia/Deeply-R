@@ -1,25 +1,18 @@
 
 'use client';
 
-import { Brain, LogOut } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { memo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from './ui/button';
 
 const HeaderComponent = () => {
-  const { user, logout } = useAuth();
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 flex h-14 items-center justify-between">
         
         <div className="flex w-10 justify-start">
-           {user && (
-            <Button variant="ghost" size="icon" onClick={logout} title="خروج از حساب کاربری">
-               <LogOut className="h-5 w-5" />
-            </Button>
-           )}
+          {/* Placeholder for left-aligned content */}
         </div>
         
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
