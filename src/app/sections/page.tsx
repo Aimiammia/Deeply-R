@@ -22,8 +22,6 @@ export default function TodayDashboardPage() {
   const [events, , eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
   const [birthdays, , birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
   
-  const isLoading = tasksLoading || habitsLoading || eventsLoading || birthdaysLoading;
-
   const today = startOfDay(new Date());
 
   const todaysTasks = useMemo(() => {
@@ -79,7 +77,7 @@ export default function TodayDashboardPage() {
   };
 
   return (
-    <ClientOnly fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+    <ClientOnly>
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">
@@ -92,9 +90,6 @@ export default function TodayDashboardPage() {
             </p>
           </div>
 
-          {isLoading ? (
-            <div className="flex justify-center items-center p-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
-          ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-8">
                 <Card>
@@ -157,7 +152,6 @@ export default function TodayDashboardPage() {
                 </Card>
               </div>
             </div>
-          )}
         </main>
         <footer className="text-center py-4 text-sm text-muted-foreground mt-8">
           <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
