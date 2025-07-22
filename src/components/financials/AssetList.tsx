@@ -9,10 +9,9 @@ interface AssetListProps {
   assets: FinancialAsset[];
   onDeleteAsset: (id: string) => void;
   onEditAsset: (asset: FinancialAsset) => void;
-  onSetEditingAsset: (asset: FinancialAsset | null) => void; // To control visibility of CreateAssetForm in edit mode
 }
 
-export function AssetList({ assets, onDeleteAsset, onEditAsset, onSetEditingAsset }: AssetListProps) {
+export function AssetList({ assets, onDeleteAsset, onEditAsset }: AssetListProps) {
   if (assets.length === 0) {
     return (
       <div className="text-center py-10 text-muted-foreground border rounded-lg shadow-sm bg-card mt-6">
@@ -34,10 +33,7 @@ export function AssetList({ assets, onDeleteAsset, onEditAsset, onSetEditingAsse
             key={asset.id}
             asset={asset}
             onDeleteAsset={onDeleteAsset}
-            onEditAsset={() => {
-                onEditAsset(asset); // This might not be directly used if onSetEditingAsset shows the form
-                onSetEditingAsset(asset);
-            }}
+            onEditAsset={onEditAsset}
           />
         ))}
       </ul>
