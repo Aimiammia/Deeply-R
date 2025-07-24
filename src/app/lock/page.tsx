@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Brain, KeyRound, Lock, Unlock } from 'lucide-react';
+import { Brain, KeyRound, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useData } from '@/contexts/DataContext';
 
 export default function LockPage() {
   const { isUnlocked, hasPassword, unlock, setPassword, isLoading } = useLock();
+  const { isLoading: isDataLoading } = useData();
   const [inputPassword, setInputPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -57,7 +59,7 @@ export default function LockPage() {
   };
 
   // Prevent rendering form while lock status is initializing or if already unlocked
-  if (isLoading || isUnlocked) {
+  if (isLoading || isDataLoading) {
     return (
          <div className="flex flex-col items-center justify-center min-h-screen bg-background">
             <Brain className="h-16 w-16 text-primary animate-pulse-slow" />

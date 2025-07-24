@@ -16,10 +16,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // If not loading and not unlocked, redirect to lock screen
-    if (!isAppLoading && !isUnlocked) {
+    if (!isLockLoading && !isUnlocked) {
       router.push('/lock');
     }
-  }, [isUnlocked, isAppLoading, router]);
+  }, [isUnlocked, isLockLoading, router]);
 
   // Show a full-screen loading animation while checking lock status or initial data
   if (isAppLoading) {

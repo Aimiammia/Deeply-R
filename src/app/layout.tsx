@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
 import { LockProvider } from '@/contexts/LockContext';
-import { AuthGuard } from '@/components/auth/AuthGuard';
 import { DataProvider } from '@/contexts/DataContext';
 
 
@@ -31,14 +30,12 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <DataProvider>
-            <LockProvider>
-              <AuthGuard>
-                  <ThemeManager />
-                  {children}
-              </AuthGuard>
-            </LockProvider>
-        </DataProvider>
+        <LockProvider>
+          <DataProvider>
+            <ThemeManager />
+            {children}
+          </DataProvider>
+        </LockProvider>
         <Toaster />
       </body>
     </html>
