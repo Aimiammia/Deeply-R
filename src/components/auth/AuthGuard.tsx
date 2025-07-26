@@ -3,26 +3,20 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLock } from '@/contexts/LockContext';
-import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Brain } from 'lucide-react';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isUnlocked, isLoading: isLockLoading } = useLock();
-  const { isLoading: isDataLoading } = useData();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
-  const isAppLoading = isLockLoading || isDataLoading;
-
   useEffect(() => {
-    // If not loading and not unlocked, redirect to lock screen
-    if (!isLockLoading && !isUnlocked) {
-      router.push('/lock');
+    if (!loading && !user) {
+      router.push('/login');
     }
-  }, [isUnlocked, isLockLoading, router]);
+  }, [user, loading, router]);
 
-  // Show a full-screen loading animation while checking lock status or initial data
-  if (isAppLoading) {
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Brain className="h-16 w-16 text-primary animate-pulse-slow" />
@@ -31,11 +25,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If unlocked, show the main application content
-  if (isUnlocked) {
+  if (user) {
     return <>{children}</>;
   }
 
-  // Fallback, should be handled by redirect but good to have
   return null;
 }

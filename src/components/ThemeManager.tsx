@@ -1,14 +1,45 @@
 
 'use client';
 
-import { useEffect } from 'react';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useState, useEffect } from 'react';
 
 // List of all possible theme classes that are not the default.
 const THEME_CLASSES = ['theme-jungle', 'theme-crimson'];
 
+// Custom hook to manage state in localStorage
+function usePersistentState<T>(key: string, initialValue: T): readonly [T, (value: T | ((val: T) => T)) => void, boolean] {
+  const [state, setState] = useState<T>(initialValue);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      if (item) {
+        setState(JSON.parse(item));
+      }
+    } catch (error) {
+      console.warn(`Error reading localStorage key “${key}”:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [key]);
+
+  const setAndPersistState = (value: T | ((val: T) => T)) => {
+    try {
+        const valueToStore = value instanceof Function ? value(state) : value;
+        setState(valueToStore);
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+        console.error(`Error writing to localStorage key “${key}”:`, error);
+    }
+  };
+
+  return [state, setAndPersistState, isLoading] as const;
+}
+
+
 export function useColorTheme() {
-    const [theme, setTheme, isLoading] = useLocalStorageState<string>('color-theme', 'default');
+    const [theme, setTheme, isLoading] = usePersistentState<string>('color-theme', 'default');
     
     useEffect(() => {
         // Only run on the client and after initial value has been loaded from localStorage

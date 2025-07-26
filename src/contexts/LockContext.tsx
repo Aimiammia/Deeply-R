@@ -1,75 +1,36 @@
-
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { Brain, LogOut } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
+import { memo } from 'react';
+import { Button } from './ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface LockContextType {
-  isUnlocked: boolean;
-  isLoading: boolean;
-  hasPassword: () => boolean;
-  unlock: (password: string) => boolean;
-  lock: () => void;
-  setPassword: (password: string) => void;
-}
+const HeaderComponent = () => {
+  const { logout } = useAuth();
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 flex h-14 items-center justify-between">
+        
+        <div className="flex w-10 justify-start">
+             <Button variant="ghost" size="icon" onClick={logout} title="خروج از حساب">
+                <LogOut className="h-5 w-5 text-muted-foreground" />
+             </Button>
+        </div>
+        
+        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <Brain className="h-7 w-7 text-primary" /> 
+          <h1 className="text-2xl font-headline font-bold text-foreground">
+            Deeply
+          </h1>
+        </div>
 
-const LockContext = createContext<LockContextType | undefined>(undefined);
+        <div className="flex w-10 justify-end"> 
+           <ThemeToggle />
+        </div>
+      </div>
+    </header>
+  );
+};
 
-export function LockProvider({ children }: { children: ReactNode }) {
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [storedPassword, setStoredPassword, isPasswordLoading] = useLocalStorageState<string | null>('app-lock-password-v2', null);
-  const router = useRouter();
-  
-  const hasPassword = useCallback(() => {
-    return storedPassword !== null;
-  }, [storedPassword]);
-
-  const unlock = useCallback((password: string) => {
-    if (password === storedPassword) {
-      setIsUnlocked(true);
-      sessionStorage.setItem('session-unlocked', 'true'); // Keep unlocked for the session
-      router.push('/');
-      return true;
-    }
-    return false;
-  }, [storedPassword, router]);
-  
-  const lock = useCallback(() => {
-    setIsUnlocked(false);
-    sessionStorage.removeItem('session-unlocked');
-    router.push('/lock');
-  }, [router]);
-  
-  const setPassword = useCallback((password: string) => {
-    setStoredPassword(password);
-    unlock(password); // Automatically unlock after setting password
-  }, [setStoredPassword, unlock]);
-  
-  // Check session storage on initial load
-  useEffect(() => {
-    const sessionUnlocked = sessionStorage.getItem('session-unlocked');
-    if (sessionUnlocked === 'true' && hasPassword()) {
-      setIsUnlocked(true);
-    }
-  }, [hasPassword]);
-
-  const value = {
-    isUnlocked,
-    isLoading: isPasswordLoading,
-    hasPassword,
-    unlock,
-    lock,
-    setPassword,
-  };
-  
-  return <LockContext.Provider value={value}>{children}</LockContext.Provider>;
-}
-
-export function useLock() {
-  const context = useContext(LockContext);
-  if (context === undefined) {
-    throw new Error('useLock must be used within a LockProvider');
-  }
-  return context;
-}
+export const Header = memo(HeaderComponent);
