@@ -1,5 +1,5 @@
 
-// src/app/section/[sectionId]/page.tsx
+// src/app/(main)/section/[sectionId]/page.tsx
 'use client';
 
 import { Header } from '@/components/Header';
@@ -7,15 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useParams } from 'next/navigation'; // Correct hook for App Router client components
+import { useParams } from 'next/navigation';
 
 interface SectionPageProps {
   // params are now accessed via useParams hook in client components
 }
 
 export default function SectionPage({}: SectionPageProps) {
-  const params = useParams<{ sectionId: string }>(); // Explicitly type useParams
-  const sectionId = params.sectionId; // No longer need 'as string' if sectionId is guaranteed in type
+  const params = useParams<{ sectionId: string }>();
+  const sectionId = params.sectionId;
 
   const isTasksSection = sectionId === '1';
   const sectionTitle = isTasksSection ? "وظایف" : `بخش ${sectionId}`;
@@ -59,16 +59,4 @@ export default function SectionPage({}: SectionPageProps) {
           </CardContent>
         </Card>
       </main>
-      <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
-      </footer>
-    </div>
-  );
-}
-
-// Optional: Generate static paths if you know all section IDs beforehand
-// export async function generateStaticParams() {
-//   const sections = Array.from({ length: 10 }, (_, i) => ({ sectionId: (i + 1).toString() }));
-//   return sections;
-// }
-
+      <footer className="text-center py-4 text-sm text

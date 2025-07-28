@@ -1,10 +1,8 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
-import { AuthProvider } from '@/contexts/AuthContext';
 
 
 const vazirmatnFont = Vazirmatn({
@@ -29,10 +27,8 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <AuthProvider>
-            <ThemeManager />
-            {children}
-        </AuthProvider>
+        <ThemeManager />
+        {children}
         <Toaster />
       </body>
     </html>

@@ -1,70 +1,66 @@
-
+// src/app/(main)/section/[sectionId]/page.tsx
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, Auth, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, isFirebaseConfigured } from '@/lib/firebase'; // Import the initialized auth object
+import { Header } from '@/components/Header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useParams } from 'next/navigation';
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, pass: string) => Promise<any>;
-  signup: (email: string, pass: string) => Promise<any>;
-  logout: () => Promise<void>;
+interface SectionPageProps {
+  // params are now accessed via useParams hook in client components
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  login: async () => {},
-  signup: async () => {},
-  logout: async () => {},
-});
+export default function SectionPage({}: SectionPageProps) {
+  const params = useParams<{ sectionId: string }>();
+  const sectionId = params.sectionId;
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!isFirebaseConfigured) {
-        console.warn("Firebase is not configured. Skipping auth.");
-        setLoading(false);
-        return;
-    }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const login = (email: string, pass: string) => {
-      if (!isFirebaseConfigured) return Promise.reject(new Error("Firebase is not configured."));
-      return signInWithEmailAndPassword(auth, email, pass);
-  }
-
-  const signup = (email: string, pass: string) => {
-      if (!isFirebaseConfigured) return Promise.reject(new Error("Firebase is not configured."));
-      return createUserWithEmailAndPassword(auth, email, pass);
-  }
-
-  const logout = async () => {
-    if (!isFirebaseConfigured) return;
-    await signOut(auth);
-    // User state will be updated by onAuthStateChanged listener
-  };
+  const isTasksSection = sectionId === '1';
+  const sectionTitle = isTasksSection ? "وظایف" : `بخش ${sectionId}`;
+  const sectionPageDescription = isTasksSection ? `مدیریت و مشاهده وظایف روزانه شما.` : `صفحه اختصاصی برای بخش ${sectionId}.`;
 
 
-  const value = { user, loading, login, signup, logout };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <Button asChild variant="outline" className="mb-6">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+            بازگشت به خانه
+          </Link>
+        </Button>
+        <Card className="shadow-lg bg-card">
+          <CardHeader>
+            <CardTitle className="text-2xl font-headline text-primary">
+              {sectionTitle}
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              {sectionPageDescription}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>محتوای دقیق بخش {sectionId} در اینجا نمایش داده خواهد شد.</p>
+            <p>شما می‌توانید این صفحه را برای نمایش جزئیات و قابلیت‌های خاص این بخش سفارشی‌سازی کنید.</p>
+            {isTasksSection && (
+              <div className="mt-6 p-4 border rounded-md bg-secondary/30">
+                <h3 className="text-lg font-semibold text-primary mb-2">قابلیت‌های بخش وظایف:</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>ایجاد وظایف جدید</li>
+                  <li>مشاهده لیست وظایف</li>
+                  <li>علامت‌گذاری وظایف به عنوان انجام شده</li>
+                  <li>ویرایش یا حذف وظایف</li>
+                  <li> (به زودی) اولویت‌بندی و دسته‌بندی وظایف</li>
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+      <footer className="text-center py-4 text-sm text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} Deeply. All rights reserved.</p>
+      </footer>
+    </div>
+  );
 }
