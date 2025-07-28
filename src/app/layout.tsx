@@ -4,7 +4,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { AuthGuard } from '@/components/auth/AuthGuard';
 
 
 const vazirmatnFont = Vazirmatn({
