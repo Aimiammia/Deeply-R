@@ -4,6 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Vazirmatn } from 'next/font/google';
 import { ThemeManager } from '@/components/ThemeManager';
 import { DataProvider } from '@/contexts/DataContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 
 const vazirmatnFont = Vazirmatn({
@@ -28,11 +30,13 @@ export default function RootLayout({
       <head>
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
-        <DataProvider>
-          <ThemeManager />
-          {children}
-          <Toaster />
-        </DataProvider>
+        <AuthProvider>
+          <DataProvider>
+            <ThemeManager />
+              {children}
+            <Toaster />
+          </DataProvider>
+        </AuthProvider>
       </body>
     </html>
   );
