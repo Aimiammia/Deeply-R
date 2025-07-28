@@ -3,52 +3,104 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-// A custom hook to write to localStorage, which will serve as our local, offline database.
-export function useLocalStorage<T>(
+async function fetchData<T>(key: string): Promise<T | null> {
+  try {
+    const response = await fetch(`/api/data/${key}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.warn(`Data for key "${key}" not found on server.`);
+        return null;
+      }
+      throw new Error(`Failed to fetch data for key ${key}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null; // Return null on error to let initialValue be used
+  }
+}
+
+async function saveData<T>(key: string, data: T): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/data/${key}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data }),
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error saving data:', error);
+    return false;
+  }
+}
+
+
+export function useFirestore<T>(
   key: string,
   initialValue: T
 ): readonly [T, (value: T | ((val: T) => T)) => void, boolean] {
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const [value, setValue] = useState<T>(initialValue);
   const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect to load from localStorage on initial component mount on the client.
+  // Ref to store the latest value to avoid stale closures in debounced save
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
+  // Initial fetch from the server
   useEffect(() => {
-    // This code runs only on the client side.
-    try {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        setStoredValue(JSON.parse(item));
-      } else {
-        // If no value is in localStorage, set it with the initial value.
-        window.localStorage.setItem(key, JSON.stringify(initialValue));
-        setStoredValue(initialValue);
-      }
-    } catch (error) {
-      console.error(`Error reading from localStorage for key “${key}”:`, error);
-      setStoredValue(initialValue);
-    } finally {
+    let isMounted = true;
+    const loadData = async () => {
+      setIsLoading(true);
+      const serverData = await fetchData<T>(key);
+      if (isMounted) {
+        if (serverData !== null) {
+          setValue(serverData);
+        } else {
+          // If server has no data, use initialValue and don't try to save it back
+          setValue(initialValue);
+        }
         setIsLoading(false);
-    }
-  }, [key, initialValue]);
-
-  const setValue = useCallback(
-    (value: T | ((val: T) => T)) => {
-      try {
-        // Allow value to be a function so we have same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        // Save state
-        setStoredValue(valueToStore);
-        // Save to local storage
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      } catch (error) {
-        console.error(`Error writing to localStorage for key “${key}”:`, error);
       }
-    },
-    [key, storedValue]
-  );
+    };
+    loadData();
 
-  return [storedValue, setValue, isLoading] as const;
+    return () => {
+      isMounted = false;
+    };
+  }, [key]); // Intentionally not including initialValue to avoid re-fetching
+
+  // Debounced save function
+  const debouncedSave = useRef(
+    debounce((newValue: T) => {
+      saveData(key, newValue);
+    }, 500) // 500ms debounce delay
+  ).current;
+
+  const setAndPersistValue = useCallback(
+    (newValue: T | ((val: T) => T)) => {
+      const resolvedValue = newValue instanceof Function ? newValue(valueRef.current) : newValue;
+      setValue(resolvedValue);
+      debouncedSave(resolvedValue);
+    },
+    [key, debouncedSave]
+  );
+  
+  return [value, setAndPersistValue, isLoading] as const;
 }
 
-// Renaming the export for backward compatibility in case some components still import useFirestore
-export const useFirestore = useLocalStorage;
+// Debounce utility function
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(() => resolve(func(...args)), waitFor);
+    });
+}

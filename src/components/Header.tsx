@@ -1,8 +1,9 @@
 'use client';
 
-import { Brain } from 'lucide-react';
+import { Brain, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { memo } from 'react';
+import { Button } from './ui/button';
 
 const HeaderComponent = () => {
   return (
@@ -10,7 +11,7 @@ const HeaderComponent = () => {
       <div className="container mx-auto px-4 flex h-14 items-center justify-between">
         
         <div className="flex w-10 justify-start">
-            {/* Placeholder for left content */}
+             {/* Placeholder for left content if needed */}
         </div>
         
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
