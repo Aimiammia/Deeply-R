@@ -3,15 +3,33 @@
 import { Brain, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { memo } from 'react';
+import { Button } from './ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const HeaderComponent = () => {
+  const { logout, user } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 flex h-14 items-center justify-between">
         
         <div className="flex w-10 justify-start">
-            {/* Placeholder for left-aligned items */}
+             {user && (
+                <Button variant="ghost" size="icon" onClick={handleLogout} title="خروج از حساب">
+                    <LogOut className="h-5 w-5 text-muted-foreground" />
+                </Button>
+             )}
         </div>
         
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
