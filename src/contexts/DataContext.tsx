@@ -3,7 +3,7 @@
 
 import { createContext, useContext, type ReactNode } from 'react';
 import type { Task, Habit, CalendarEvent, BirthdayEntry, ReflectionEntry, DailyActivityLogEntry, FinancialTransaction, Budget, FinancialAsset, FinancialInvestment, SavingsGoal, Project, LongTermGoal, Book, SportsActivity, ActiveFast, FastingSession, KnowledgePage, ProjectTemplate, Challenge, CalorieProfile, FoodLogEntry } from '@/types';
-import { useLocalStorage } from '@/hooks/useFirestore';
+import { useFirestore } from '@/hooks/useFirestore';
 
 // Define the shape of our context data
 interface DataContextType {
@@ -99,28 +99,28 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-    const [tasks, setTasks, tasksLoading] = useLocalStorage<Task[]>('dailyTasksPlanner', []);
-    const [habits, setHabits, habitsLoading] = useLocalStorage<Habit[]>('userHabitsDeeply', []);
-    const [events, setEvents, eventsLoading] = useLocalStorage<CalendarEvent[]>('calendarEventsDeeply', []);
-    const [birthdays, setBirthdays, birthdaysLoading] = useLocalStorage<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
-    const [reflections, setReflections, reflectionsLoading] = useLocalStorage<ReflectionEntry[]>('dailyReflections', []);
-    const [logs, setLogs, logsLoading] = useLocalStorage<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
-    const [transactions, setTransactions, transactionsLoading] = useLocalStorage<FinancialTransaction[]>('financialTransactions', []);
-    const [budgets, setBudgets, budgetsLoading] = useLocalStorage<Budget[]>('financialBudgets', []);
-    const [assets, setAssets, assetsLoading] = useLocalStorage<FinancialAsset[]>('financialAssets', []);
-    const [investments, setInvestments, investmentsLoading] = useLocalStorage<FinancialInvestment[]>('financialInvestments', []);
-    const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useLocalStorage<SavingsGoal[]>('financialSavingsGoals', []);
-    const [projects, setProjects, projectsLoading] = useLocalStorage<Project[]>('allProjects', []);
-    const [longTermGoals, setLongTermGoals, longTermGoalsLoading] = useLocalStorage<LongTermGoal[]>('longTermGoals', []);
-    const [books, setBooks, booksLoading] = useLocalStorage<Book[]>('userBooksDeeply', []);
-    const [activities, setActivities, activitiesLoading] = useLocalStorage<SportsActivity[]>('sportsActivitiesDeeply', []);
-    const [activeFast, setActiveFast, activeFastLoading] = useLocalStorage<ActiveFast | null>('activeFastDeeply', null);
-    const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useLocalStorage<FastingSession[]>('fastingSessionsDeeply', []);
-    const [knowledgePages, setKnowledgePages, knowledgePagesLoading] = useLocalStorage<KnowledgePage[]>('knowledgeBasePages', []);
-    const [projectTemplates, setProjectTemplates, projectTemplatesLoading] = useLocalStorage<ProjectTemplate[]>('projectTemplates', []);
-    const [challenges, setChallenges, challengesLoading] = useLocalStorage<Challenge[]>('thirtyDayChallenges', []);
-    const [calorieProfile, setCalorieProfile, calorieProfileLoading] = useLocalStorage<CalorieProfile | null>('calorieProfileDeeply', null);
-    const [foodLog, setFoodLog, foodLogLoading] = useLocalStorage<FoodLogEntry[]>('foodLogDeeply', []);
+    const [tasks, setTasks, tasksLoading] = useFirestore<Task[]>('dailyTasksPlanner', []);
+    const [habits, setHabits, habitsLoading] = useFirestore<Habit[]>('userHabitsDeeply', []);
+    const [events, setEvents, eventsLoading] = useFirestore<CalendarEvent[]>('calendarEventsDeeply', []);
+    const [birthdays, setBirthdays, birthdaysLoading] = useFirestore<BirthdayEntry[]>('calendarBirthdaysDeeply', []);
+    const [reflections, setReflections, reflectionsLoading] = useFirestore<ReflectionEntry[]>('dailyReflections', []);
+    const [logs, setLogs, logsLoading] = useFirestore<DailyActivityLogEntry[]>('dailyActivityLogsDeeply', []);
+    const [transactions, setTransactions, transactionsLoading] = useFirestore<FinancialTransaction[]>('financialTransactions', []);
+    const [budgets, setBudgets, budgetsLoading] = useFirestore<Budget[]>('financialBudgets', []);
+    const [assets, setAssets, assetsLoading] = useFirestore<FinancialAsset[]>('financialAssets', []);
+    const [investments, setInvestments, investmentsLoading] = useFirestore<FinancialInvestment[]>('financialInvestments', []);
+    const [savingsGoals, setSavingsGoals, savingsGoalsLoading] = useFirestore<SavingsGoal[]>('financialSavingsGoals', []);
+    const [projects, setProjects, projectsLoading] = useFirestore<Project[]>('allProjects', []);
+    const [longTermGoals, setLongTermGoals, longTermGoalsLoading] = useFirestore<LongTermGoal[]>('longTermGoals', []);
+    const [books, setBooks, booksLoading] = useFirestore<Book[]>('userBooksDeeply', []);
+    const [activities, setActivities, activitiesLoading] = useFirestore<SportsActivity[]>('sportsActivitiesDeeply', []);
+    const [activeFast, setActiveFast, activeFastLoading] = useFirestore<ActiveFast | null>('activeFastDeeply', null);
+    const [fastingSessions, setFastingSessions, fastingSessionsLoading] = useFirestore<FastingSession[]>('fastingSessionsDeeply', []);
+    const [knowledgePages, setKnowledgePages, knowledgePagesLoading] = useFirestore<KnowledgePage[]>('knowledgeBasePages', []);
+    const [projectTemplates, setProjectTemplates, projectTemplatesLoading] = useFirestore<ProjectTemplate[]>('projectTemplates', []);
+    const [challenges, setChallenges, challengesLoading] = useFirestore<Challenge[]>('thirtyDayChallenges', []);
+    const [calorieProfile, setCalorieProfile, calorieProfileLoading] = useFirestore<CalorieProfile | null>('calorieProfileDeeply', null);
+    const [foodLog, setFoodLog, foodLogLoading] = useFirestore<FoodLogEntry[]>('foodLogDeeply', []);
 
 
     const value = {
